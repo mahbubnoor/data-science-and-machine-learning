@@ -21,3 +21,16 @@ pandas or scikit-learn.
   UCI Machine Learning Repository (2011).
 - `data/students.csv`: invented records made for this course.
 Other datasets are built into scikit-learn.
+
+## License
+
+Unless otherwise stated, the original teaching materials in this repository
+are licensed under the [Creative Commons Attribution 4.0 International
+License (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
+
+You are free to share and adapt the materials, including for commercial
+purposes, provided appropriate attribution is given and any modifications
+are indicated.
+
+Third-party materials remain subject to their respective copyrights and
+licenses.
