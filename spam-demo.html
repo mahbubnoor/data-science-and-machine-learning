@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spam filter demo: rules vs. learning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+:root{
+  --bg:#f6f3ec; --surface:#fffdf8; --ink:#15213a; --muted:#5d6573; --line:#e3ddd0;
+  --blue:#2459c4; --blue-soft:#e3eaf8; --orange:#e07a1f; --orange-ink:#a4520c; --orange-soft:#fbe3cc;
+  --good:#1f8a7a; --bad:#b4432a; --shade:#15213a; --on-shade:#f6f3ec;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111a2e; --surface:#1a2640; --ink:#eef0f4; --muted:#a9b2c3; --line:#2c3a58;
+    --blue:#7fa6f0; --blue-soft:#22355e; --orange:#f09a4a; --orange-ink:#f5ad69; --orange-soft:#4a3320;
+    --good:#4cc1ad; --bad:#f08a70; --shade:#eef0f4; --on-shade:#111a2e;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111a2e; --surface:#1a2640; --ink:#eef0f4; --muted:#a9b2c3; --line:#2c3a58;
+  --blue:#7fa6f0; --blue-soft:#22355e; --orange:#f09a4a; --orange-ink:#f5ad69; --orange-soft:#4a3320;
+  --good:#4cc1ad; --bad:#f08a70; --shade:#eef0f4; --on-shade:#111a2e;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3{font-family:"Space Grotesk",Inter,system-ui,sans-serif;line-height:1.15;margin:0}
+.wrap{max-width:1200px;margin:0 auto;padding:32px 24px 64px}
+header{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:end;justify-content:space-between;margin-bottom:28px}
+header h1{font-size:clamp(28px,4vw,44px);font-weight:700;max-width:22ch}
+header p{margin:6px 0 0;color:var(--muted);max-width:60ch}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+nav button{font:600 16px Inter,system-ui,sans-serif;border:2px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;border-radius:999px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--shade);color:var(--on-shade);border-color:var(--shade)}
+nav button span{display:inline-block;width:24px;height:24px;border-radius:50%;background:var(--blue-soft);color:var(--ink);text-align:center;line-height:24px;margin-right:8px;font-size:14px}
+nav button[aria-selected="true"] span{background:var(--orange);color:#15213a}
+button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.panel{display:none}
+.panel.on{display:block}
+.lede{font-size:20px;margin:0 0 20px;max-width:70ch}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:24px}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.box h2{font-size:22px;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--blue-soft);border-radius:999px;padding:6px 8px 6px 14px;font-weight:600}
+.chip button{border:0;background:transparent;color:var(--ink);font-size:18px;cursor:pointer;width:28px;height:28px;border-radius:50%}
+.chip button:hover{background:var(--line)}
+.row{display:flex;gap:8px}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+.btn{font:600 16px Inter,system-ui,sans-serif;border:0;border-radius:10px;padding:12px 18px;cursor:pointer;background:var(--shade);color:var(--on-shade);white-space:nowrap}
+.btn.alt{background:var(--blue-soft);color:var(--ink)}
+.btn.warm{background:var(--orange);color:#15213a}
+.hint{color:var(--muted);font-size:16px;margin:12px 0 0}
+.score{display:flex;align-items:baseline;gap:10px;margin:0 0 14px}
+.score b{font-family:"Space Grotesk",Inter,sans-serif;font-size:44px;line-height:1}
+.score.miss b{color:var(--bad)} .score.hit b{color:var(--good)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:14px;color:var(--muted);font-weight:600}
+td.mail{font-weight:500}
+.tag{display:inline-block;border-radius:999px;padding:2px 10px;font-size:14px;font-weight:700;white-space:nowrap}
+.tag.spam{background:var(--orange-soft);color:var(--orange-ink)}
+.tag.ham{background:var(--blue-soft);color:var(--blue)}
+.mark{font-weight:700;white-space:nowrap}
+.mark.ok{color:var(--good)} .mark.no{color:var(--bad)}
+.prob{font-size:14px;color:var(--muted);margin-left:6px}
+.pending td.model{color:var(--muted)}
+.learned{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:560px){.learned{grid-template-columns:1fr}}
+.learned h3{font-size:17px;margin-bottom:8px}
+.bar{display:grid;grid-template-columns:110px 1fr;align-items:center;gap:10px;margin:5px 0;font-weight:600;font-size:16px}
+.bar i{display:block;height:14px;border-radius:7px;transform-origin:left;transition:transform .5s ease}
+.bar.s i{background:var(--orange)} .bar.h i{background:var(--blue)}
+.versus{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:14px}
+details summary{cursor:pointer;font-weight:600;margin:14px 0 6px}
+.trainlist{max-height:260px;overflow:auto;font-size:15px;margin:0;padding-left:0;list-style:none}
+.trainlist li{padding:4px 0;border-bottom:1px dashed var(--line)}
+textarea{font-size:22px;min-height:96px;resize:vertical}
+.meter{height:22px;border-radius:11px;background:var(--blue-soft);overflow:hidden;margin:16px 0 8px}
+.meter i{display:block;height:100%;background:var(--orange);transition:width .3s ease}
+.verdict{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:20px}
+.verdict b{font-family:"Space Grotesk",Inter,sans-serif;font-size:32px}
+.xray{font-size:24px;line-height:2.1;margin:16px 0 4px}
+.xray span{padding:3px 6px;border-radius:6px;margin-right:4px}
+.xray .unk{border-bottom:2px dotted var(--muted);border-radius:0;padding:0 2px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:6px;vertical-align:-2px;background:var(--sw)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.toast{min-height:24px;color:var(--good);font-weight:600;margin-top:10px}
+.foot{margin-top:28px;color:var(--muted);font-size:15px;max-width:80ch}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Can you write rules that catch spam?</h1>
+    <p>Two ways to build a filter: write the rules yourself, or let the computer learn them from labeled examples.</p>
+  </div>
+  <nav role="tablist" aria-label="Demo steps">
+    <button role="tab" aria-selected="true" data-step="1"><span>1</span>Write rules</button>
+    <button role="tab" aria-selected="false" data-step="2"><span>2</span>Let it learn</button>
+    <button role="tab" aria-selected="false" data-step="3"><span>3</span>Try your own</button>
+  </nav>
+</header>
+
+<section class="panel on" id="p1" role="tabpanel">
+  <p class="lede">A spam email counts as caught if it contains any of your keywords. Add or remove keywords and watch the inbox.</p>
+  <div class="grid">
+    <div class="box">
+      <h2>Your rules</h2>
+      <div class="chips" id="chips"></div>
+      <form class="row" id="ruleForm" onsubmit="return false">
+        <label for="ruleInput" class="sr" hidden>New keyword</label>
+        <input type="text" id="ruleInput" placeholder="Add a keyword, e.g. fr33" autocomplete="off">
+        <button class="btn" id="addRule" type="button">Add</button>
+      </form>
+      <p class="hint">Try adding “fr33”. Then look at “W1NNER” and “free tea”. Every fix opens a new hole.</p>
+    </div>
+    <div class="box">
+      <div class="score" id="ruleScore"></div>
+      <div class="tablewrap"><table id="ruleTable"></table></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="p2" role="tabpanel">
+  <p class="lede">Now we write no rules. We give the computer 30 emails that people already labeled, and it counts which words show up in spam and which in normal mail.</p>
+  <div class="grid">
+    <div class="box">
+      <h2>What it learned</h2>
+      <button class="btn warm" id="trainBtn" type="button">Train the model</button>
+      <div id="learned" hidden>
+        <div class="learned">
+          <div><h3>Points to spam</h3><div id="spamWords"></div></div>
+          <div><h3>Points to not spam</h3><div id="hamWords"></div></div>
+        </div>
+        <p class="hint">Nobody typed these. They came from counting words in the labeled examples.</p>
+      </div>
+      <details>
+        <summary id="trainSummary">Training emails</summary>
+        <ul class="trainlist" id="trainList"></ul>
+      </details>
+    </div>
+    <div class="box">
+      <div class="versus" id="versus"></div>
+      <div class="tablewrap"><table id="modelTable"></table></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="p3" role="tabpanel">
+  <p class="lede">Type any message. Each word is colored by what the model learned about it.</p>
+  <div class="box">
+    <label for="tryInput"><b>Your message</b></label>
+    <textarea id="tryInput">Congratulations! Claim your free cash prize today</textarea>
+    <div class="xray" id="xray" aria-live="polite"></div>
+    <div class="legend">
+      <span style="--sw:var(--orange)">points to spam</span>
+      <span style="--sw:var(--blue)">points to not spam</span>
+      <span style="--sw:transparent;border-bottom:2px dotted var(--muted)">never seen in training</span>
+    </div>
+    <div class="meter" aria-hidden="true"><i id="meterFill"></i></div>
+    <div class="verdict">
+      <div>Model: <b id="verdict"></b></div>
+      <div id="ruleVerdict"></div>
+    </div>
+    <div class="actions">
+      <button class="btn warm" id="teachSpam" type="button">Teach: this is spam</button>
+      <button class="btn alt" id="teachHam" type="button">Teach: this is not spam</button>
+      <button class="btn alt" id="resetBtn" type="button">Reset training data</button>
+    </div>
+    <div class="toast" id="toast" role="status"></div>
+  </div>
+</section>
+
+<p class="foot">A toy model (Naive Bayes, the classic early spam filter) trained on 30 short emails and checked on 8. Real filters learn from far larger collections and use many more clues, and 8 test emails are far too few to judge any filter. The point here is the idea, not the score.</p>
+</div>
+
+<script>
+(function(){
+  var SPAM0=["Congratulations you are a winner claim your prize now","Free gift card click here to claim","You won a lottery send your bank details to collect","Limited offer buy now and get a huge discount","Urgent your account is blocked verify your PIN now","Earn money from home no experience needed click the link","Winner selected claim your cash reward today only","Cheap loans instant approval apply now","Your mobile wallet has a pending reward send your PIN to claim","Exclusive deal free recharge click the link now","Get rich fast guaranteed profit on this investment offer","Claim your free prize before it expires","Act now special offer on all products","You have been selected for a cash bonus click here","Verify your account now or it will be suspended"];
+  var HAM0=["Class is moved to room 305 tomorrow morning","Can you share the lecture notes from today","Mom asked if you are coming home this weekend","The assignment deadline is Sunday at midnight","Let's meet at the library to study for the quiz","Free lunch for volunteers after the department seminar","Your exam results will be published next week","Happy birthday hope you have a great day","Please bring your lab report to the next class","The cricket match starts at four are you coming","I sent the project files please check the link","Reminder club meeting today after class","Thanks for helping me with the homework","Can we reschedule our group meeting to Monday","The seminar on data science is open to all students"];
+  var TEST=[["Claim your FR33 prize now",1],["Free tea and snacks at the club meeting",0],["W1NNER! Get your cash reward, click the link",1],["Can you send me the notes for the quiz",0],["Urgent: verify your PIN to keep your account",1],["Meeting moved to Monday, room 305",0],["Free recharge offer, click here now",1],["Hope you are coming to class tomorrow",0]];
+  var RULES0=["free","winner","click here"];
+
+  var rules=RULES0.slice(), spam=SPAM0.slice(), ham=HAM0.slice(), model=null, trained=false;
+  var $=function(id){return document.getElementById(id)};
+  function esc(s){return s.replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+  function tok(s){return s.toLowerCase().match(/[a-z0-9']+/g)||[]}
+
+  // ---- rules ----
+  function ruleSays(s){var t=s.toLowerCase();for(var i=0;i<rules.length;i++){if(t.indexOf(rules[i])!==-1)return 1}return 0}
+  function tag(y){return y?'<span class="tag spam">Spam</span>':'<span class="tag ham">Not spam</span>'}
+  function mark(ok){return ok?'<span class="mark ok">✓ right</span>':'<span class="mark no">✗ wrong</span>'}
+  function scoreHtml(n,label){return '<b>'+n+' of '+TEST.length+'</b><span>'+label+'</span>'}
+  function renderRules(){
+    $("chips").innerHTML=rules.length?rules.map(function(r,i){return '<span class="chip">'+esc(r)+'<button type="button" aria-label="Remove '+esc(r)+'" data-i="'+i+'">×</button></span>'}).join(""):'<span class="hint">No rules: nothing gets caught.</span>';
+    var right=0,rows='<tr><th>Email</th><th>Actually</th><th>Rules say</th><th></th></tr>';
+    TEST.forEach(function(t){var p=ruleSays(t[0]);if(p===t[1])right++;rows+='<tr><td class="mail">'+esc(t[0])+'</td><td>'+tag(t[1])+'</td><td>'+tag(p)+'</td><td>'+mark(p===t[1])+'</td></tr>'});
+    $("ruleTable").innerHTML=rows;
+    var sc=$("ruleScore");sc.className="score "+(right===TEST.length?"hit":"miss");sc.innerHTML=scoreHtml(right,"emails sorted correctly by your rules");
+    renderVersus();renderTry();
+  }
+  $("chips").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;rules.splice(+b.dataset.i,1);renderRules()});
+  function addRule(){var v=$("ruleInput").value.trim().toLowerCase();if(v&&rules.indexOf(v)===-1)rules.push(v);$("ruleInput").value="";renderRules()}
+  $("addRule").addEventListener("click",addRule);
+  $("ruleInput").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();addRule()}});
+
+  // ---- Naive Bayes ----
+  function train(){
+    var c=[{},{}],n=[0,0],V={},size=0;
+    [[ham,0],[spam,1]].forEach(function(p){p[0].forEach(function(s){tok(s).forEach(function(w){c[p[1]][w]=(c[p[1]][w]||0)+1;n[p[1]]++;if(!V[w]){V[w]=1;size++}})})});
+    var prior=Math.log(spam.length/ham.length);
+    model={c:c,n:n,V:V,size:size,prior:prior};
+  }
+  function lr(w){var m=model;return Math.log(((m.c[1][w]||0)+1)/(m.n[1]+m.size))-Math.log(((m.c[0][w]||0)+1)/(m.n[0]+m.size))}
+  function prob(s){var t=model.prior;tok(s).forEach(function(w){if(model.V[w])t+=lr(w)});return 1/(1+Math.exp(-t))}
+  function pct(p){return Math.min(99,Math.max(1,Math.round(p*100)))}
+
+  function renderTrainList(){
+    $("trainSummary").textContent="Training emails ("+spam.length+" spam, "+ham.length+" not spam)";
+    $("trainList").innerHTML=spam.map(function(s){return '<li>'+tag(1)+' '+esc(s)+'</li>'}).join("")+ham.map(function(s){return '<li>'+tag(0)+' '+esc(s)+'</li>'}).join("");
+  }
+  function renderLearned(){
+    var words=Object.keys(model.V).filter(function(w){return (model.c[0][w]||0)+(model.c[1][w]||0)>=2}).map(function(w){return [w,lr(w)]});
+    words.sort(function(a,b){return b[1]-a[1]});
+    var top=words.filter(function(x){return x[1]>0}).slice(0,7), bot=words.filter(function(x){return x[1]<0}).slice(-7).reverse();
+    var mx=Math.max.apply(null,words.map(function(x){return Math.abs(x[1])}).concat([1]));
+    function bars(list,cls){return list.map(function(x){return '<div class="bar '+cls+'"><span>'+esc(x[0])+'</span><i style="transform:scaleX('+(Math.abs(x[1])/mx).toFixed(3)+')"></i></div>'}).join("")}
+    $("spamWords").innerHTML=bars(top,"s");$("hamWords").innerHTML=bars(bot,"h");
+  }
+  function renderModel(){
+    var rows='<tr><th>Email</th><th>Actually</th><th>Model says</th><th></th></tr>',right=0;
+    TEST.forEach(function(t){
+      if(!trained){rows+='<tr class="pending"><td class="mail">'+esc(t[0])+'</td><td>'+tag(t[1])+'</td><td class="model">not trained yet</td><td></td></tr>';return}
+      var p=prob(t[0]),y=p>=0.5?1:0;if(y===t[1])right++;
+      rows+='<tr><td class="mail">'+esc(t[0])+'</td><td>'+tag(t[1])+'</td><td>'+tag(y)+'<span class="prob">'+pct(p)+'% spam</span></td><td>'+mark(y===t[1])+'</td></tr>';
+    });
+    $("modelTable").innerHTML=rows;
+    renderVersus(right);
+  }
+  var lastModelRight=null;
+  function renderVersus(r){
+    if(typeof r==="number")lastModelRight=r;
+    var rr=TEST.filter(function(t){return ruleSays(t[0])===t[1]}).length;
+    var h='<div class="score '+(rr===TEST.length?"hit":"miss")+'">'+scoreHtml(rr,"your rules")+'</div>';
+    if(trained&&lastModelRight!==null)h+='<div class="score '+(lastModelRight===TEST.length?"hit":"miss")+'">'+scoreHtml(lastModelRight,"learned model")+'</div>';
+    else h+='<div class="score"><b>?</b><span>learned model</span></div>';
+    $("versus").innerHTML=h;
+  }
+  $("trainBtn").addEventListener("click",function(){
+    trained=true;train();$("learned").hidden=false;renderLearned();renderModel();
+    this.textContent="Retrain the model";
+  });
+
+  // ---- try your own ----
+  function renderTry(){
+    if(!model)train();
+    var s=$("tryInput").value, words=s.split(/(\s+)/);
+    var mx=2.5;
+    $("xray").innerHTML=words.map(function(chunk){
+      if(/^\s*$/.test(chunk))return "";
+      var ts=tok(chunk);if(!ts.length)return '<span>'+esc(chunk)+'</span>';
+      var known=ts.filter(function(w){return model.V[w]});
+      if(!known.length)return '<span class="unk">'+esc(chunk)+'</span>';
+      var v=0;known.forEach(function(w){v+=lr(w)});
+      var a=Math.min(1,Math.abs(v)/mx), col=v>0?"224,122,31":"36,89,196";
+      return '<span style="background:rgba('+col+','+(0.15+0.6*a).toFixed(2)+')">'+esc(chunk)+'</span>';
+    }).join("");
+    var p=s.trim()?prob(s):0.5, P=pct(p);
+    $("meterFill").style.width=P+"%";
+    $("verdict").textContent=s.trim()?(p>=0.5?"Spam":"Not spam")+", "+P+"% sure it's spam":"type something";
+    $("ruleVerdict").textContent=s.trim()?"Your rules say: "+(ruleSays(s)?"Spam":"Not spam"):"";
+  }
+  $("tryInput").addEventListener("input",renderTry);
+  function teach(y){
+    var s=$("tryInput").value.trim();if(!s)return;
+    (y?spam:ham).push(s);train();renderTrainList();if(trained){renderLearned();renderModel()}renderTry();
+    $("toast").textContent="Added as "+(y?"spam":"not spam")+". The model now learns from "+(spam.length+ham.length)+" emails.";
+  }
+  $("teachSpam").addEventListener("click",function(){teach(1)});
+  $("teachHam").addEventListener("click",function(){teach(0)});
+  $("resetBtn").addEventListener("click",function(){spam=SPAM0.slice();ham=HAM0.slice();train();renderTrainList();if(trained){renderLearned();renderModel()}renderTry();$("toast").textContent="Training data reset to the original 30 emails."});
+
+  // ---- steps ----
+  var tabs=[].slice.call(document.querySelectorAll("nav button"));
+  function go(n){tabs.forEach(function(b){b.setAttribute("aria-selected",b.dataset.step==n?"true":"false")});[1,2,3].forEach(function(i){$("p"+i).classList.toggle("on",i==n)});}
+  tabs.forEach(function(b){b.addEventListener("click",function(){go(b.dataset.step)})});
+  document.addEventListener("keydown",function(e){
+    if(/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
+    if(e.key==="1"||e.key==="2"||e.key==="3")go(e.key);
+  });
+
+  train();renderTrainList();renderRules();renderModel();renderTry();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+# Introduction to Data Science and Machine Learning: course slides
+
+Md Mahbub E Noor · University of Barishal
+
+Open **index.html** to see all lectures. Each lecture opens in the browser with
+step-by-step diagrams and embedded videos. No installation is needed, and the
+folder also works offline: download it and open `index.html` in any browser.
+
+## Publishing on GitHub Pages
+1. Create a repository (for example `intro-ds-ml`) and upload the contents of this folder
+   so that `index.html` is at the top level of the repository.
+2. In the repository: **Settings → Pages → Build and deployment → Source: Deploy from a branch**,
+   choose the `main` branch and the `/ (root)` folder, then **Save**.
+3. After a minute or two the site is live at `https://<your-username>.github.io/intro-ds-ml/`.
+
+## Navigating a lecture
+Arrow keys, Space, the ◀ ▶ buttons or swiping move through slides and step-by-step reveals.
+`F` toggles full screen. Add `#12` to a lecture's address to open slide 12 directly.
+
+## Interactive labs
+The `labs/` folder has 17 interactive labs (Lectures 2.2 to 14). Each lecture with a lab has an
+"Interactive lab" slide with an **Open the lab** button. All labs: `labs/START_HERE.html`.
+The labs need no internet and no installation; every number in them was checked against Python,
+pandas or scikit-learn.
+
+## Data
+- `data/sms.tsv`: SMS Spam Collection, T. A. Almeida and J. M. Gómez Hidalgo,
+  UCI Machine Learning Repository (2011).
+- `data/students.csv`: invented records made for this course.
+Other datasets are built into scikit-learn.
