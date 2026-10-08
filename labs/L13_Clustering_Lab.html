@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clustering Lab · Lecture 13</title>
+<style>:root{
+  --navy:#15213A; --navy2:#1E2D4D; --blue:#2459C4; --bsoft:#E3EAF8; --orange:#E07A1F; --oink:#A4520C; --osoft:#FBE3CC;
+  --teal:#1F8A7A; --tink:#17695D; --tsoft:#E3F2EF; --red:#B4432A; --rsoft:#F8E1DB; --ink:#15213A; --muted:#5D6573;
+  --panel:#F3F5F9; --line:#D5DBE6; --bg:#EEF1F6; --card:#FFFFFF; --code:#1B2742; --codefg:#E8ECF4; --hl:#FFE3B8;
+  --sans:"Segoe UI",Calibri,Carlito,"Helvetica Neue",Arial,sans-serif; --mono:Consolas,"Courier New","Liberation Mono",monospace;
+  box-sizing:border-box;
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+code,.mono{font-family:var(--mono)}
+.top{background:var(--navy);color:#fff;padding:18px 28px 16px;display:flex;gap:24px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.top .kicker{color:var(--orange);font-weight:700;letter-spacing:.12em;font-size:13px;text-transform:uppercase}
+.top h1{margin:2px 0 2px;font-size:30px;line-height:1.15;font-family:Arial,"Helvetica Neue",sans-serif}
+.top p{margin:0;color:#D9DEE8;font-size:16px}
+.top .meta{text-align:right;color:#B9C1D0;font-size:13px;line-height:1.5}
+.tabs{display:flex;gap:6px;padding:10px 28px 0;background:var(--navy);flex-wrap:wrap}
+.tabs button{background:#22335A;color:#D9DEE8;border:0;border-radius:10px 10px 0 0;padding:10px 16px;cursor:pointer;font-weight:600;font-size:15px}
+.tabs button .n{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#33477A;color:#fff;align-items:center;justify-content:center;font-size:12px;margin-right:8px}
+.tabs button[aria-selected="true"]{background:var(--bg);color:var(--ink)}
+.tabs button[aria-selected="true"] .n{background:var(--orange)}
+.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+main{max-width:1320px;margin:0 auto;padding:20px 28px 40px}
+.exp{display:none}.exp.on{display:block}
+.exp-head h2{margin:0 0 4px;font-size:24px;font-family:Arial,"Helvetica Neue",sans-serif}
+.exp-head p{margin:0 0 16px;color:var(--muted);max-width:90ch}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:18px;align-items:start}
+.grid.even{grid-template-columns:1fr 1fr}
+.grid.wide-right{grid-template-columns:minmax(0,4fr) minmax(0,7fr)}
+@media (max-width:900px){.grid,.grid.even,.grid.wide-right{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.panel h3{margin:0 0 10px;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:0;border-radius:9px;padding:9px 16px;cursor:pointer;font-weight:700;background:var(--navy);color:#fff}
+.btn.alt{background:var(--bsoft);color:var(--ink)}.btn.warm{background:var(--orange);color:var(--navy)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:6px 12px;font-size:14px}
+select,input[type=text],input[type=number],textarea{border:2px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff}
+input[type=number]{width:92px}
+input[type=range]{width:100%;accent-color:var(--orange)}
+label.lab{font-weight:700;font-size:14px;color:var(--muted)}
+.code{background:var(--code);color:var(--codefg);border-radius:12px;padding:12px 0;font-family:var(--mono);font-size:17px;overflow:auto}
+.code .ln{display:flex;padding:1px 14px 1px 0;white-space:pre;min-height:1.5em;border-left:5px solid transparent}
+.code .ln .no{width:38px;text-align:right;padding-right:12px;color:#7F8BA6;flex:none;user-select:none}
+.code .ln.cur{background:rgba(224,122,31,.28);border-left-color:var(--orange)}
+.code .ln.done{color:#B9C3D8}
+.code .ln.skip{color:#6E7891;text-decoration:line-through;text-decoration-color:#6E7891}
+.code .ln.err{background:rgba(180,67,42,.45);border-left-color:#F08A70}
+.code .kw{color:#F5AD69}.code .st{color:#A8D8A8}.code .nu{color:#9FC1E6}.code .cm{color:#7F8BA6;font-style:italic}.code .fn{color:#E8C27A}
+textarea.editor{width:100%;min-height:210px;font-family:var(--mono);font-size:17px;line-height:1.5;background:var(--code);color:var(--codefg);border:2px solid var(--code);border-radius:12px;padding:12px 14px;resize:vertical;tab-size:4}
+.out{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-family:var(--mono);font-size:16px;min-height:52px;white-space:pre-wrap;word-break:break-word}
+.out .e{color:var(--red);font-weight:700}.out .hint{color:var(--oink)}
+.out .label{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--muted);display:block;margin-bottom:2px}
+.status{border-left:6px solid var(--blue);background:var(--bsoft);padding:9px 14px;border-radius:0 10px 10px 0;margin:12px 0;min-height:46px}
+.status.bad{border-left-color:var(--red);background:var(--rsoft)}.status.good{border-left-color:var(--teal);background:var(--tsoft)}
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+@media (max-width:900px){.notes{grid-template-columns:1fr}}
+.notice{background:var(--osoft);border-radius:14px;padding:14px 18px}
+.notice h4,.try h4{margin:0 0 6px;font-size:16px}
+.notice ul{margin:0;padding-left:20px}
+.try{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.try label{display:flex;gap:10px;align-items:flex-start;margin:6px 0;cursor:pointer}
+.try input{margin-top:5px;accent-color:var(--teal);width:18px;height:18px;flex:none}
+.try label.done span{color:var(--muted);text-decoration:line-through}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 11px;font-size:13px;font-weight:700;background:var(--panel);border:1px solid var(--line);white-space:nowrap}
+.chip.t{background:var(--tsoft);color:var(--tink);border-color:#B9DCD5}.chip.f{background:var(--rsoft);color:var(--red);border-color:#EBC2B8}.chip.n{color:var(--muted)}
+.chip.int{background:var(--bsoft);color:var(--blue);border-color:#C3D2EF}.chip.float{background:#EDE3F7;color:#6B3FA0;border-color:#D7C5EC}.chip.str{background:var(--tsoft);color:var(--tink);border-color:#B9DCD5}.chip.bool{background:var(--osoft);color:var(--oink);border-color:#F1CDA9}.chip.list,.chip.tuple,.chip.NoneType{background:var(--panel);color:var(--muted)}
+table.t{border-collapse:collapse;width:100%;font-size:16px}
+table.t th{background:var(--navy);color:#fff;text-align:left;padding:7px 10px;font-size:14px}
+table.t td{border-bottom:1px solid var(--line);padding:7px 10px;vertical-align:middle}
+table.t tr.hi td{background:var(--hl)}
+table.t td.m{font-family:var(--mono)}
+.muted{color:var(--muted)}.small{font-size:14px}
+.big{font-size:34px;font-weight:700;font-family:Arial,sans-serif}
+.foot{max-width:1320px;margin:0 auto;padding:0 28px 30px;color:var(--muted);font-size:13px}
+@keyframes flash{0%{background:var(--hl)}100%{background:transparent}}
+.flash{animation:flash 1.2s ease-out}
+@media (prefers-reduced-motion:reduce){.flash{animation:none}*{transition:none!important}}
+[hidden]{display:none!important}
+</style></head><body>
+<header class="top"><div><div class="kicker">Lecture 13 · Interactive lab</div><h1>Clustering Lab</h1><p>Run k-means by hand, watch it in two dimensions, choose k with the elbow, and find where it fails</p></div>
+<div class="meta">Introduction to Data Science and Machine Learning<br>Md Mahbub E Noor · University of Barishal<br><a href="START_HERE.html" style="color:#F5AD69">All labs</a></div></header>
+<nav class="tabs" role="tablist"><button role="tab" data-tab="t1"><span class="n">1</span>k-means by hand</button><button role="tab" data-tab="t2"><span class="n">2</span>Watch k-means</button><button role="tab" data-tab="t3"><span class="n">3</span>Choose k</button><button role="tab" data-tab="t4"><span class="n">4</span>Limits of k-means</button></nav>
+<main><section class="exp" id="t1">
+  <div class="exp-head"><h2>k-means by hand, one step at a time</h2>
+  <p>Slide 5: points 1, 2, 3, 10, 11, 12 with k = 2 and a poor start at 1 and 2. Predict each step, then press the button. Change the numbers to try your own example.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <div class="row"><label class="lab" style="width:90px" for="h-pts">Points</label><input id="h-pts" class="mono" value="1, 2, 3, 10, 11, 12" style="flex:1;min-width:160px"></div>
+      <div class="row" style="margin-top:8px"><label class="lab" style="width:90px" for="h-c">Start centres</label><input id="h-c" class="mono" value="1, 2" style="flex:1;min-width:160px"></div>
+      <div class="row" style="margin-top:12px"><button class="btn" id="h-step">Assign each point</button><button class="btn alt" id="h-reset">Start again</button></div>
+      <div class="status" id="h-status"></div>
+      <svg id="h-svg" width="100%" role="img" aria-label="Points on a number line with the centres" style="margin-top:6px"></svg>
+    </div>
+    <div class="panel"><h3>Rounds so far</h3><table class="t" id="h-table"></table>
+      <div class="small muted" style="margin-top:8px">Each round has two steps: <b>assign</b> every point to its nearest centre, then <b>move</b> each centre to the mean of its points. Stop when nothing changes.</div></div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>A poor start still ends well here, but it needs more rounds.</li>
+      <li>The centres are means, so they can sit where no point is (7.6).</li>
+      <li>k-means always stops: each step can only lower the total squared distance.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Start the centres at 1 and 12. How many rounds now?</span></label>
+      <label><input type="checkbox"><span>Homework 13.1: do it on paper first, then check each round here.</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t2">
+  <div class="exp-head"><h2>Watch k-means find groups</h2>
+  <p>The 200 unlabelled points from slide 3. Pick k, choose a start (random, or click the plot to move the nearest centre), then step through assign and move.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <div class="row"><label class="lab" for="w-k">k</label><select id="w-k"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select>
+        <button class="btn alt sm" id="w-rand">New random start</button><button class="btn alt sm" id="w-bad">A bad start</button></div>
+      <div class="row" style="margin-top:12px"><button class="btn" id="w-step">Assign</button><button class="btn warm" id="w-run">Run to the end</button></div>
+      <div class="row" style="margin-top:12px;gap:22px">
+        <div><div class="small muted">round</div><div class="big" id="w-round">0</div></div>
+        <div><div class="small muted">inertia (total squared distance)</div><div class="big" id="w-in">–</div></div>
+      </div>
+      <div class="status" id="w-status"></div>
+      <div class="small muted" style="margin-top:8px" id="w-hist"></div>
+    </div>
+    <div class="panel"><svg id="w-svg" width="100%" role="img" aria-label="Points coloured by cluster with the centres and their paths" style="cursor:crosshair"></svg>
+      <div class="small muted">Crosses: centres. Thin lines: the path each centre has travelled. Click the plot to move the nearest centre there (before or between steps).</div></div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>Inertia falls at every step and stops falling when nothing changes.</li>
+      <li>"A bad start" ends in a poor answer: two centres share one group and one centre covers two. k-means only finds a local best.</li>
+      <li>That is why scikit-learn runs <code>n_init=10</code> starts and keeps the one with the lowest inertia.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Press "New random start" and "Run to the end" five times. Do you always get the same inertia?</span></label>
+      <label><input type="checkbox"><span>Set k = 2. Which two groups get merged?</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t3">
+  <div class="exp-head"><h2>Choose k: the elbow</h2>
+  <p>scikit-learn's result for each k (n_init=10, random_state=0). Inertia always falls as k grows; look for the bend.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <div class="row"><label class="lab" style="width:70px" for="e-k">k = <b id="e-k-v"></b></label><input type="range" id="e-k" min="1" max="8" value="3" style="flex:1"></div>
+      <svg id="e-svg" width="100%" role="img" aria-label="Points coloured by the clusters for this k"></svg>
+    </div>
+    <div class="panel">
+      <svg id="e-curve" width="100%" role="img" aria-label="Inertia against k"></svg>
+      <div class="status" id="e-status"></div>
+      <h3 style="margin-top:12px">Slide 7 in Python</h3>
+      <div class="code" id="e-code" style="font-size:13.5px"></div>
+      <div class="out" id="e-out" style="margin-top:8px"></div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:16px"><h3>Why n_init=10? Ten single random starts</h3>
+    <div class="row"><label class="lab" for="n-k">k</label><select id="n-k"><option>3</option><option>5</option></select></div>
+    <svg id="n-svg" width="100%" role="img" aria-label="Inertia of ten single random starts"></svg>
+    <div class="small muted" id="n-note"></div></div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>From k = 1 to 3 inertia drops steeply; after 3 it hardly moves. The bend says 3.</li>
+      <li>With more clusters than real groups, k-means still splits the data. It never says "there is no group here".</li>
+      <li>Some single starts stop at a much worse answer. Ten starts make that unlikely.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>At k = 4, which real group gets split in two?</span></label>
+      <label><input type="checkbox"><span>Homework 13.2: draw the elbow for blobs with 4 centres. Does the bend appear at 4?</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t4">
+  <div class="exp-head"><h2>Limits of k-means</h2>
+  <p>Five invented data sets where we know the true groups. Compare the groups k-means finds with the true ones.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <div class="row"><label class="lab" for="l-d">Data</label><select id="l-d">
+        <option value="moons">curved groups (two moons)</option><option value="stretched">stretched groups</option><option value="uneven">one big group, two small</option>
+        <option value="units">different units, not scaled</option><option value="units_scaled">different units, scaled first</option></select></div>
+      <div class="row" style="margin-top:8px"><label class="small"><input type="radio" name="l-c" value="km" checked> colour by k-means</label><label class="small"><input type="radio" name="l-c" value="truth"> colour by true group</label></div>
+      <svg id="l-svg" width="100%" role="img" aria-label="Invented data coloured by k-means or by the true groups"></svg>
+    </div>
+    <div class="panel">
+      <div class="row" style="gap:22px"><div><div class="small muted">points put in the right group</div><div class="big" id="l-acc"></div></div></div>
+      <div class="status" id="l-status"></div>
+      <h3 style="margin-top:14px">Iris without labels (slide 10)</h3>
+      <div class="out" id="l-iris"></div>
+      <svg id="l-isvg" width="100%" role="img" aria-label="Iris petals coloured by cluster"></svg>
+    </div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>k-means draws straight borders halfway between centres, so it likes round groups of similar size.</li>
+      <li>Curved, stretched or very uneven groups are cut in the wrong places.</li>
+      <li>Distances mix units. Scale first, exactly as for k-NN in Lecture 12.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Compare "not scaled" with "scaled first". Which feature decides the groups when you do not scale?</span></label>
+      <label><input type="checkbox"><span>In the iris plot, find the flowers k-means put in the wrong group.</span></label>
+    </div>
+  </div>
+</section>
+</main>
+<p class="foot">Works offline: no internet needed. The data and the trained models are built into this page. Every number was calculated with scikit-learn and checked, so it matches what you will see in Jupyter or Colab.</p>
+<script>/* minipy: a small, faithful subset of Python 3 for teaching labs.
+   Values: int (BigInt), float, bool, str, NoneType, list, tuple, dict, builtin, module, function (hook).
+   Statements: assignment, augmented assignment, tuple unpacking, expression statements.
+   Errors mirror CPython 3.12 messages. */
+var MiniPy = (function () {
+  "use strict";
+  function PyError(type, msg) { this.type = type; this.msg = msg; }
+  PyError.prototype.toString = function () { return this.type + (this.msg ? ": " + this.msg : ""); };
+
+  var NONE = { t: "NoneType" };
+  function I(n) { return { t: "int", v: BigInt(n) }; }
+  function F(x) { return { t: "float", v: x }; }
+  function B(b) { return { t: "bool", v: !!b }; }
+  function S(s) { return { t: "str", v: s }; }
+  function L(a) { return { t: "list", v: a }; }
+  function T(a) { return { t: "tuple", v: a }; }
+  function D() { return { t: "dict", m: new Map() }; }
+  function hashKey(v) {
+    switch (v.t) {
+      case "int": return "n:" + v.v.toString();
+      case "bool": return "n:" + (v.v ? "1" : "0");
+      case "float": return Number.isInteger(v.v) ? "n:" + BigInt(v.v).toString() : "f:" + v.v;
+      case "str": return "s:" + v.v;
+      case "NoneType": return "N";
+      case "tuple": return "t:(" + v.v.map(hashKey).join(",") + ")";
+    }
+    if (v.t === "list" || v.t === "dict") throw new PyError("TypeError", "unhashable type: '" + v.t + "'");
+    return "o:" + objId(v);
+  }
+  var ids = new WeakMap(), idNext = 0;
+  function objId(v) { if (!ids.has(v)) ids.set(v, 140601564316704 + 48 * (idNext++)); return ids.get(v); }
+  function dget(d, k) { var e = d.m.get(hashKey(k)); return e ? e[1] : undefined; }
+  function dset(d, k, v) { var h = hashKey(k), e = d.m.get(h); if (e) e[1] = v; else d.m.set(h, [k, v]); }
+  function dkeys(d) { return Array.from(d.m.values()).map(function (e) { return e[0]; }); }
+  function dvals(d) { return Array.from(d.m.values()).map(function (e) { return e[1]; }); }
+  function ditems(d) { return Array.from(d.m.values()).map(function (e) { return T([e[0], e[1]]); }); }
+
+  /* ---------- repr / str ---------- */
+  function floatRepr(x) {
+    if (x !== x) return "nan";
+    if (x === Infinity) return "inf";
+    if (x === -Infinity) return "-inf";
+    if (x === 0) return (1 / x < 0) ? "-0.0" : "0.0";
+    var e = x.toExponential(); // shortest round-trip digits
+    var m = e.split("e"), mant = m[0], exp = parseInt(m[1], 10);
+    var neg = mant[0] === "-"; if (neg) mant = mant.slice(1);
+    var digits = mant.replace(".", "");
+    var out;
+    if (exp >= -4 && exp < 16) {
+      if (exp >= 0) {
+        if (digits.length <= exp + 1) out = digits + "0".repeat(exp + 1 - digits.length) + ".0";
+        else out = digits.slice(0, exp + 1) + "." + digits.slice(exp + 1);
+      } else out = "0." + "0".repeat(-exp - 1) + digits;
+    } else {
+      var mm = digits.length > 1 ? digits[0] + "." + digits.slice(1) : digits;
+      var es = Math.abs(exp) < 10 ? "0" + Math.abs(exp) : String(Math.abs(exp));
+      out = mm + "e" + (exp < 0 ? "-" : "+") + es;
+    }
+    return (neg ? "-" : "") + out;
+  }
+  function strRepr(s) {
+    var q = (s.indexOf("'") >= 0 && s.indexOf('"') < 0) ? '"' : "'";
+    var body = s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/\t/g, "\\t");
+    if (q === "'") body = body.replace(/'/g, "\\'");
+    return q + body + q;
+  }
+  function repr(v) {
+    switch (v.t) {
+      case "int": return v.v.toString();
+      case "float": return floatRepr(v.v);
+      case "bool": return v.v ? "True" : "False";
+      case "str": return strRepr(v.v);
+      case "NoneType": return "None";
+      case "list": return "[" + v.v.map(repr).join(", ") + "]";
+      case "tuple": return v.v.length === 1 ? "(" + repr(v.v[0]) + ",)" : "(" + v.v.map(repr).join(", ") + ")";
+      case "type": return "<class '" + v.v + "'>";
+      case "builtin": return "<built-in function " + v.name.replace(/^math\./, "") + ">";
+      case "dict": return "{" + Array.from(v.m.values()).map(function (e) { return repr(e[0]) + ": " + repr(e[1]); }).join(", ") + "}";
+      case "dict_keys": case "dict_values": case "dict_items": return v.t + "([" + v.v.map(repr).join(", ") + "])";
+      case "function": return "<function " + v.name + " at 0x" + objId(v).toString(16) + ">";
+      case "module": return "<module '" + v.name + "' (built-in)>";
+      case "boundmethod": return "<built-in method " + v.name + " of " + typeName(v.obj) + " object>";
+    }
+    return "?";
+  }
+  function str(v) { return v.t === "str" ? v.v : repr(v); }
+  function typeName(v) { return v.t === "builtin" || v.t === "boundmethod" ? "builtin_function_or_method" : v.t; }
+
+  /* ---------- tokenizer ---------- */
+  var KW = { and: 1, or: 1, not: 1, "in": 1, is: 1, None: 1, True: 1, False: 1, "if": 1, "else": 1, elif: 1, "for": 1, "while": 1, def: 1, "return": 1, lambda: 1, "import": 1, from: 1, "class": 1, pass: 1, "break": 1, "continue": 1 };
+  var OPS = ["**=", "//=", "**", "//", "==", "!=", "<=", ">=", "+=", "-=", "*=", "/=", "%=", "+", "-", "*", "/", "%", "<", ">", "=", "(", ")", "[", "]", "{", "}", ",", ":", "."];
+  function tokenize(src) {
+    var toks = [], i = 0, n = src.length;
+    while (i < n) {
+      var c = src[i];
+      if (c === " " || c === "\t") { i++; continue; }
+      if (c === "#") break;
+      var start = i;
+      if (/[0-9]/.test(c) || (c === "." && /[0-9]/.test(src[i + 1] || ""))) {
+        var m = /^(\d[\d_]*\.?[\d_]*([eE][+-]?\d+)?|\.\d[\d_]*([eE][+-]?\d+)?)/.exec(src.slice(i));
+        var txt = m[0].replace(/_/g, "");
+        var isF = /[.eE]/.test(txt);
+        toks.push({ k: "num", v: isF ? F(parseFloat(txt)) : I(txt), p: start });
+        i += m[0].length;
+        if (/[A-Za-z_]/.test(src[i] || "")) throw new PyError("SyntaxError", "invalid decimal literal");
+        continue;
+      }
+      var fpre = /^([fFrRbB]{0,2})(['"])/.exec(src.slice(i));
+      if (fpre && (fpre[1] === "" || /^[fFrR]{1,2}$/.test(fpre[1])) && (fpre[1] !== "" || c === "'" || c === '"')) {
+        var pref = fpre[1].toLowerCase(), q = fpre[2];
+        i += fpre[0].length;
+        var s = "", closed = false;
+        while (i < n) {
+          var ch = src[i];
+          if (ch === "\\" && pref.indexOf("r") < 0) {
+            var nx = src[i + 1]; var map = { n: "\n", t: "\t", "\\": "\\", "'": "'", '"': '"' };
+            s += (nx in map) ? map[nx] : "\\" + nx; i += 2; continue;
+          }
+          if (ch === q) { closed = true; i++; break; }
+          s += ch; i++;
+        }
+        if (!closed) throw new PyError("SyntaxError", "unterminated string literal (detected at line 1)");
+        toks.push({ k: pref.indexOf("f") >= 0 ? "fstr" : "str", v: s, p: start });
+        continue;
+      }
+      if (/[A-Za-z_]/.test(c)) {
+        var mm = /^[A-Za-z_]\w*/.exec(src.slice(i))[0];
+        toks.push({ k: KW[mm] ? "kw" : "name", v: mm, p: start }); i += mm.length; continue;
+      }
+      var op = null;
+      for (var j = 0; j < OPS.length; j++) if (src.substr(i, OPS[j].length) === OPS[j]) { op = OPS[j]; break; }
+      if (!op) {
+        if (c === "!") throw new PyError("SyntaxError", "invalid syntax");
+        throw new PyError("SyntaxError", "invalid character '" + c + "'");
+      }
+      toks.push({ k: "op", v: op, p: start }); i += op.length;
+    }
+    toks.push({ k: "end", v: "", p: n });
+    return toks;
+  }
+
+  /* ---------- parser (Pratt) ---------- */
+  function Parser(toks) { this.t = toks; this.i = 0; }
+  Parser.prototype.peek = function () { return this.t[this.i]; };
+  Parser.prototype.next = function () { return this.t[this.i++]; };
+  Parser.prototype.is = function (k, v) { var t = this.t[this.i]; return t.k === k && (v === undefined || t.v === v); };
+  Parser.prototype.eat = function (k, v) { if (this.is(k, v)) return this.next(); return null; };
+  Parser.prototype.expect = function (k, v) {
+    var t = this.peek();
+    if (t.k === k && (v === undefined || t.v === v)) return this.next();
+    if (v === ")" || v === "]") throw new PyError("SyntaxError", t.k === "end" ? "'" + (v === ")" ? "(" : "[") + "' was never closed" : "invalid syntax");
+    throw new PyError("SyntaxError", "invalid syntax");
+  };
+  Parser.prototype.exprList = function () { // for tuple without parens
+    var first = this.expr();
+    if (!this.is("op", ",")) return first;
+    var items = [first];
+    while (this.eat("op", ",")) { if (this.is("end") || this.is("op", "=") || this.is("op", ")")) break; items.push(this.expr()); }
+    return { n: "tuple", items: items };
+  };
+  Parser.prototype.expr = function () { return this.ternary(); };
+  Parser.prototype.ternary = function () {
+    var body = this.or();
+    if (this.eat("kw", "if")) { var cond = this.or(); this.expect("kw", "else"); var other = this.ternary(); return { n: "ifexp", cond: cond, a: body, b: other }; }
+    return body;
+  };
+  Parser.prototype.or = function () { var l = this.and(); while (this.eat("kw", "or")) l = { n: "bool", op: "or", l: l, r: this.and() }; return l; };
+  Parser.prototype.and = function () { var l = this.not(); while (this.eat("kw", "and")) l = { n: "bool", op: "and", l: l, r: this.not() }; return l; };
+  Parser.prototype.not = function () { if (this.eat("kw", "not")) return { n: "not", e: this.not() }; return this.cmp(); };
+  Parser.prototype.cmp = function () {
+    var first = this.arith(), ops = [], rest = [];
+    for (;;) {
+      var t = this.peek(), op = null;
+      if (t.k === "op" && ["<", ">", "==", "!=", "<=", ">="].indexOf(t.v) >= 0) { this.next(); op = t.v; }
+      else if (this.is("kw", "in")) { this.next(); op = "in"; }
+      else if (this.is("kw", "not") && this.t[this.i + 1].k === "kw" && this.t[this.i + 1].v === "in") { this.i += 2; op = "not in"; }
+      else if (this.is("kw", "is")) { this.next(); op = this.eat("kw", "not") ? "is not" : "is"; }
+      if (!op) break;
+      ops.push(op); rest.push(this.arith());
+    }
+    return ops.length ? { n: "cmp", first: first, ops: ops, rest: rest } : first;
+  };
+  Parser.prototype.arith = function () {
+    var l = this.term();
+    while (this.is("op", "+") || this.is("op", "-")) { var op = this.next().v; l = { n: "bin", op: op, l: l, r: this.term() }; }
+    return l;
+  };
+  Parser.prototype.term = function () {
+    var l = this.unary();
+    while (this.is("op", "*") || this.is("op", "/") || this.is("op", "//") || this.is("op", "%")) { var op = this.next().v; l = { n: "bin", op: op, l: l, r: this.unary() }; }
+    return l;
+  };
+  Parser.prototype.unary = function () {
+    if (this.is("op", "-") || this.is("op", "+")) { var op = this.next().v; return { n: "unary", op: op, e: this.unary() }; }
+    return this.power();
+  };
+  Parser.prototype.power = function () {
+    var b = this.postfix();
+    if (this.eat("op", "**")) return { n: "bin", op: "**", l: b, r: this.unary() };
+    return b;
+  };
+  Parser.prototype.postfix = function () {
+    var e = this.atom();
+    for (;;) {
+      if (this.eat("op", "(")) {
+        var args = [], kws = [];
+        if (!this.is("op", ")")) { do {
+          if (this.is("op", ")")) break;
+          if (this.is("name") && this.t[this.i + 1].k === "op" && this.t[this.i + 1].v === "=") { var kn = this.next().v; this.next(); kws.push([kn, this.expr()]); }
+          else { if (kws.length) throw new PyError("SyntaxError", "positional argument follows keyword argument"); args.push(this.expr()); }
+        } while (this.eat("op", ",")); }
+        this.expect("op", ")"); e = { n: "call", f: e, args: args, kws: kws };
+      } else if (this.eat("op", "[")) {
+        var a = null, b = null, isSlice = false;
+        if (!this.is("op", ":")) a = this.expr();
+        var c = null;
+        if (this.eat("op", ":")) { isSlice = true; if (!this.is("op", "]") && !this.is("op", ":")) b = this.expr(); if (this.eat("op", ":")) { if (!this.is("op", "]")) c = this.expr(); } }
+        this.expect("op", "]");
+        e = isSlice ? { n: "slice", o: e, a: a, b: b, c: c } : { n: "index", o: e, i: a };
+      } else if (this.eat("op", ".")) {
+        var nm = this.next(); if (nm.k !== "name") throw new PyError("SyntaxError", "invalid syntax");
+        e = { n: "attr", o: e, name: nm.v };
+      } else break;
+    }
+    return e;
+  };
+  Parser.prototype.atom = function () {
+    var t = this.next();
+    if (t.k === "num") return { n: "const", v: t.v };
+    if (t.k === "str") { var s = t.v; while (this.is("str")) s += this.next().v; return { n: "const", v: S(s) }; }
+    if (t.k === "fstr") return { n: "fstr", parts: parseF(t.v) };
+    if (t.k === "name") return { n: "name", id: t.v, p: t.p };
+    if (t.k === "kw" && t.v === "None") return { n: "const", v: NONE };
+    if (t.k === "kw" && t.v === "True") return { n: "const", v: B(true) };
+    if (t.k === "kw" && t.v === "False") return { n: "const", v: B(false) };
+    if (t.k === "op" && t.v === "(") {
+      if (this.eat("op", ")")) return { n: "tuple", items: [] };
+      var e = this.expr();
+      if (this.is("op", ",")) { var items = [e]; while (this.eat("op", ",")) { if (this.is("op", ")")) break; items.push(this.expr()); } this.expect("op", ")"); return { n: "tuple", items: items }; }
+      this.expect("op", ")"); return e;
+    }
+    if (t.k === "op" && t.v === "[") {
+      var its = [];
+      if (!this.is("op", "]")) { do { if (this.is("op", "]")) break; its.push(this.expr()); } while (this.eat("op", ",")); }
+      this.expect("op", "]"); return { n: "list", items: its };
+    }
+    if (t.k === "op" && t.v === "{") {
+      var pairs = [];
+      if (!this.is("op", "}")) { do {
+        if (this.is("op", "}")) break;
+        var kk = this.expr();
+        if (!this.eat("op", ":")) throw new PyError("NotSupported", "Sets are not part of this lab. A dictionary needs key: value pairs.");
+        pairs.push([kk, this.expr()]);
+      } while (this.eat("op", ",")); }
+      this.expect("op", "}"); return { n: "dict", items: pairs };
+    }
+    if (t.k === "end") throw new PyError("SyntaxError", "invalid syntax");
+    throw new PyError("SyntaxError", "invalid syntax");
+  };
+  function parseF(s) {
+    var parts = [], i = 0, lit = "";
+    while (i < s.length) {
+      if (s[i] === "{" && s[i + 1] === "{") { lit += "{"; i += 2; continue; }
+      if (s[i] === "}" && s[i + 1] === "}") { lit += "}"; i += 2; continue; }
+      if (s[i] === "{") {
+        if (lit) { parts.push({ lit: lit }); lit = ""; }
+        var depth = 1, j = i + 1, inner = "";
+        while (j < s.length && depth) { if (s[j] === "{") depth++; if (s[j] === "}") depth--; if (depth) inner += s[j]; j++; }
+        if (depth) throw new PyError("SyntaxError", "f-string: expecting '}'");
+        var spec = null, colon = -1, d2 = 0;
+        for (var k = 0; k < inner.length; k++) { var ch = inner[k]; if ("([{".indexOf(ch) >= 0) d2++; if (")]}".indexOf(ch) >= 0) d2--; if (ch === ":" && d2 === 0) { colon = k; break; } }
+        var src = inner; if (colon >= 0) { src = inner.slice(0, colon); spec = inner.slice(colon + 1); }
+        if (!src.trim()) throw new PyError("SyntaxError", "f-string: valid expression required before '}'");
+        var p = new Parser(tokenize(src)); var node = p.expr(); if (!p.is("end")) throw new PyError("SyntaxError", "f-string: invalid syntax");
+        parts.push({ node: node, spec: spec, src: src.trim() });
+        i = j; continue;
+      }
+      if (s[i] === "}") throw new PyError("SyntaxError", "f-string: single '}' is not allowed");
+      lit += s[i]; i++;
+    }
+    if (lit) parts.push({ lit: lit });
+    return parts;
+  }
+
+  /* ---------- numeric helpers ---------- */
+  function isNum(v) { return v.t === "int" || v.t === "float" || v.t === "bool"; }
+  function toF(v) { return v.t === "float" ? v.v : v.t === "bool" ? (v.v ? 1 : 0) : Number(v.v); }
+  function toBI(v) { return v.t === "bool" ? BigInt(v.v ? 1 : 0) : v.v; }
+  function truthy(v) {
+    switch (v.t) {
+      case "int": return v.v !== 0n; case "float": return v.v !== 0; case "bool": return v.v; case "str": case "list": case "tuple": case "dict_keys": case "dict_values": case "dict_items": return v.v.length > 0;
+      case "dict": return v.m.size > 0;
+      case "NoneType": return false;
+    }
+    return true;
+  }
+  function floorDivBI(a, b) { var q = a / b; if ((a % b !== 0n) && ((a < 0n) !== (b < 0n))) q -= 1n; return q; }
+  function modBI(a, b) { var r = a % b; if (r !== 0n && ((r < 0n) !== (b < 0n))) r += b; return r; }
+  function fmod(a, b) { var r = a - b * Math.floor(a / b); if (r === 0 && b < 0) return -0; return r; }
+  var OPNAME = { "+": "+", "-": "-", "*": "*", "/": "/", "//": "//", "%": "%", "**": "** or pow()" };
+  function unsupported(op, a, b) { return new PyError("TypeError", "unsupported operand type(s) for " + OPNAME[op] + ": '" + typeName(a) + "' and '" + typeName(b) + "'"); }
+  function binop(op, a, b) {
+    if (isNum(a) && isNum(b)) {
+      var intOp = (a.t !== "float" && b.t !== "float");
+      if (intOp) {
+        var x = toBI(a), y = toBI(b);
+        switch (op) {
+          case "+": return I(x + y); case "-": return I(x - y); case "*": return I(x * y);
+          case "/": if (y === 0n) throw new PyError("ZeroDivisionError", "division by zero"); return F(Number(x) / Number(y));
+          case "//": if (y === 0n) throw new PyError("ZeroDivisionError", "integer division or modulo by zero"); return I(floorDivBI(x, y));
+          case "%": if (y === 0n) throw new PyError("ZeroDivisionError", "integer modulo by zero"); return I(modBI(x, y));
+          case "**":
+            if (y < 0n) { if (x === 0n) throw new PyError("ZeroDivisionError", "0.0 cannot be raised to a negative power"); return F(Math.pow(Number(x), Number(y))); }
+            if (y > 4000n) throw new PyError("OverflowError", "result too large for this lab");
+            return I(x ** y);
+        }
+      } else {
+        var p = toF(a), q = toF(b);
+        switch (op) {
+          case "+": return F(p + q); case "-": return F(p - q); case "*": return F(p * q);
+          case "/": if (q === 0) throw new PyError("ZeroDivisionError", "float division by zero"); return F(p / q);
+          case "//": if (q === 0) throw new PyError("ZeroDivisionError", "float floor division by zero"); return F(Math.floor(p / q));
+          case "%": if (q === 0) throw new PyError("ZeroDivisionError", "float modulo by zero"); return F(fmod(p, q));
+          case "**":
+            if (p === 0 && q < 0) throw new PyError("ZeroDivisionError", "zero to a negative power");
+            var r = Math.pow(p, q); if (r !== r && p < 0) throw new PyError("ValueError", "complex results are not supported in this lab"); if (!isFinite(r)) throw new PyError("OverflowError", "(34, 'Numerical result out of range')"); return F(r);
+        }
+      }
+    }
+    if (op === "+") {
+      if (a.t === "str") { if (b.t !== "str") throw new PyError("TypeError", 'can only concatenate str (not "' + typeName(b) + '") to str'); return S(a.v + b.v); }
+      if (a.t === "list") { if (b.t !== "list") throw new PyError("TypeError", 'can only concatenate list (not "' + typeName(b) + '") to list'); return L(a.v.concat(b.v)); }
+      if (a.t === "tuple" && b.t === "tuple") return T(a.v.concat(b.v));
+    }
+    if (op === "*") {
+      var seq = null, cnt = null;
+      if ((a.t === "str" || a.t === "list" || a.t === "tuple") && (b.t === "int" || b.t === "bool")) { seq = a; cnt = b; }
+      else if ((b.t === "str" || b.t === "list" || b.t === "tuple") && (a.t === "int" || a.t === "bool")) { seq = b; cnt = a; }
+      if (seq) {
+        var k = Number(toBI(cnt)); if (k < 0) k = 0;
+        if (seq.v.length * k > 100000) throw new PyError("MemoryError", "too large for this lab");
+        if (seq.t === "str") return S(seq.v.repeat(k));
+        var out = []; for (var z = 0; z < k; z++) out = out.concat(seq.v);
+        return seq.t === "list" ? L(out) : T(out);
+      }
+      if ((a.t === "str" || a.t === "list") && (b.t === "str" || b.t === "list" || b.t === "float")) throw new PyError("TypeError", "can't multiply sequence by non-int of type '" + typeName(b) + "'");
+      if ((b.t === "str" || b.t === "list") && a.t === "float") throw new PyError("TypeError", "can't multiply sequence by non-int of type '" + typeName(a) + "'");
+    }
+    if (op === "%" && a.t === "str") throw new PyError("TypeError", "this lab does not support % formatting; use an f-string");
+    throw unsupported(op, a, b);
+  }
+  function eq(a, b) {
+    if (isNum(a) && isNum(b)) {
+      if (a.t !== "float" && b.t !== "float") return toBI(a) === toBI(b);
+      return toF(a) === toF(b);
+    }
+    if (a.t !== b.t) return false;
+    if (a.t === "str") return a.v === b.v;
+    if (a.t === "NoneType") return true;
+    if (a.t === "list" || a.t === "tuple") { if (a.v.length !== b.v.length) return false; for (var i = 0; i < a.v.length; i++) if (!eq(a.v[i], b.v[i])) return false; return true; }
+    if (a.t === "dict") { if (a.m.size !== b.m.size) return false; var ok = true; a.m.forEach(function (e, h) { var o = b.m.get(h); if (!o || !eq(e[1], o[1])) ok = false; }); return ok; }
+    return a === b;
+  }
+  function lt(a, b, op) {
+    if (isNum(a) && isNum(b)) { if (a.t !== "float" && b.t !== "float") return toBI(a) < toBI(b); return toF(a) < toF(b); }
+    if (a.t === "str" && b.t === "str") return a.v < b.v;
+    if ((a.t === "list" && b.t === "list") || (a.t === "tuple" && b.t === "tuple")) {
+      for (var i = 0; i < Math.min(a.v.length, b.v.length); i++) { if (!eq(a.v[i], b.v[i])) return lt(a.v[i], b.v[i], "<"); }
+      return a.v.length < b.v.length;
+    }
+    throw new PyError("TypeError", "'" + op + "' not supported between instances of '" + typeName(a) + "' and '" + typeName(b) + "'");
+  }
+  function checkOrder(a, b, op) {
+    var ok = (isNum(a) && isNum(b)) || (a.t === "str" && b.t === "str") || (a.t === "list" && b.t === "list") || (a.t === "tuple" && b.t === "tuple");
+    if (!ok) throw new PyError("TypeError", "'" + op + "' not supported between instances of '" + typeName(a) + "' and '" + typeName(b) + "'");
+  }
+  function compare(op, a, b) {
+    switch (op) {
+      case "==": return eq(a, b); case "!=": return !eq(a, b);
+      case "<": return lt(a, b, "<"); case ">": checkOrder(a, b, ">"); return lt(b, a, ">");
+      case "<=": return lt(a, b, "<=") || eq(a, b); case ">=": checkOrder(a, b, ">="); return lt(b, a, ">=") || eq(a, b);
+      case "in": case "not in":
+        var r;
+        if (b.t === "str") { if (a.t !== "str") throw new PyError("TypeError", "'in <string>' requires string as left operand, not " + typeName(a)); r = b.v.indexOf(a.v) >= 0; }
+        else if (b.t === "list" || b.t === "tuple" || /^dict_/.test(b.t)) r = b.v.some(function (x) { return eq(x, a); });
+        else if (b.t === "dict") r = b.m.has(hashKey(a));
+        else throw new PyError("TypeError", "argument of type '" + typeName(b) + "' is not iterable");
+        return op === "in" ? r : !r;
+      case "is": return a === b || (a.t === "NoneType" && b.t === "NoneType") || (a.t === "bool" && b.t === "bool" && a.v === b.v);
+      case "is not": return !compare("is", a, b);
+    }
+  }
+
+  /* ---------- formatting for f-strings ---------- */
+  function pyFixed(x, p) { if (!isFinite(x)) return floatRepr(x); var r = pyRound(x, p); return (r === 0 && x < 0 ? "-" : "") + Math.abs(r).toFixed(p).replace(/^/, r < 0 ? "-" : ""); }
+  function fmtNumber(v, spec) {
+    var m = /^([<>^]?)(\+?)(0?)(\d*)(,?)(?:\.(\d+))?([fdeg%s]?)$/.exec(spec);
+    if (!m) throw new PyError("ValueError", "Invalid format specifier '" + spec + "' for object of type '" + typeName(v) + "'");
+    var kind = m[7], prec = m[6] === undefined ? null : parseInt(m[6], 10), width = m[4] ? parseInt(m[4], 10) : 0, comma = m[5] === ",";
+    var s;
+    if (kind === "s") { if (v.t !== "str") throw new PyError("ValueError", "Unknown format code 's' for object of type '" + typeName(v) + "'"); s = v.v; }
+    else if (v.t === "str") { if (kind || prec !== null || comma) throw new PyError("ValueError", "Unknown format code '" + (kind || "f") + "' for object of type 'str'"); s = v.v; }
+    else if (kind === "d") { if (v.t === "float") throw new PyError("ValueError", "Unknown format code 'd' for object of type 'float'"); s = toBI(v).toString(); }
+    else if (kind === "%") { s = pyFixed(toF(v) * 100, prec === null ? 6 : prec) + "%"; }
+    else if (kind === "f") { s = pyFixed(toF(v), prec === null ? 6 : prec); }
+    else if (kind === "e") { var e = toF(v).toExponential(prec === null ? 6 : prec); s = e.replace(/e([+-])(\d)$/, "e$10$2"); }
+    else if (prec !== null) { s = Number(toF(v).toPrecision(prec)).toString(); }
+    else s = str(v);
+    if (comma) { var parts = s.split("."); var neg = parts[0][0] === "-"; var ip = neg ? parts[0].slice(1) : parts[0]; ip = ip.replace(/\B(?=(\d{3})+(?!\d))/g, ","); parts[0] = (neg ? "-" : "") + ip; s = parts.join("."); }
+    if (m[2] === "+" && s[0] !== "-" && v.t !== "str") s = "+" + s;
+    if (width && s.length < width) {
+      var align = m[1] || (v.t === "str" ? "<" : ">"), pad = width - s.length, fill = m[3] === "0" ? "0" : " ";
+      if (align === "<") s = s + " ".repeat(pad); else if (align === "^") s = " ".repeat(Math.floor(pad / 2)) + s + " ".repeat(Math.ceil(pad / 2)); else s = fill.repeat(pad) + s;
+    }
+    return s;
+  }
+
+  /* ---------- builtins ---------- */
+  function argc(name, args, lo, hi) {
+    if (args.length < lo || args.length > hi) {
+      if (lo === hi) throw new PyError("TypeError", name + "() takes exactly one argument (" + args.length + " given)");
+      throw new PyError("TypeError", name + " expected at most " + hi + " argument" + (hi > 1 ? "s" : "") + ", got " + args.length);
+    }
+  }
+  function lenOf(v) {
+    if (v.t === "str" || v.t === "list" || v.t === "tuple" || /^dict_/.test(v.t)) return v.v.length;
+    if (v.t === "dict") return v.m.size;
+    throw new PyError("TypeError", "object of type '" + typeName(v) + "' has no len()");
+  }
+  function iter(v) {
+    if (v.t === "str") return Array.from(v.v).map(S);
+    if (v.t === "list" || v.t === "tuple" || /^dict_/.test(v.t)) return v.v.slice();
+    if (v.t === "dict") return dkeys(v);
+    throw new PyError("TypeError", "'" + typeName(v) + "' object is not iterable");
+  }
+  function pyRound(x, nd) {
+    /* correctly rounded on the exact binary value, ties to even (as CPython) */
+    if (!isFinite(x) || nd > 20) return x;
+    var neg = x < 0, a = Math.abs(x);
+    var long = a.toFixed(Math.min(100, nd + 40)), cut = long.indexOf(".") + nd + (nd > 0 ? 1 : 0);
+    if (nd === 0) cut = long.indexOf(".");
+    var rest = long.slice(cut + (nd === 0 ? 1 : 0)), isTie = /^50*$/.test(rest);
+    var r;
+    if (isTie) {
+      var down = Number(long.slice(0, cut)), f = Math.pow(10, nd), step = 1 / f;
+      var lastDigit = parseInt(long[cut - 1] === "." ? long[cut - 2] : long[cut - 1], 10);
+      r = (lastDigit % 2 === 0) ? down : Number((down + step).toFixed(nd));
+    } else r = Number(a.toFixed(nd));
+    return neg ? -r : r;
+  }
+  var KWOK = { print: ["sep", "end"], sorted: ["reverse", "key"], sort: ["reverse", "key"], max: ["key"], min: ["key"] };
+  var BUILTINS = {
+    print: function (args, ctx, kw) {
+      kw = kw || {}; var sep = kw.sep && kw.sep.t !== "NoneType" ? kw.sep.v : " ", end = kw.end && kw.end.t !== "NoneType" ? kw.end.v : "\n";
+      var o = ctx.root || ctx, parts = ((o.pend || "") + args.map(str).join(sep) + end).split("\n");
+      o.pend = parts.pop(); parts.forEach(function (l) { o.out.push(l); }); return NONE;
+    },
+    enumerate: function (args) { argc("enumerate", args, 1, 2); var st = args[1] ? Number(toBI(args[1])) : 0; return L(iter(args[0]).map(function (x, k) { return T([I(k + st), x]); })); },
+    len: function (args) { argc("len", args, 1, 1); return I(lenOf(args[0])); },
+    type: function (args) { argc("type", args, 1, 1); return { t: "type", v: typeName(args[0]) }; },
+    str: function (args) { return S(args.length ? str(args[0]) : ""); },
+    int: function (args) {
+      if (!args.length) return I(0); var v = args[0];
+      if (v.t === "int") return v; if (v.t === "bool") return I(v.v ? 1 : 0);
+      if (v.t === "float") { if (!isFinite(v.v)) throw new PyError("OverflowError", "cannot convert float infinity to integer"); return I(Math.trunc(v.v)); }
+      if (v.t === "str") { var t = v.v.trim().replace(/_/g, ""); if (!/^[+-]?\d+$/.test(t)) throw new PyError("ValueError", "invalid literal for int() with base 10: " + strRepr(v.v)); return I(t); }
+      throw new PyError("TypeError", "int() argument must be a string, a bytes-like object or a real number, not '" + typeName(v) + "'");
+    },
+    float: function (args) {
+      if (!args.length) return F(0); var v = args[0];
+      if (isNum(v)) return F(toF(v));
+      if (v.t === "str") { var t = v.v.trim(); if (!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(t)) throw new PyError("ValueError", "could not convert string to float: " + strRepr(v.v)); return F(parseFloat(t)); }
+      throw new PyError("TypeError", "float() argument must be a string or a real number, not '" + typeName(v) + "'");
+    },
+    bool: function (args) { return B(args.length ? truthy(args[0]) : false); },
+    abs: function (args) { argc("abs", args, 1, 1); var v = args[0]; if (v.t === "float") return F(Math.abs(v.v)); if (isNum(v)) { var x = toBI(v); return I(x < 0n ? -x : x); } throw new PyError("TypeError", "bad operand type for abs(): '" + typeName(v) + "'"); },
+    round: function (args) {
+      var v = args[0]; if (!isNum(v)) throw new PyError("TypeError", "type " + typeName(v) + " doesn't define __round__ method");
+      if (args.length === 1) { if (v.t !== "float") return I(toBI(v)); return I(pyRound(v.v, 0)); }
+      var nd = Number(toBI(args[1])); if (v.t !== "float") return v; return F(pyRound(v.v, nd));
+    },
+    max: function (args, ctx, kw) { return minmax(args, "max", kw, ctx); }, min: function (args, ctx, kw) { return minmax(args, "min", kw, ctx); },
+    sum: function (args) {
+      if (!args.length) throw new PyError("TypeError", "sum() takes at least 1 positional argument (0 given)");
+      var items = iterArg(args[0]), acc = args[1] || I(0);
+      items.forEach(function (x) { if (x.t === "str") throw new PyError("TypeError", "unsupported operand type(s) for +: '" + typeName(acc) + "' and 'str'"); acc = binop("+", acc, x); }); return acc;
+    },
+    list: function (args) { return L(args.length ? iter(args[0]) : []); },
+    tuple: function (args) { return T(args.length ? iter(args[0]) : []); },
+    sorted: function (args, ctx, kw) {
+      argc("sorted", args, 1, 1); var a = iter(args[0]), rev = kw && kw.reverse && truthy(kw.reverse);
+      var keyed = a.map(function (x, i) { return { x: x, k: kw && kw.key && kw.key.t !== "NoneType" ? callValue(kw.key, [x], {}, ctx) : x, i: i }; });
+      keyed.sort(function (p, q) { var c = lt(p.k, q.k, "<") ? -1 : lt(q.k, p.k, "<") ? 1 : 0; if (rev) c = -c; return c || p.i - q.i; });
+      return L(keyed.map(function (p) { return p.x; }));
+    },
+    dict: function (args) { var d = D(); if (args.length) { if (args[0].t === "dict") args[0].m.forEach(function (e) { dset(d, e[0], e[1]); }); else iter(args[0]).forEach(function (pr) { var kv = iter(pr); dset(d, kv[0], kv[1]); }); } return d; },
+    repr: function (args) { argc("repr", args, 1, 1); return S(repr(args[0])); },
+    id: function (args) { argc("id", args, 1, 1); return I(objId(args[0])); },
+    pow: function (args) { if (args.length === 3) { if (args[0].t !== "int" || args[1].t !== "int" || args[2].t !== "int") throw new PyError("TypeError", "pow() 3rd argument not allowed unless all arguments are integers"); return binop("%", binop("**", args[0], args[1]), args[2]); } if (args.length < 2) throw new PyError("TypeError", "pow() missing required argument '" + (args.length ? "exp' (pos 2)" : "base' (pos 1)")); if (args.length > 3) throw new PyError("TypeError", "pow() takes at most 3 arguments (" + args.length + " given)"); return binop("**", args[0], args[1]); },
+    range: function (args) {
+      var nums = args.map(function (a) { if (a.t !== "int" && a.t !== "bool") throw new PyError("TypeError", "'" + typeName(a) + "' object cannot be interpreted as an integer"); return Number(toBI(a)); });
+      var start = 0, stop, step = 1; if (nums.length === 1) stop = nums[0]; else { start = nums[0]; stop = nums[1]; if (nums.length > 2) step = nums[2]; }
+      if (step === 0) throw new PyError("ValueError", "range() arg 3 must not be zero");
+      var out = []; for (var x = start; step > 0 ? x < stop : x > stop; x += step) { out.push(I(x)); if (out.length > 10000) break; }
+      return L(out);
+    },
+    input: function () { throw new PyError("RuntimeError", "input() is not available in this lab; type the value into the code instead"); }
+  };
+  function iterArg(v) { return iter(v); }
+  function minmax(args, nm, kw, ctx) {
+    if (!args.length) throw new PyError("TypeError", nm + " expected at least 1 argument, got 0");
+    var items = args.length === 1 ? iter(args[0]) : args;
+    if (!items.length) throw new PyError("ValueError", nm + "() iterable argument is empty");
+    var kf = function (x) { return kw && kw.key && kw.key.t !== "NoneType" ? callValue(kw.key, [x], {}, ctx) : x; };
+    var best = items[0], bk = kf(best);
+    for (var i = 1; i < items.length; i++) { var x = items[i], xk = kf(x); if (nm === "max" ? lt(bk, xk, "<") : lt(xk, bk, "<")) { best = x; bk = xk; } }
+    return best;
+  }
+  function callValue(f, args, kw, ctx) {
+    kw = kw || {};
+    var fname = f.t === "builtin" ? f.name : f.t === "type" ? f.v : f.t === "boundmethod" ? f.name : "";
+    if (f.t !== "function") Object.keys(kw).forEach(function (k) { if ((KWOK[fname] || []).indexOf(k) < 0) throw new PyError("TypeError", fname.replace(/^math\./, "") + "() got an unexpected keyword argument '" + k + "'"); });
+    if (f.t === "builtin") return (f.fn || BUILTINS[f.name])(args, ctx, kw);
+    if (f.t === "boundmethod") return f.fn(args, kw);
+    if (f.t === "type") { if (BUILTINS[f.v]) return BUILTINS[f.v](args, ctx, kw); throw new PyError("TypeError", "cannot create '" + f.v + "' instances"); }
+    if (f.t === "function") return f.call(args, kw, ctx);
+    throw new PyError("TypeError", "'" + typeName(f) + "' object is not callable");
+  }
+  function stripChars(s, c, side) {
+    var set = c && c.t === "str" ? c.v : null, ws = function (ch) { return set === null ? /\s/.test(ch) : set.indexOf(ch) >= 0; }, a = 0, b = s.length;
+    if (side & 1) while (a < b && ws(s[a])) a++;
+    if (side & 2) while (b > a && ws(s[b - 1])) b--;
+    return s.slice(a, b);
+  }
+  function method(obj, name) {
+    var s = obj.v;
+    var M = null;
+    if (obj.t === "str") M = {
+      lower: function () { return S(s.toLowerCase()); }, upper: function () { return S(s.toUpperCase()); },
+      title: function () { return S(s.toLowerCase().replace(/(^|[^A-Za-z])([a-z])/g, function (m, a, b) { return a + b.toUpperCase(); })); },
+      strip: function (a) { return S(stripChars(s, a[0], 3)); }, lstrip: function (a) { return S(stripChars(s, a[0], 1)); }, rstrip: function (a) { return S(stripChars(s, a[0], 2)); },
+      join: function (a) { var it = iter(a[0]); it.forEach(function (x, k) { if (x.t !== "str") throw new PyError("TypeError", "sequence item " + k + ": expected str instance, " + typeName(x) + " found"); }); return S(it.map(function (x) { return x.v; }).join(s)); },
+      isupper: function () { return B(/[A-Z]/.test(s) && !/[a-z]/.test(s)); }, islower: function () { return B(/[a-z]/.test(s) && !/[A-Z]/.test(s)); }, capitalize: function () { return S(s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()); },
+      split: function (a) { if (a.length) { if (a[0].v === "") throw new PyError("ValueError", "empty separator"); return L(s.split(a[0].v).map(S)); } return L(s.split(/\s+/).filter(function (x) { return x; }).map(S)); },
+      count: function (a) { if (!a.length || a[0].t !== "str") throw new PyError("TypeError", "must be str, not " + (a.length ? typeName(a[0]) : "nothing")); var sub = a[0].v; if (sub === "") return I(s.length + 1); var c = 0, i = 0; while ((i = s.indexOf(sub, i)) >= 0) { c++; i += sub.length; } return I(c); },
+      replace: function (a) { return S(s.split(a[0].v).join(a[1].v)); },
+      startswith: function (a) { return B(s.indexOf(a[0].v) === 0); }, endswith: function (a) { return B(s.length >= a[0].v.length && s.slice(s.length - a[0].v.length) === a[0].v); },
+      find: function (a) { return I(s.indexOf(a[0].v)); },
+      isdigit: function () { return B(/^\d+$/.test(s)); }, isalpha: function () { return B(/^[A-Za-z]+$/.test(s)); }
+    };
+    else if (obj.t === "list") M = {
+      append: function (a) { s.push(a[0]); return NONE; }, pop: function (a) { if (!s.length) throw new PyError("IndexError", "pop from empty list"); var i = a.length ? Number(toBI(a[0])) : s.length - 1; if (i < 0) i += s.length; if (i < 0 || i >= s.length) throw new PyError("IndexError", "pop index out of range"); return s.splice(i, 1)[0]; },
+      insert: function (a) { var i = Number(toBI(a[0])); if (i < 0) i = Math.max(0, s.length + i); s.splice(Math.min(i, s.length), 0, a[1]); return NONE; },
+      remove: function (a) { for (var i = 0; i < s.length; i++) if (eq(s[i], a[0])) { s.splice(i, 1); return NONE; } throw new PyError("ValueError", "list.remove(x): x not in list"); },
+      index: function (a) { for (var i = 0; i < s.length; i++) if (eq(s[i], a[0])) return I(i); throw new PyError("ValueError", repr(a[0]) + " is not in list"); },
+      count: function (a) { return I(s.filter(function (x) { return eq(x, a[0]); }).length); },
+      sort: function (a, kw) { if (kw && kw.key) { var srt = BUILTINS.sorted([obj], null, kw); s.splice.apply(s, [0, s.length].concat(srt.v)); return NONE; } s.sort(function (x, y) { return lt(x, y, "<") ? -1 : lt(y, x, "<") ? 1 : 0; }); if (kw && kw.reverse && truthy(kw.reverse)) s.reverse(); return NONE; },
+      reverse: function () { s.reverse(); return NONE; }, copy: function () { return L(s.slice()); }
+    };
+    else if (obj.t === "dict") M = {
+      get: function (a) { if (!a.length) throw new PyError("TypeError", "get expected at least 1 argument, got 0"); var v = dget(obj, a[0]); return v === undefined ? (a.length > 1 ? a[1] : NONE) : v; },
+      keys: function () { return { t: "dict_keys", v: dkeys(obj) }; }, values: function () { return { t: "dict_values", v: dvals(obj) }; }, items: function () { return { t: "dict_items", v: ditems(obj) }; },
+      pop: function (a) { var h = hashKey(a[0]), e = obj.m.get(h); if (!e) { if (a.length > 1) return a[1]; throw new PyError("KeyError", repr(a[0])); } obj.m.delete(h); return e[1]; },
+      copy: function () { var d = D(); obj.m.forEach(function (e, h) { d.m.set(h, [e[0], e[1]]); }); return d; },
+      update: function (a) { iter(a[0]).forEach(function (k) { dset(obj, k, dget(a[0], k)); }); return NONE; }
+    };
+    if (M && M[name]) return M[name];
+    throw new PyError("AttributeError", "'" + typeName(obj) + "' object has no attribute '" + name + "'");
+  }
+
+  /* ---------- evaluation ---------- */
+  function lev(a, b) { var d = []; for (var i = 0; i <= a.length; i++) { d[i] = [i]; } for (var j = 0; j <= b.length; j++) d[0][j] = j; for (i = 1; i <= a.length; i++) for (j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; }
+  function suggest(name, env) {
+    var best = null, bd = 99;
+    Object.keys(env).forEach(function (k) { var dd = lev(name, k); if (dd < bd && dd <= Math.max(1, Math.floor(name.length / 3))) { bd = dd; best = k; } });
+    return best;
+  }
+  function index(seq, iv) {
+    if (seq.t === "dict") { var dv = dget(seq, iv); if (dv === undefined) throw new PyError("KeyError", repr(iv)); return dv; }
+    if (seq.t === "str" || seq.t === "list" || seq.t === "tuple") {
+      if (iv.t !== "int" && iv.t !== "bool") throw new PyError("TypeError", seq.t === "str" ? "string indices must be integers, not '" + typeName(iv) + "'" : seq.t + " indices must be integers or slices, not " + typeName(iv));
+      var n = seq.v.length, i = Number(toBI(iv)); if (i < 0) i += n;
+      if (i < 0 || i >= n) throw new PyError("IndexError", (seq.t === "str" ? "string" : seq.t) + " index out of range");
+      return seq.t === "str" ? S(seq.v[i]) : seq.v[i];
+    }
+    throw new PyError("TypeError", "'" + typeName(seq) + "' object is not subscriptable");
+  }
+  function sliceIdx(n, av, bv, cv) {
+    function num(v) { if (!v || v.t === "NoneType") return null; if (v.t !== "int" && v.t !== "bool") throw new PyError("TypeError", "slice indices must be integers or None or have an __index__ method"); return Number(toBI(v)); }
+    var a = num(av), b = num(bv), c = num(cv); if (c === null) c = 1;
+    if (c === 0) throw new PyError("ValueError", "slice step cannot be zero");
+    function adj(x, dflt, lo, hi) { if (x === null) return dflt; if (x < 0) { x += n; if (x < lo) x = lo; } else if (x > hi) x = hi; return x; }
+    var out = [], i;
+    if (c > 0) { a = adj(a, 0, 0, n); b = adj(b, n, 0, n); for (i = a; i < b; i += c) out.push(i); }
+    else { a = adj(a, n - 1, -1, n - 1); b = adj(b, -1, -1, n - 1); for (i = a; i > b; i += c) out.push(i); }
+    return out;
+  }
+  function ev(node, ctx) {
+    switch (node.n) {
+      case "const": return node.v;
+      case "name":
+        if (Object.prototype.hasOwnProperty.call(ctx.env, node.id)) return ctx.env[node.id];
+        if (ctx.localNames && ctx.localNames[node.id]) throw new PyError("UnboundLocalError", "cannot access local variable '" + node.id + "' where it is not associated with a value");
+        if (ctx.globals && Object.prototype.hasOwnProperty.call(ctx.globals, node.id)) return ctx.globals[node.id];
+        if (BUILTINS[node.id]) return { t: "builtin", name: node.id };
+        var known = {}; Object.keys(ctx.globals || {}).forEach(function (k) { known[k] = 1; }); Object.keys(ctx.env).forEach(function (k) { known[k] = 1; });
+        var sg = suggest(node.id, known);
+        var e = new PyError("NameError", "name '" + node.id + "' is not defined"); if (sg) e.hint = "Did you mean: '" + sg + "'?"; throw e;
+      case "list": return L(node.items.map(function (x) { return ev(x, ctx); }));
+      case "dict": var dd = D(); node.items.forEach(function (pr) { var kv = ev(pr[0], ctx); dset(dd, kv, ev(pr[1], ctx)); }); return dd;
+      case "tuple": return T(node.items.map(function (x) { return ev(x, ctx); }));
+      case "fstr":
+        return S(node.parts.map(function (p) { if (p.lit !== undefined) return p.lit; var v = ev(p.node, ctx); return p.spec === null ? str(v) : fmtNumber(v, p.spec); }).join(""));
+      case "unary":
+        var u = ev(node.e, ctx);
+        if (node.op === "-") { if (u.t === "float") return F(-u.v); if (isNum(u)) return I(-toBI(u)); throw new PyError("TypeError", "bad operand type for unary -: '" + typeName(u) + "'"); }
+        if (isNum(u)) return u.t === "bool" ? I(toBI(u)) : u; throw new PyError("TypeError", "bad operand type for unary +: '" + typeName(u) + "'");
+      case "not": return B(!truthy(ev(node.e, ctx)));
+      case "bool":
+        var l = ev(node.l, ctx);
+        if (node.op === "and") return truthy(l) ? ev(node.r, ctx) : l;
+        return truthy(l) ? l : ev(node.r, ctx);
+      case "ifexp": return truthy(ev(node.cond, ctx)) ? ev(node.a, ctx) : ev(node.b, ctx);
+      case "bin": return binop(node.op, ev(node.l, ctx), ev(node.r, ctx));
+      case "cmp":
+        var left = ev(node.first, ctx);
+        for (var i = 0; i < node.ops.length; i++) { var right = ev(node.rest[i], ctx); if (!compare(node.ops[i], left, right)) return B(false); left = right; }
+        return B(true);
+      case "index": return index(ev(node.o, ctx), ev(node.i, ctx));
+      case "slice":
+        var o = ev(node.o, ctx); if (o.t !== "str" && o.t !== "list" && o.t !== "tuple") throw new PyError("TypeError", "'" + typeName(o) + "' object is not subscriptable");
+        var seqv = o.t === "str" ? Array.from(o.v) : o.v, idx = sliceIdx(seqv.length, node.a && ev(node.a, ctx), node.b && ev(node.b, ctx), node.c && ev(node.c, ctx));
+        var sl = idx.map(function (k) { return seqv[k]; }); return o.t === "str" ? S(sl.join("")) : o.t === "list" ? L(sl) : T(sl);
+      case "attr":
+        var obj = ev(node.o, ctx);
+        if (obj.t === "module") { if (!Object.prototype.hasOwnProperty.call(obj.attrs, node.name)) throw new PyError("AttributeError", "module '" + obj.name + "' has no attribute '" + node.name + "'"); return obj.attrs[node.name]; }
+        var fn = method(obj, node.name);
+        return { t: "boundmethod", obj: obj, fn: fn, name: node.name };
+      case "call":
+        var f = ev(node.f, ctx), args = node.args.map(function (x) { return ev(x, ctx); }), kw = {};
+        (node.kws || []).forEach(function (k) { kw[k[0]] = ev(k[1], ctx); });
+        return callValue(f, args, kw, ctx);
+    }
+    throw new PyError("SyntaxError", "invalid syntax");
+  }
+
+  /* ---------- statements (one line each) ---------- */
+  function assignTargets(lhs) {
+    var p = new Parser(tokenize(lhs)); var e = p.exprList();
+    if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+    function chk(x) {
+      if (x.n === "name") return x;
+      if (x.n === "tuple") { x.items.forEach(chk); return x; }
+      if (x.n === "index") return x;
+      if (x.n === "const" || x.n === "call" || x.n === "bin") throw new PyError("SyntaxError", "cannot assign to " + (x.n === "const" ? "literal" : x.n === "call" ? "function call" : "expression") + " here. Maybe you meant '==' instead of '='?");
+      throw new PyError("SyntaxError", "cannot assign to expression");
+    }
+    return chk(e);
+  }
+  function bind(target, value, ctx) {
+    if (target.n === "name") { ctx.env[target.id] = value; ctx.changed.push(target.id); return; }
+    if (target.n === "index") {
+      var seq = ev(target.o, ctx), iv = ev(target.i, ctx);
+      if (seq.t === "dict") { dset(seq, iv, value); ctx.changed.push("*"); return; }
+      if (seq.t === "list") { if (iv.t !== "int" && iv.t !== "bool") throw new PyError("TypeError", "list indices must be integers or slices, not " + typeName(iv)); var n = seq.v.length, i = Number(toBI(iv)); if (i < 0) i += n; if (i < 0 || i >= n) throw new PyError("IndexError", "list assignment index out of range"); seq.v[i] = value; ctx.changed.push("*"); return; }
+      throw new PyError("TypeError", "'" + typeName(seq) + "' object does not support item assignment");
+    }
+    var vals = iter(value);
+    if (vals.length !== target.items.length) throw new PyError("ValueError", vals.length > target.items.length ? "too many values to unpack (expected " + target.items.length + ")" : "not enough values to unpack (expected " + target.items.length + ", got " + vals.length + ")");
+    target.items.forEach(function (t, k) { bind(t, vals[k], ctx); });
+  }
+  function splitTopLevelEq(line) {
+    var depth = 0, q = null;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (q) { if (c === "\\") { i++; continue; } if (c === q) q = null; continue; }
+      if (c === "'" || c === '"') { q = c; continue; }
+      if (c === "#") break;
+      if ("([{".indexOf(c) >= 0) depth++; else if (")]}".indexOf(c) >= 0) depth--;
+      else if (depth === 0 && c === "=") {
+        var prev = line[i - 1] || "", nx = line[i + 1] || "";
+        if (nx === "=") { i++; continue; }
+        if ("=!<>".indexOf(prev) >= 0) continue;
+        var aug = "";
+        if ("+-*/%".indexOf(prev) >= 0) { aug = prev; if ((prev === "/" || prev === "*") && line[i - 2] === prev) aug = prev + prev; }
+        return { at: i, aug: aug };
+      }
+    }
+    return null;
+  }
+  function execLine(line, ctx) {
+    ctx.changed = []; ctx.last = undefined;
+    var raw = line.replace(/\s+$/, "");
+    if (!raw.trim() || raw.trim()[0] === "#") return { kind: "blank" };
+    if (/^\s/.test(raw)) throw new PyError("IndentationError", "unexpected indent");
+    var firstWord = (/^[A-Za-z_]\w*/.exec(raw) || [""])[0];
+    if (["if", "elif", "else", "for", "while", "def", "class", "try", "with"].indexOf(firstWord) >= 0)
+      throw new PyError("NotSupported", "This lab runs one-line statements only. Blocks like '" + firstWord + "' are covered in Lecture 3.");
+    if (firstWord === "import" || firstWord === "from") throw new PyError("NotSupported", "Imports are not available in this lab.");
+    var sp = splitTopLevelEq(raw);
+    if (sp) {
+      var lhs = raw.slice(0, sp.at - sp.aug.length).trim(), rhs = raw.slice(sp.at + 1).trim();
+      if (!rhs) throw new PyError("SyntaxError", "invalid syntax");
+      var target = assignTargets(lhs);
+      var p = new Parser(tokenize(rhs)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+      if (sp.aug) {
+        if (target.n === "tuple") throw new PyError("SyntaxError", "'tuple' is an illegal expression for augmented assignment");
+        var cur = ev(target.n === "name" ? { n: "name", id: target.id } : target, ctx), rv = ev(e, ctx), v;
+        if (sp.aug === "+" && cur.t === "list") { var add = iter(rv); Array.prototype.push.apply(cur.v, add); v = cur; }
+        else if (sp.aug === "*" && cur.t === "list" && (rv.t === "int" || rv.t === "bool")) { var rep0 = cur.v.slice(), times = Number(toBI(rv)); cur.v.length = 0; for (var z = 0; z < times; z++) Array.prototype.push.apply(cur.v, rep0); v = cur; }
+        else v = binop(sp.aug, cur, rv);
+        bind(target, v, ctx);
+        return { kind: "assign", targets: target.n === "name" ? [target.id] : ["*"], value: v };
+      }
+      var val = ev(e, ctx); bind(target, val, ctx);
+      return { kind: "assign", targets: ctx.changed.slice(), value: val };
+    }
+    var pp = new Parser(tokenize(raw)); var ex = pp.exprList();
+    if (!pp.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+    var r = ev(ex, ctx);
+    return { kind: "expr", value: r };
+  }
+  function mathFn(name, lo, hi, f) { return { t: "builtin", name: "math." + name, fn: function (args) { if (args.length < lo || args.length > hi) throw new PyError("TypeError", lo === hi ? "math." + name + "() takes exactly " + (lo === 1 ? "one argument" : lo + " arguments") + " (" + args.length + " given)" : name + " expected at most " + hi + " arguments, got " + args.length); return f(args); } }; }
+  function needNum(v) { if (!isNum(v)) throw new PyError("TypeError", "must be real number, not " + typeName(v)); return toF(v); }
+  function needInt(v, fn) { if (v.t !== "int" && v.t !== "bool") throw new PyError("TypeError", "'" + typeName(v) + "' object cannot be interpreted as an integer"); return toBI(v); }
+  function bgcd(a, b) { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) { var t = a % b; a = b; b = t; } return a; }
+  var MODULES = {
+    math: function () {
+      return { t: "module", name: "math", attrs: {
+        pi: F(Math.PI), e: F(Math.E), inf: F(Infinity),
+        sqrt: mathFn("sqrt", 1, 1, function (a) { var x = needNum(a[0]); if (x < 0) throw new PyError("ValueError", "math domain error"); return F(Math.sqrt(x)); }),
+        floor: mathFn("floor", 1, 1, function (a) { return a[0].t === "float" ? I(Math.floor(a[0].v)) : I(toBI(a[0])); }),
+        ceil: mathFn("ceil", 1, 1, function (a) { return a[0].t === "float" ? I(Math.ceil(a[0].v)) : I(toBI(a[0])); }),
+        gcd: { t: "builtin", name: "math.gcd", fn: function (a) { var g = 0n; a.forEach(function (x) { g = bgcd(g, needInt(x)); }); return I(g); } },
+        lcm: { t: "builtin", name: "math.lcm", fn: function (a) { var l = 1n; a.forEach(function (x) { var y = needInt(x); if (y === 0n) { l = 0n; return; } y = y < 0n ? -y : y; l = l === 0n ? 0n : l / bgcd(l, y) * y; }); return I(l); } },
+        fabs: mathFn("fabs", 1, 1, function (a) { return F(Math.abs(needNum(a[0]))); }),
+        pow: mathFn("pow", 2, 2, function (a) { return F(Math.pow(needNum(a[0]), needNum(a[1]))); }),
+        log: mathFn("log", 1, 2, function (a) { var x = needNum(a[0]); if (x <= 0) throw new PyError("ValueError", "math domain error"); return F(a.length > 1 ? Math.log(x) / Math.log(needNum(a[1])) : Math.log(x)); }),
+        log10: mathFn("log10", 1, 1, function (a) { var x = needNum(a[0]); if (x <= 0) throw new PyError("ValueError", "math domain error"); return F(Math.log10(x)); }),
+        factorial: mathFn("factorial", 1, 1, function (a) { var n = needInt(a[0]); if (n < 0n) throw new PyError("ValueError", "factorial() not defined for negative values"); var r = 1n; for (var k = 2n; k <= n; k++) r *= k; return I(r); }),
+        isqrt: mathFn("isqrt", 1, 1, function (a) { var n = needInt(a[0]); if (n < 0n) throw new PyError("ValueError", "isqrt() argument must be nonnegative"); return I(Math.floor(Math.sqrt(Number(n)))); })
+      } };
+    }
+  };
+  function importModule(name) { if (!MODULES[name]) throw new PyError("ModuleNotFoundError", "No module named '" + name + "'"); return MODULES[name](); }
+  function compileLine(line) {
+    var raw = line.trim(); if (!raw || raw[0] === "#") return;
+    var sp = splitTopLevelEq(raw);
+    if (sp) {
+      var lhs = raw.slice(0, sp.at - sp.aug.length).trim(), rhs = raw.slice(sp.at + 1).trim();
+      if (!rhs) throw new PyError("SyntaxError", "invalid syntax");
+      assignTargets(lhs); var p = new Parser(tokenize(rhs)); p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return;
+    }
+    var pp = new Parser(tokenize(raw)); pp.exprList(); if (!pp.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+  }
+  function compileExpr(src) { var p = new Parser(tokenize(src)); p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); }
+  function assignTargetNames(lhs) { var out = []; (function walk(x) { if (x.n === "name") out.push(x.id); else if (x.n === "tuple") x.items.forEach(walk); })(assignTargets(lhs)); return out; }
+  function newCtx() { return { env: {}, out: [], changed: [], pend: "" }; }
+  function assignTo(lhs, value, ctx) { ctx.changed = []; bind(assignTargets(lhs), value, ctx); return ctx.changed.slice(); }
+  function evalIn(src, ctx) { var p = new Parser(tokenize(src)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return ev(e, ctx); }
+  function evalExpr(src, env) { var ctx = { env: env || {}, out: [], changed: [] }; var p = new Parser(tokenize(src)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return { value: ev(e, ctx), out: ctx.out }; }
+  return { PyError: PyError, repr: repr, str: str, typeName: typeName, execLine: execLine, newCtx: newCtx, evalExpr: evalExpr, evalIn: evalIn, assignTo: assignTo, iter: iter, truthy: truthy, D: D, dset: dset, dget: dget, objId: objId, importModule: importModule, compileLine: compileLine, compileExpr: compileExpr, assignTargetNames: assignTargetNames, splitTopLevelEq: splitTopLevelEq, callValue: callValue, eq: eq, I: I, F: F, S: S, B: B, L: L, NONE: NONE };
+})();
+if (typeof module !== "undefined") module.exports = MiniPy;
+
+/* Shared helpers for all labs */
+var Lab = (function () {
+  "use strict";
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var KWS = /\b(and|or|not|in|is|if|elif|else|for|while|def|return|match|case|True|False|None|break|continue|import|from|as|print)\b/g;
+  function hl(line) {
+    // split out comment and strings first, then highlight keywords and numbers in code parts
+    var out = "", i = 0, n = line.length, buf = "";
+    function flush() {
+      out += esc(buf).replace(/\b(\d+\.?\d*)\b/g, '<span class="nu">$1</span>')
+        .replace(/\b(and|or|not|in|is|if|elif|else|for|while|def|return|match|case|True|False|None|break|continue)\b/g, '<span class="kw">$1</span>')
+        .replace(/\b(print|len|type|int|float|str|round|abs|max|min|sum|range|sorted|list)\b(?=\()/g, '<span class="fn">$1</span>');
+      buf = "";
+    }
+    while (i < n) {
+      var c = line[i];
+      if (c === "#") { flush(); out += '<span class="cm">' + esc(line.slice(i)) + "</span>"; return out; }
+      if (c === "'" || c === '"') {
+        var pre = "";
+        if (/[fF]$/.test(buf) && !/\w[fF]$/.test(buf)) { pre = buf.slice(-1); buf = buf.slice(0, -1); }
+        flush();
+        var j = i + 1; while (j < n && line[j] !== c) { if (line[j] === "\\") j++; j++; }
+        out += '<span class="st">' + esc(pre + line.slice(i, j + 1)) + "</span>"; i = j + 1; continue;
+      }
+      buf += c; i++;
+    }
+    flush(); return out;
+  }
+  function renderCode(el, lines, states, annotate) {
+    el.innerHTML = lines.map(function (l, k) {
+      var st = states && states[k] ? " " + states[k] : "";
+      var note = annotate && annotate[k] ? '<span style="margin-left:auto;padding-left:16px">' + annotate[k] + "</span>" : "";
+      return '<div class="ln' + st + '"><span class="no">' + (k + 1) + "</span><span>" + (hl(l) || " ") + "</span>" + note + "</div>";
+    }).join("");
+  }
+  function tabs() {
+    var btns = $$(".tabs button");
+    function show(id) {
+      btns.forEach(function (b) { b.setAttribute("aria-selected", b.dataset.tab === id ? "true" : "false"); });
+      $$(".exp").forEach(function (s) { s.classList.toggle("on", s.id === id); });
+      try { localStorage.setItem(document.title + ":tab", id); } catch (e) { }
+      if (history.replaceState) history.replaceState(null, "", "#" + id);
+    }
+    btns.forEach(function (b) { b.addEventListener("click", function () { show(b.dataset.tab); }); });
+    var start = (location.hash || "").slice(1);
+    if (!start || !$("#" + start)) { try { start = localStorage.getItem(document.title + ":tab"); } catch (e) { start = null; } }
+    show(start && $("#" + start) ? start : btns[0].dataset.tab);
+  }
+  function tryLists() {
+    $$(".try input[type=checkbox]").forEach(function (cb, k) {
+      var key = document.title + ":try" + k;
+      try { cb.checked = localStorage.getItem(key) === "1"; } catch (e) { }
+      function upd() { cb.closest("label").classList.toggle("done", cb.checked); }
+      upd();
+      cb.addEventListener("change", function () { upd(); try { localStorage.setItem(key, cb.checked ? "1" : "0"); } catch (e) { } });
+    });
+  }
+  function chipFor(v) { var t = MiniPy.typeName(v); return '<span class="chip ' + t + '">' + t + "</span>"; }
+  function errHTML(e) {
+    if (e.type === "NotSupported") return '<span class="e">' + esc(e.msg) + "</span>";
+    return '<span class="e">' + esc(e.type + ": " + e.msg) + "</span>" + (e.hint ? '<span class="hint">. ' + esc(e.hint) + "</span>" : "");
+  }
+  function init() { tabs(); tryLists(); }
+  document.addEventListener("DOMContentLoaded", init);
+  return { $: $, $$: $$, esc: esc, hl: hl, renderCode: renderCode, chipFor: chipFor, errHTML: errHTML };
+})();
+
+/* Small SVG chart helpers shared by the ML labs: nice ticks, a framed plot area with axes and grid, and marks. */
+var Plot = (function () {
+  "use strict";
+  var esc = Lab.esc;
+  var C = { blue: "#2459C4", orange: "#E07A1F", teal: "#1F8A7A", red: "#B4432A", navy: "#15213A", muted: "#5D6573", grid: "#E6EAF1", purple: "#6B3FA0" };
+  var CLASS = ["#2459C4", "#E07A1F", "#1F8A7A"], CLASS_SOFT = ["#C9D7F2", "#F8DDC2", "#C3E3DD"];
+  function ticks(lo, hi, n) {
+    var span = hi - lo || 1, step = Math.pow(10, Math.floor(Math.log10(span / n))), err = span / n / step;
+    step *= err >= 7.5 ? 10 : err >= 3.5 ? 5 : err >= 1.5 ? 2 : 1;
+    var out = []; for (var t = Math.ceil(lo / step - 1e-9) * step; t <= hi + 1e-9; t += step) out.push(+t.toFixed(10));
+    return out;
+  }
+  function fmt(v) { var a = Math.abs(v); return a >= 1000 ? String(Math.round(v)) : String(+v.toFixed(a >= 10 ? 1 : a >= 1 ? 2 : 3)); }
+  function frame(o) {
+    var W = o.W || 560, H = o.H || 380, m = o.m || { l: 56, r: 16, t: 16, b: 46 }, x0 = o.x[0], x1 = o.x[1], y0 = o.y[0], y1 = o.y[1];
+    var X = function (v) { return m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r); }, Y = function (v) { return H - m.b - (v - y0) / (y1 - y0) * (H - m.t - m.b); };
+    var id = "clip" + Math.random().toString(36).slice(2, 8), s = '<defs><clipPath id="' + id + '"><rect x="' + m.l + '" y="' + m.t + '" width="' + (W - m.l - m.r) + '" height="' + (H - m.t - m.b) + '"/></clipPath></defs>';
+    (o.xticks || ticks(x0, x1, o.nx || 7)).forEach(function (t) { s += '<line x1="' + X(t) + '" y1="' + m.t + '" x2="' + X(t) + '" y2="' + (H - m.b) + '" stroke="' + C.grid + '"/><text x="' + X(t) + '" y="' + (H - m.b + 16) + '" text-anchor="middle" font-size="11" fill="' + C.muted + '">' + (o.xfmt ? o.xfmt(t) : fmt(t)) + "</text>"; });
+    (o.yticks || ticks(y0, y1, o.ny || 6)).forEach(function (t) { s += '<line x1="' + m.l + '" y1="' + Y(t) + '" x2="' + (W - m.r) + '" y2="' + Y(t) + '" stroke="' + C.grid + '"/><text x="' + (m.l - 6) + '" y="' + (Y(t) + 4) + '" text-anchor="end" font-size="11" fill="' + C.muted + '">' + (o.yfmt ? o.yfmt(t) : fmt(t)) + "</text>"; });
+    s += '<line x1="' + m.l + '" y1="' + (H - m.b) + '" x2="' + (W - m.r) + '" y2="' + (H - m.b) + '" stroke="' + C.navy + '"/><line x1="' + m.l + '" y1="' + m.t + '" x2="' + m.l + '" y2="' + (H - m.b) + '" stroke="' + C.navy + '"/>';
+    if (o.xlabel) s += '<text x="' + ((m.l + W - m.r) / 2) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="12" font-weight="700" fill="' + C.muted + '">' + esc(o.xlabel) + "</text>";
+    if (o.ylabel) s += '<text transform="translate(14 ' + ((m.t + H - m.b) / 2) + ') rotate(-90)" text-anchor="middle" font-size="12" font-weight="700" fill="' + C.muted + '">' + esc(o.ylabel) + "</text>";
+    return { X: X, Y: Y, W: W, H: H, m: m, axes: s, clip: 'clip-path="url(#' + id + ')"', inside: function (px, py) { return px >= m.l && px <= W - m.r && py >= m.t && py <= H - m.b; },
+      invX: function (px) { return x0 + (px - m.l) / (W - m.l - m.r) * (x1 - x0); }, invY: function (py) { return y0 + (H - m.b - py) / (H - m.t - m.b) * (y1 - y0); } };
+  }
+  function dot(x, y, r, fill, stroke, title) { return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + fill + '"' + (stroke ? ' stroke="' + stroke + '" stroke-width="1.5"' : "") + ">" + (title ? "<title>" + esc(title) + "</title>" : "") + "</circle>"; }
+  function line(x1, y1, x2, y2, stroke, w, dash, extra) { return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + stroke + '" stroke-width="' + (w || 2) + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : "") + (extra || "") + "/>"; }
+  function path(pts, stroke, w, dash, extra) { return '<path d="' + pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") + '" fill="none" stroke="' + stroke + '" stroke-width="' + (w || 2) + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : "") + (extra || "") + "/>"; }
+  function text(x, y, s, o) { o = o || {}; return '<text x="' + x + '" y="' + y + '" font-size="' + (o.size || 12) + '"' + (o.anchor ? ' text-anchor="' + o.anchor + '"' : "") + ' fill="' + (o.fill || C.navy) + '"' + (o.bold ? ' font-weight="700"' : "") + (o.mono ? ' font-family="Consolas,Courier New,monospace"' : "") + ">" + esc(s) + "</text>"; }
+  function put(svgEl, W, H, inner) { svgEl.setAttribute("viewBox", "0 0 " + W + " " + H); svgEl.innerHTML = inner; }
+  function rleDecode(s) { return s.split(",").map(function (t) { return t[0].repeat(t.length > 1 ? parseInt(t.slice(1), 16) : 1); }).join(""); }
+  return { C: C, CLASS: CLASS, CLASS_SOFT: CLASS_SOFT, ticks: ticks, fmt: fmt, frame: frame, dot: dot, line: line, path: path, text: text, put: put, rleDecode: rleDecode };
+})();
+
+var LAB_DATA = {"X": [6.878808249601809, -5.652891747960443, -6.894323318567568, -8.61732840094806, -7.586864899484324, -5.982874865003356, -2.7400307807900974, -7.444873157893257, 4.322290636342554, -5.904192648544518, 3.5275622703344016, 4.912830757753056, 5.939540328038434, 4.057442578833177, 2.209707732238973, -7.874421204257757, -2.5956097689491506, -7.866291665830988, 5.463391064677517, -4.976407011776848, 7.186466272643261, 4.069944462834954, -6.4923649187455625, -2.4281637774272418, -6.061283625597313, -3.3215040234199007, -3.8903899159595134, -7.06176930519397, -2.2585613090470438, 3.155537983174403, 2.8166348770832856, 7.417469116236312, -8.935388626060323, -7.870223827302284, -2.0755228964426533, -2.389615984947581, -6.3841094460205206, -1.8049691104924257, -6.585667305820802, -2.3990846912101476, 3.1995231477611696, -3.4793899465245754, -8.057437572408812, 6.598772400946063, -7.861492011031437, 5.390679653546108, 3.5724615206774732, -6.795864689163247, 2.986675594679592, -1.4107150818102612, -4.251863671290064, -3.1624568924829695, -5.464299046285726, -1.559959286601094, -4.283424011493663, -3.2312455577280264, -4.31998714156375, 4.336797054556309, -3.351661335705573, 3.210314639584923, -5.73911858532801, -3.612506704133314, -5.800107340631369, -6.902446640634497, -5.832842427086456, -6.640755556463106, -3.783962079524076, -1.5221437285289234, -5.709483511049969, -1.6230377270582577, -2.120296859778996, -6.61071621297877, -3.598826513678203, 3.845735078506036, -0.8258444499294313, 5.257921156878493, 3.3548078385547666, -3.072566886174693, 5.257936059795359, -3.0842067084670983, -2.525394292738271, 4.896791329184346, 0.7503580281452145, -6.49062756816514, -6.763232033160008, -6.223110333747225, -6.87333475148945, -2.404741141166945, 4.7097292983633015, -7.140844635023934, 4.694565044112678, -4.207642513513247, -4.369993740332109, -2.5508517466990424, 4.65548110648159, -7.741760256654193, -3.5162586509199163, 4.940470256643153, 5.172462150003575, -2.9797274068113393, -5.313052622566075, -7.419705756926362, -2.9204550428848735, -7.12937389158, -2.1538532905752588, 4.37172349383708, -6.256411374061863, 4.261555742659687, 6.035675338814053, -8.792940381704511, 4.95173818932621, 5.24586357100465, -2.0968556755705965, -6.051454401097935, -3.1449098675731966, -9.428302060323038, -5.13825486179722, -4.579099022068389, -3.061964148204495, -2.647975561918639, -4.295808242137403, 6.758423924565418, -3.697841213209576, -6.788661721318799, -6.4695200202186784, 4.104060893747676, -2.111681505368473, -1.5329769622091465, 3.579249912786742, -1.271998196057609, 5.784680952419944, -6.904709103908248, -0.7504191003468854, -6.850214982040539, -7.8872934017682015, 5.795930191321288, 4.717014859142656, 7.212611743418492, -2.392704563835102, 6.160172215252048, -4.8117230814116, -3.724594967454059, -8.463907039576041, 2.7108989547546285, 4.547356784931177, -4.103020881730867, 3.8238491703339124, -5.850435643308847, -6.743406376849772, 4.111825452191721, -3.836799591859984, -6.901842954342138, 5.62635102822149, -7.017075005454411, 3.7124885787830153, -5.489894142951188, -8.086848048950912, -2.200137154185433, 5.207763985716355, 6.0301935310369865, -1.5341666361797126, 4.3454130970246565, 5.069223668646042, -7.010139369299499, -2.7728038884577644, 5.324947449059902, 4.991565804186519, -3.4491015738562347, -6.542436949869231, 4.971907795424125, -5.34642931620516, -2.503061475081797, 3.7815143851161395, -6.451208607993213, -1.1378102456347257, 6.36940678310744, -2.4369213711235185, -3.2299640509553162, -2.702740477051961, 3.1268180910260472, -3.065298854427705, 3.688853950108861, -6.762415872892672, -6.130683410688684, -5.889127572365634, -0.735724769362931, 5.2662087149683785, 4.84769594724952, 3.6237263745460155, -2.552188869984692, -2.075234392995589, 3.7634388781675376, -7.9577247967693, -7.7905863850157075, -2.2188428971735092, -6.506538112433665, -0.24577454160011403, -0.6141422444438804, 4.073560597280781, 3.470260831955316, 2.541769189034877, 10.00056913344859, -7.956814839058945, -8.569066122527813, -5.860587076850717, -6.147665274755789, 9.376142938998656, -6.601649668446783, 5.237372683848275, -6.124554982967612, 1.9017392566665718, 3.5417409890796456, 3.2377321463826156, 2.071418651204319, 2.196914861664045, -7.55232684151231, 10.21852560566875, -6.587684939485652, 0.03791063851315002, -8.365488191868165, 3.212127996602108, 1.1891746048522778, -7.8727867255387345, 7.304588304742174, -7.252429701188094, 9.748297674807363, 9.465123750213127, -6.174128945494455, 6.662681979542591, 0.3886217482396004, 1.3920887965012305, -0.2675485471693655, -5.255462744277452, -7.265772603259538, 10.859930007957484, 8.410115343258882, -7.556579056640716, 11.642832879170296, -7.4884414037213025, 6.629203430677251, 1.571768200931594, 8.412177675896878, -6.325585424160022, 0.2570000303879729, -4.369244862453394, 0.9445806162411929, 0.9941973419822061, -7.342485909510059, 0.8477796360425847, 9.408787459789943, -7.850067535702128, 9.14739323585016, -7.443120375801592, 7.923021182444635, 8.150473078124671, 11.237019949609046, -9.222614952702948, 0.47582986558291274, 8.621091552281, 2.7610340143013277, -7.572393980070831, 10.874207414219368, -6.511350168224015, -8.083144830841317, -6.660099186389925, -7.6003698458665, 9.58259704496054, 7.5492737482330945, -7.056578451078513, 9.219928065626286, 8.552187391698741, -6.864998712337793, 7.319521686595972, 2.9960896856962007, 7.3320648528475845, 2.5897128250353827, 2.5521365822325546, 9.66535818050148, 6.596447472726397, 8.791495356201741, 7.745033013451241, 0.4782831494863464, 0.7439045143395842, -7.036281258517168, -6.16592116275165, -7.122740776196619, -6.823732880758256, 8.65547730763928, 0.6016053265439842, -5.561577370891318, 1.1912492668137515, 8.50951174087989, 9.096561697965555, 7.611872483054883, 3.7174105765295122, -7.136246175330164, 8.643231277176865, 2.3889075353371028, 2.902730548055936, 7.258068190439779, -6.854904983316636, -6.132689674458948, 8.05155340513238, -7.471710714866546, 9.327552454814189, 2.8299702768512423, -5.040822897672854, 2.883932748532653, 1.9854493571642364, -7.599359620820474, 2.9113571300735046, 3.0120759169448776, 6.898637941763041, -7.36157415953895, 9.630207047934348, -7.51101561929286, -5.728984601973698, 8.339541093109155, 10.282832799661021, 8.652961693491175, -7.800926668741606, 2.4591477370938786, 8.334728852674996, -7.692703647090481, -4.628704586216884, 3.0008482371288987, 10.184940280745153, 7.5372489484775755, 2.1576398110753656, 10.131822271137759, 2.7548391855076897, -6.739316733305408, 8.743354567614478, -6.282511643781407, -7.599380767808773, 2.46850679626453, 0.6798759504255647, 2.7338725107223456, 10.17666011683779, 1.1239663251981953, 8.982469477659262, 9.39138292731265, -4.682359074250723, 2.194730314179497, 2.3825520537207048, 9.25051961124127, 2.251874120533936, -7.0720358292320595, -6.085552783850691, 2.1300583766840417, 7.578838179301517, -7.226499959980113, 4.249321263125468, -5.394730018907793, 1.6889873558527213, -5.930114360520424, -8.337135928621226, 8.92495102927892, 1.8857749887524846, 0.9883509019186795, 10.641774162483308, 1.0686862867117446, 2.646111115582613, -6.398055526757217, 9.442821214012417, 3.3358484521574505, 1.1159479823090908, 8.62781230875151, -7.627349017060659, 2.9657895827839607, -7.589995259878942, 8.732781568148145, 2.788686982662343, -7.711601107588732, 9.91660576742245, 0.25013510252540483, 11.970176663180665, 8.664253628446389, 9.499147156375768, 3.074604020406463, 8.455410423914014, 1.8354859541804531, -7.8077213339025064, -6.12609498215881, -5.90389803007518, 8.392361866269944, 2.329551291820555, 2.435550539615336, 0.15535301431769444, 10.891858515175128, 8.240142422672172, 2.232919991439102, -6.2898065874681395, -6.6996370495044975, 6.718349834608964, -5.109682132936484, 9.223779503596528, 9.935207803181813, 3.2799104003015715, 2.9176712084316745], "elbow": [13271.897495508623, 3877.444508571185, 524.8415824029687, 453.4176244492612, 391.6982314236211, 336.7824525373411, 291.6766902005885, 248.68632957816163], "labels": {"1": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "2": "11000010101111101010110101101111001101011101011011010111011101000011011011111111111000011011111011110010110110111010011101100111111010011111110111100110101001111110111101011011111111000111111100101111", "3": "21000010202222201020220101101222001101012102022021010111021201000011011012122121122000012021112012210010120220221010011102100211212010022212110221200210202001221220122102012012111212000122211200101122", "4": "32000020301331102030310202202113002202021203031012020222012102000022022021231232211000021012223023320020210130332020022203200122123020031323220112100120301002332130231203021023222121000233122100202211", "5": "32000020301331104030310202202113004204021203031014020224012104000022042021231432211000021012223023320020410130332020024203200142143040031343220112100120301002334130231203021043424121000433142100204411", "6": "40311351432442215143423035010224115035302014142325303005320235333300350302042540022313102120004104403103521241440351305034031250254151142454001220231203412310445241542034302354505202333544250211015522", "7": "02133123016006632351061412234665332412146235356164121422152612111124144146406202456131345352240320041343203003004123122410213024620343305025223602613641036134052603205210146145222646111400624633434406", "8": "23155135217227750541271613356774550610167354547170131630143710111136166137627323647151564543362532261561075725226135130612315706702565524204335773715731257156240425324312167104033737111622406755656077"}, "starts": {"3": [3824.031661452956, 524.8415824029687, 3827.9032381784905, 524.8415824029687, 3823.9938909517896, 524.8415824029687, 524.8415824029687, 3824.031661452956, 3823.9938909517896, 3829.69867909998], "5": [454.3343851281734, 399.670407519284, 3784.8786010872336, 420.67120851386744, 445.80410474390874, 408.2064104910485, 420.6201643383009, 444.3735478567221, 445.69393939425333, 415.38638264388396]}, "centres_k": {"1": [-1.5666, 1.4504], "2": [-6.7185, -6.8457, 0.9709, 5.5365], "3": [-6.7185, -6.8457, -2.6887, 8.9462, 4.6306, 2.1268], "4": [-6.7185, -6.8457, 3.7278, 1.8062, -2.6887, 8.9462, 5.6791, 2.4991], "5": [-6.7185, -6.8457, 3.7278, 1.8062, -3.0454, 8.4047, 5.6791, 2.4991, -1.9074, 10.1323], "6": [-3.0497, 8.2623, -7.576, -6.3593, 3.7278, 1.8062, -6.004, -7.251, 5.6791, 2.4991, -2.1195, 10.0247], "7": [5.3097, 3.0523, -5.9718, -7.2447, -3.2153, 9.6166, -7.5616, -6.3952, -2.0393, 8.1195, 5.5213, 0.6059, 3.3798, 1.8441], "8": [-2.1249, 10.4813, -6.004, -7.251, 5.526, 3.0891, -3.6531, 8.9158, 5.3164, 0.6067, -7.576, -6.3593, -1.9798, 7.9571, 3.4959, 2.1163]}, "lim": {"moons": {"X": [0.8119, 1.6212, -0.0304, -1.0263, 1.7666, 1.8868, 0.9723, 0.8878, 0.8927, 1.1238, -0.3652, 0.2367, 1.8152, 1.2312, -0.8237, 0.9817, 0.5492, 0.3336, 0.3449, -0.7922, 1.9363, 0.8616, 0.2114, 1.2881, -0.2688, 0.2393, 1.8588, 1.8803, 0.1522, 0.1316, 0.8943, -0.2389, 0.9762, 0.0388, 0.7639, 1.9033, 0.4444, 0.9559, -0.8373, -0.0531, 0.5605, -0.4266, 0.6482, 0.1065, 1.5476, -0.3647, 1.0269, -0.7183, 0.1619, 0.8782, -0.7105, 0.3382, 1.9988, -0.8862, 1.0574, 0.7594, 0.5436, 1.223, 0.2396, -0.2081, 0.3324, -1.0205, 1.7694, 0.8844, 1.0978, -1.0892, -0.162, 1.4757, 0.0458, -0.9407, 0.6579, -0.9978, 0.4333, -0.1585, 0.8135, -0.9478, 0.0555, 0.9312, 0.5973, 0.7288, 1.9898, -0.0468, 0.6372, 2.0093, 0.0214, -0.3533, 0.9454, -0.3477, 0.6025, 1.9886, 0.3565, 1.0035, 1.9887, -0.674, 2.0099, 1.7824, 1.7387, 0.4235, -1.0337, 0.0626, 1.3078, 1.9755, 0.0419, 1.037, -0.8833, 0.0868, -0.9873, -0.4799, 1.5504, 0.2267, -0.5858, 0.0418, -0.0328, -0.8433, 0.9284, 1.4476, 0.5784, 1.9496, 0.5846, 0.7308, 0.8676, -0.6953, -0.0386, -0.02, -0.0758, -0.8016, 0.9061, 0.1883, 1.3304, 1.9807, 1.0049, -0.5403, -1.0185, 0.2381, 1.2225, 1.5951, 1.1492, -1.0175, 2.0224, 0.8781, 0.0868, -0.0153, 0.446, -0.3812, -0.4317, 1.0185, 0.2383, 1.3439, 0.2579, -0.0095, 0.4758, 1.6812, 0.8432, 0.3392, 0.6049, -0.1917, 1.2632, 0.3286, 0.5371, 0.6448, 0.1698, 1.1246, 0.6137, 1.479, 0.4085, 1.6578, 0.4652, 0.6944, 1.561, 0.944, 0.6157, -1.0857, -0.9241, -0.7368, 0.154, 0.9419, 1.8175, -0.671, -0.7303, 0.5815, 1.4748, -0.8969, 1.9268, 1.8038, 1.9497, 0.3362, -0.1493, 0.7842, -0.8765, -0.6335, -0.9304, 0.4263, 0.8131, 0.9361, -0.0202, -0.5382, 1.8643, 0.1825, 0.1332, 1.6149, 0.5178, -0.3966, 0.2725, -0.0969, -0.1763, -0.0481, 0.2204, -0.4885, 0.3653, -0.5422, 0.8067, -0.2437, -0.1436, -0.3903, 0.6574, 0.2061, 0.8902, -0.2983, 0.8815, 0.8445, 0.0118, -0.4739, 0.9981, -0.3539, 1.0415, -0.0582, -0.0987, 0.0399, -0.0748, 0.8787, 0.53, 0.8121, -0.4575, 0.2019, 0.6781, 0.2165, -0.2169, 0.0938, 0.5317, 0.3665, -0.4336, 0.8581, 0.7079, 0.0608, -0.3416, 0.9642, 0.1803, 0.6477, -0.1211, -0.4556, 0.8064, -0.1974, 0.0378, 0.056, -0.5003, 0.6502, 0.7207, -0.4819, 0.94, 0.9957, -0.2823, 0.1765, -0.1413, 0.5234, -0.462, 0.2398, 1.02, -0.3752, 0.9737, 0.4679, -0.4699, 0.4316, -0.4748, 0.5357, -0.4169, 0.3902, 0.1795, 0.4059, 0.7882, -0.3538, 0.1234, 0.9725, -0.5122, 0.4605, 0.2387, 1.0481, 0.0374, 0.9647, -0.3954, 0.385, 0.9281, 0.3584, 0.247, 0.7701, 0.3572, -0.1143, -0.2354, -0.2582, 0.2542, 0.0675, -0.6043, 0.3209, 1.0953, -0.0287, 0.3362, 0.312, 0.0995, 0.9745, -0.3502, 0.883, 0.8009, 1.0279, 1.0842, 0.3928, 0.3722, -0.515, 0.6614, 0.1444, -0.3992, 0.4934, 0.5576, 0.5638, 0.3291, 0.9953, 0.4063, 0.6869, 0.031, 0.0517, -0.3938, 0.5171, 0.2881, 0.7486, 0.4751, -0.1609, -0.3934, -0.1601, -0.3891, 0.2091, 0.5038, 0.3998, -0.0011, 0.4775, 0.956, 0.9855, 0.8842, 0.0739, 0.0324, -0.4498, 1.0303, 0.2306, -0.3744, -0.3704, 0.4448, 0.9005, -0.3477, 0.9609, -0.4744, -0.1611, 0.9622, 0.7774, 0.0425, -0.5081, 0.8386, -0.3195, -0.3914, -0.0786, 0.8566, -0.4125, -0.3554, -0.5907, 0.8469, 0.032, 0.5288, 0.5033, 0.0273, -0.4382, 0.4251, 0.6779, 0.5909, 0.7281, -0.3742, 0.5022, 0.1868, -0.2871, 0.2752, 0.9877, 0.8777, -0.53, 0.372, 0.7899, 0.3907, 0.9373, 0.5196, 0.269, 0.3674, 0.8624, 0.2373, -0.0059, 1.0101, -0.2168], "truth": "01101101010111000100110101111000110110011001100011011010010010101001001011101001101110001100101111011100010010000001011000101001110001111010110000110111001011001101110111000011100010111001000000101101", "km": "11001111110011010100110100110010101111001000101001011011010010111001001010100101101100101101101111001101000010000011011110000010111000111011000001010011101011000101110111000001100010111001000011001001", "n": 200}, "stretched": {"X": [0.5531, -3.8333, -2.013, -3.8352, -3.8505, -3.331, -3.1663, -4.3766, -2.1232, -3.206, -3.9652, 1.6376, 0.7933, -2.7531, -2.5307, -2.5933, 0.326, 0.9462, -2.9507, -3.3884, 1.0525, -3.2811, 0.6067, 1.5132, 1.1083, -2.8021, 1.3817, -3.7059, 0.6524, 1.8939, -3.6454, 1.332, -3.0257, -3.4889, -3.6708, -3.0932, -2.1957, -2.909, -2.4807, -2.6192, -3.0197, -2.9376, -3.1265, -3.0686, -3.2691, -2.8385, -3.4825, -1.1316, -3.6482, -1.9373, -1.9151, -3.1599, -2.1028, 2.1058, -3.0463, -3.5293, -3.4602, 0.8398, -3.1221, -2.0147, -3.9653, 1.7304, -2.3991, -2.3482, -3.3098, -3.7522, -3.0139, -2.9295, -4.3569, -3.3846, -4.0562, -2.4164, -1.4606, 1.0742, 0.7454, -2.0304, -4.3822, 1.9333, 1.5889, -2.9022, -3.0892, -2.1847, 2.0647, 0.3654, 0.8349, 1.6812, 1.7978, 0.3572, -2.4855, -3.3689, -3.2492, -0.55, -3.3722, -5.1994, -3.7539, -3.1134, -2.9489, 1.4528, -2.8725, -4.9339, -3.8254, -2.868, -1.4871, 0.461, 0.924, -2.2213, -1.6912, -2.9515, 0.0699, -0.7036, -2.1681, 0.6937, 0.5942, -2.1066, -0.2417, -2.9515, 1.426, 0.202, -1.1701, -2.7017, -3.8491, -2.4152, -4.1205, -3.2789, -2.0169, -2.6191, 2.3776, -2.9182, -2.5499, 1.0251, 0.8029, -2.9246, -2.4723, -1.4174, -2.9975, -3.4894, 1.7578, 1.7264, 0.7346, -4.7952, -3.1913, -2.2577, -2.7587, -4.7667, -4.01, -3.1572, 0.0545, 1.8202, -1.6956, 1.5882, 1.4984, -4.2567, -4.3366, 0.8965, -3.2896, -3.8576, -2.103, 0.9202, 1.8968, 0.9222, -3.1688, -4.0839, -3.2933, 0.1954, 1.134, -2.4888, -3.3784, 0.7983, 0.704, -1.2689, -1.542, -3.7504, 0.6394, -3.2749, -3.4926, -2.9719, 0.2727, -3.0716, 1.3368, -2.6822, -2.1846, -3.1558, 2.3001, -3.9462, 0.2809, -0.7406, 1.896, -2.5813, 1.0159, -4.1716, -4.3471, 0.3325, -1.4268, -2.0855, -2.3552, 0.6665, -2.8151, -3.9103, -1.6567, 0.9731, 1.5726, -2.2659, 1.3946, -0.1444, 1.7999, 1.2555, -3.1959, 1.1423, 0.3974, -3.4281, -2.9916, 1.5928, -2.9176, -2.8166, 0.8023, -3.6957, -3.6146, 2.2138, -2.1063, -2.427, 0.7528, -3.8232, -2.6346, -3.5613, -2.7628, -1.6148, -1.5175, -3.0535, 1.6311, 0.4546, -3.927, 1.5306, -0.3339, -2.9424, -3.4982, -2.6623, -2.1933, 1.4828, -3.2918, -4.9536, -1.395, -1.2076, -0.1859, -3.1255, 1.5519, -2.9457, -2.9192, -2.23, -2.9418, -2.4227, -2.1085, 1.6374, 1.0379, 0.5723, -2.6317, -0.5259, 1.3445, 1.1204, -3.997, -3.1007, -2.6401, 1.2332, -2.4024, -2.4393, 2.2012, 0.3524, -2.5729, -5.6701, -2.0506, -4.6854, -2.9623, -2.6894, -4.0752, -4.0699, -2.026, -2.9204, -1.3067, -2.8234, -3.0715, -3.0743, -2.5584, -3.5741, -2.023, -2.8311, 0.5731, -2.7367, -2.8282, 0.7026, 1.2798, -2.2543, 0.5372, 1.3828, -2.9058, -1.3678, -2.6621, -3.0712, 1.0714, -3.0774, -0.3332, -2.9965, 0.7051, 4.8346, 2.2413, 2.2776, 1.6968, 3.2833, 4.0226, 3.0722, -0.7795, 1.8227, 4.333, -1.3177, -0.0768, 1.2915, 2.6311, 2.4437, 0.6916, -0.6518, 2.8122, 1.8156, -0.599, 1.0243, -0.2775, -1.5895, -1.1458, 0.2891, -0.7092, 3.9872, -0.0668, -1.4641, 1.9913, -1.349, 2.9377, 1.0217, 3.9015, 3.7517, 1.9739, 0.8413, 2.8381, 0.1151, 3.619, 0.9929, 0.517, 0.5389, 1.1042, 0.4213, 4.1394, 0.9166, 4.4198, 2.0503, 1.7474, 0.6774, 2.4716, -2.6581, 1.2731, 1.936, 4.354, -0.7776, 3.9278, -1.0118, 5.0817, -2.6149, 0.177, -0.4452, 1.675, 1.9726, 2.9954, 3.4778, 3.1958, 3.8789, 1.8526, 2.7028, 1.9279, -1.4655, -0.2424, 1.7115, 2.9552, -2.2251, -1.7644, 2.9415, 3.5602, -0.2416, -2.5212, 0.1319, -0.3697, -1.4655, -1.9973, 0.3619, -0.1737, 1.4684, 0.7219, 1.4916, 1.4871, 3.8281, 2.0929, 3.444, 1.2433, -1.757, 0.8675, 3.5778, 3.6086, 2.987, 1.3955, 0.1695, -0.5039, -0.4304, -0.9599, 3.3157, 0.115, 1.6087, 2.6221, -0.1646, -0.0535, 2.465, 0.5973, 3.1841, -1.5526, 0.5411, 0.6379, 2.8165, 2.1185, 2.2864, 4.6879, 1.5008, -0.7378, 0.1613, -2.2898, 2.8949, 2.9975, -0.6636, -0.506, 3.0831, 0.2934, 1.423, 3.377, 1.3936, -1.756, -2.1547, -0.5903, 3.4391, 3.7354, 1.8164, 0.9782, 3.2551, 2.5412, 2.9331, 0.2588, -2.3156, 1.6046, -1.802, -1.4437, 2.9285, 2.5443, -0.9301, 3.6254, 2.0152, 1.9097, -1.0977, -2.541, -0.8886, 3.2475, 5.1676, 4.0886, 0.6313, -1.4845, 0.2716, 1.9225, -0.5158, 0.0321, 0.3222, 0.7379, 4.1511, -0.9121, 4.0355, 1.2279, 3.3955, -0.0852, 3.8425, -1.3889, 0.344, -0.3808, 1.2564, -2.3529, 2.9389, -0.0803, 1.513, -1.5651, 3.1186, -0.6988, 4.8053, 2.5218, 0.2368, 1.1345, 2.5053, 2.4509, -0.9764, 0.6812, 2.0494, 1.455, -1.0331, -1.6328, 2.8863, -1.3675, 0.9433, -1.8289, -1.3789, 4.0959, -0.6279, -0.01, 1.6761, 0.8857, -1.7386, 3.2005, 0.6063, -0.5525, 1.4408, 1.7222, -2.6619, 1.3351, 0.4016, 0.4077, 4.5189, 2.3726, 1.3645, 0.66, 1.3046, -1.4461, 0.6088, -1.2532, -0.424, 2.0569, -1.4661, 0.6164, 2.9019, 1.0002, -0.124, 2.6514, -1.3255, 3.8068, 3.4959, 1.642, 0.5796, 1.0361, 1.0641, -2.046, 3.4705, 3.6191, 2.2886, 0.5429, -0.0275, -0.3642, -2.2553, -0.7807, -0.3809, 0.6644, 1.1972, -1.027, -1.4679, 2.1197, 0.8759, 0.7405, -1.2446, 2.3538, 2.3677, -2.7485, -0.114, 3.1724, 4.7804, 2.46, 3.0358, 3.2771, 0.5994, 5.1094, 2.4898, 0.48, 2.835, 1.1393, 0.558, 2.4501, 3.6805, 0.2693, 2.2603, 2.2446, 0.7302, -0.6282, 2.8445, 3.3277, -0.5131, -1.3474, 2.8794, 0.0415, -2.1252, 0.6062, 0.3064, 0.3336, 1.1887, -1.1175, 1.3035, 0.7344, 0.8622], "truth": "211001100012201122102022202122021011101010000011111012001210120000110101122102211022222200020001020011122001221221212211011000211221011022201100012212200210122211122002211121012120002022212102111200122122221220021020021021100100220221001210112021110002220222000211221010101001101100102112212201002020", "km": "021222221120012200220100010200202122112121111121211120122021201112222222100120022100000011111222101222100112012002020012222111022002112100022112220010022022100022200120011202120201110201020220122012100201002001102101201102211111002012112022111102221110001100211022002222212212112212110220020011110111", "n": 300}, "uneven": {"X": [0.5897, 3.8543, 0.4493, -0.5236, 2.5941, -0.2318, -0.6243, 0.3386, 0.8904, 1.9468, -0.8828, 1.3114, -1.9293, -2.056, 1.2809, -1.5374, 1.5584, 0.1834, 3.841, 2.7243, -4.0148, 0.1121, -0.3479, -0.6898, 0.5442, -0.9043, 0.7257, 3.0105, 3.0295, 4.0679, 0.1274, -0.5538, 3.7883, -1.3108, -0.2348, 1.2942, 2.5473, -1.6059, -0.5344, 0.1366, 3.8513, -1.44, -1.3857, -0.1241, -1.2744, 1.2222, -4.0277, 3.5377, 1.6623, 1.0432, -0.8866, 1.2538, -1.4976, 3.0064, -0.1916, 1.6559, 0.3471, -1.9708, -0.0628, -0.7667, 0.2002, 2.9234, -2.23, -0.9186, 2.8821, -1.0882, 3.4537, -0.7959, 0.5262, -1.9867, 0.4248, 1.7209, 0.639, -0.2521, -1.074, -0.9227, -0.857, -0.0279, -0.6859, 1.6739, -0.9746, -1.2514, 3.0111, -0.356, -0.0657, 2.1305, 0.0037, -1.8662, -2.9176, 3.6426, 0.1447, 0.7752, -0.4944, -1.13, 3.0767, 1.8502, -2.8303, 0.6569, -0.1196, -0.2961, 1.322, -0.8621, -1.6692, 0.4313, 2.2313, -1.0349, 0.7434, -0.9859, -0.3124, 1.2773, 0.2294, 2.2549, 3.7315, 1.6047, 0.424, -1.2833, -0.1429, 3.1844, 0.4315, 1.642, -0.0362, 0.8429, -1.1939, 0.1361, 1.6008, 3.1641, -0.818, 1.1534, 0.4315, -0.7879, -1.2056, 0.9717, 1.3568, 0.0751, -2.1298, -0.4161, -0.8808, -1.4937, 3.3709, 2.9505, 0.2176, 3.0749, -0.4503, -4.3736, 1.6341, 3.4893, 2.2373, 2.6422, 0.4788, 2.9109, 3.6287, -0.895, -0.2974, -1.0173, 4.0142, 1.4049, -1.5305, 3.5509, 3.5702, -0.0094, 1.686, 2.8798, -1.8314, -0.9726, 0.1186, -3.0456, -0.775, 3.2827, -0.8558, 2.7941, 2.6829, -1.3597, -1.2935, 1.4736, -0.7133, 0.191, -1.8535, 2.7587, -0.9582, 1.0186, 0.6276, 0.9249, -0.194, -1.3681, 2.8121, 2.9864, 3.2312, -0.3919, -0.4824, 0.9211, 1.1176, -0.0809, -0.2109, 2.5792, -1.1533, 3.0695, 3.0412, -3.3724, 0.192, 1.5981, -0.6463, 2.2292, -1.5357, 0.6687, -1.5446, 1.2688, 1.5198, 0.3607, 0.207, -0.0741, 0.9647, 0.5824, 0.9676, 1.5722, 3.0555, 3.0571, -0.9396, 3.3141, -1.7086, -1.3052, -1.0121, -0.2515, 2.7247, 0.9379, 3.2898, -0.7138, 0.3826, 4.2178, -2.0936, -0.1162, -0.4119, -1.7776, 2.9827, 0.8381, 1.292, 3.0654, 2.8454, -2.4349, -0.0432, 2.4289, -0.3621, -2.2669, -0.66, 0.3792, 1.0411, 2.6544, 1.087, 0.4306, 3.1063, -2.2728, -2.3198, -1.9403, -1.7156, 0.3578, 2.3803, 1.349, 0.9476, -1.7361, -2.6181, -2.2334, -0.6452, -0.9424, -0.697, 2.9861, -1.7386, -2.8717, 1.0143, 2.2586, 0.4894, 0.9412, 1.6467, 0.5709, 2.3288, 0.0446, -3.4084, -0.9726, 2.4115, 0.5563, -2.6147, 1.1781, 2.5895, 0.5659, -1.5358, -0.9405, -2.2403, -0.78, 0.0276, -2.4103, 1.6791, 0.1207, -0.7746, 0.7382, 0.3816, -1.8487, 0.3723, 2.8226, 1.7892, 1.3269, -0.4091, -0.1843, -1.9339, 2.8362, 2.1129, 2.0999, -2.4971, -0.0524, 2.9173, -1.0958, 2.4399, -3.4227, -0.0965, -0.1653, -0.2235, 2.8639, 1.0972, -1.5932, 0.3987, 0.7253, 1.2889, -0.0455, 2.4471, 2.0175, -3.0129, 1.328, -0.7158, -0.4794, 0.637, -0.9396, -1.7396, 2.1918, -2.7952, -0.6489, 1.3457, -2.6162, -2.3183, 0.2235, 0.1449, 2.9085, 0.8467, 2.662, 2.5644, -0.1642, -2.4589, 1.8961, -1.6775, 0.7296, -0.8558, 2.4291, -0.0225, 0.7294, -1.5963, 1.3625, -2.1863, 0.2498, -0.0707, -0.0596, -0.7908, 2.5603, -2.6922, 0.9595, -1.333, -0.4407, 0.1091, -3.3261, 0.9621, -2.0771, -2.3197, 2.0494, 2.9497, -2.5135, -3.6286, -0.8406, -2.7985, -0.607, 1.1486, -0.5321, 2.8662, 0.5157, -2.5593, 1.9719, 1.7518, 2.2718, 3.2372, -1.4578, 0.0359, 2.8743, -2.0972, 2.3778, -4.476, -2.7745, 2.4896, -0.8829, 3.6864, 0.6397, -0.1068, -2.2386, 0.4059, 2.9124, 2.9418, 2.2513, -0.1979, -2.814, 0.0894, -1.1062, -1.4471, -1.4412, -0.2836, 2.7855, -3.0436, 2.4862, 0.6548, 0.1326, 1.6075, -1.6516, -0.2487, 0.3525, -0.2112, 3.4738, -0.9816, -1.2832, -1.3386, -1.2564, -2.4337, -0.2341, -2.714, -2.4978, 2.7726, -1.9471, 0.2267, -1.2569, 2.9642, 1.9728, 1.4956, -3.5388, -0.345, 1.0005, 2.6331, -0.4016, 1.8624, -1.3086, -0.8104, 0.3551, -1.0695, -1.1741, -1.5453, -2.7913, 1.2792, 0.6796, 1.4093, 0.5601, 0.3736, -0.5807, 0.4696, 2.0006, -2.053, -2.723, -0.7381, -2.2911, -1.983, -0.3594, 0.2259, 2.584, -2.5235, -0.2408, -2.5989, 0.4453, -0.3472, 0.378, 2.0875, 0.4141, 0.6525, -0.3085, 1.7926, -0.7175, 1.3785, 2.5153, -1.8087, 0.97, -2.2109, 0.7696], "truth": "020000000000000000220000000100001000100010000002000002000000010020100000000000000020000001000020000000000000000020000100000002000000000000210100010102100000011002000001010000000000000022100000000010000000000000000022020000202000000000010000", "km": "101122112010112120001112002222212100210121111010221210122111021101212110121111101101101112001102121221120101120202111202101020122000011121022221220200212120122200110112022110111210000100201022101221201210102121202200101112000112111120220102", "n": 240}, "units": {"X": [0.6792, 0.4703, 0.9007, 1.1682, 1.4544, 1.0439, 0.7789, 0.6861, 1.2995, 1.6539, 1.1091, 0.5067, 0.6167, 1.64, 1.0812, 0.3071, 0.9665, 0.5347, 0.7483, 0.8048, 0.7147, 1.2214, 0.9748, 0.7642, 1.1639, 1.3319, 0.3428, 0.8973, 0.6077, 0.9307, 0.4842, 1.0083, 0.9848, 0.8783, 0.5808, 0.8415, 0.5635, 0.4579, 1.0899, 0.5563, 1.4681, 1.2866, 0.2009, 1.1089, 0.5593, 1.0132, 1.0175, 0.2046, 0.9066, 0.8977, 1.3848, 0.5274, 1.2952, 0.5604, 0.8675, 0.6638, 1.5795, 1.2273, 1.9727, 1.2568, 1.338, 1.3363, 0.7574, 0.972, 1.5402, 0.8414, 1.0755, 0.9915, 1.2437, 0.854, 2.9391, 3.097, 3.0412, 2.654, 3.3583, 2.4806, 2.5196, 2.487, 3.3868, 2.8558, 2.6116, 2.5456, 3.1685, 2.5781, 2.4912, 3.2456, 2.5213, 2.871, 2.9973, 2.8219, 2.9784, 3.5355, 2.7932, 2.4963, 2.2653, 2.9181, 2.8591, 3.106, 2.8143, 2.8085, 2.7115, 2.7921, 3.0641, 2.8479, 3.0402, 3.7605, 3.1916, 2.3696, 3.6934, 3.1391, 2.6234, 3.3628, 3.0071, 2.7539, 2.7466, 2.6026, 3.0192, 3.4275, 2.87, 3.1683, 3.7503, 2.5142, 3.103, 2.8774, 2.5763, 2.5897, 2.9939, 3.1735, 2.7874, 3.0218, 3.2889, 3.1186, 3.3475, 3.1846, 3.1952, 5.7307, 5.2493, 5.0518, 5.284, 4.6324, 4.8649, 5.3173, 5.2523, 5.6193, 5.0042, 4.4151, 5.7789, 5.4372, 4.5765, 5.5503, 5.013, 4.2744, 4.8319, 4.7964, 5.6363, 4.6832, 4.8986, 4.8893, 4.8484, 4.6344, 5.0876, 5.4307, 5.2496, 4.629, 4.5401, 5.0476, 4.7174, 4.7479, 4.3281, 5.7802, 5.3666, 4.6104, 5.3633, 5.537, 4.0442, 4.7804, 4.8448, 5.2593, 4.9514, 4.9078, 4.9767, 5.7413, 5.864, 4.7901, 4.6295, 6.077, 4.6081, 4.7706, 5.0146, 5.1933, 5.4116, 5.1564, 4.651, 5.2026, 5.1, 5.7508, 4.994, 4.4652, 4.582, 5.5801, 56.7895, -68.3573, 53.544, 100.0012, 195.1065, 18.8425, 153.3347, 163.6239, 44.0489, 84.9928, 241.556, 237.6388, 168.4418, 126.5557, 191.0648, 88.7458, 92.3926, 31.1712, 100.4451, 93.4387, 321.8905, 84.5725, 201.6654, 205.6398, 85.0817, 193.5518, -74.1451, 107.5942, 168.5809, -91.8292, 7.2663, 184.4859, 79.4391, 12.1441, 70.1123, 56.5929, 157.9558, 136.3109, 77.5817, 46.7726, 95.6899, 206.0125, 127.9221, 151.1156, 87.9455, -3.3453, 43.1325, 152.0989, 108.2573, 27.6928, -29.4296, 108.8546, 72.8375, 71.9576, 73.644, 122.7124, 123.5558, 176.9703, 174.2737, 206.5674, 164.509, 73.1514, 95.6585, 139.5372, 75.1766, 143.9551, 192.2888, 35.9003, -41.6307, 195.4924, 301.4208, 356.6936, 193.4156, 438.6394, 359.0896, 289.9141, 271.841, 309.1117, 286.6615, 277.7048, 210.432, 401.0248, 296.8338, 305.9709, 307.4333, 111.3426, 342.1713, 273.6676, 276.8617, 305.583, 222.202, 367.4705, 244.3308, 227.7074, 231.0248, 312.7002, 359.6624, 252.3957, 179.1851, 384.9993, 214.7933, 395.5864, 295.6563, 244.132, 248.7968, 336.9493, 371.1497, 284.1464, 375.7548, 466.9583, 283.3353, 208.0443, 215.648, 188.7732, 248.8268, 242.0977, 193.9917, 342.4147, 91.0929, 194.3361, 461.2201, 383.0242, 341.8233, 336.5807, 441.675, 342.8504, 306.2062, 201.5872, 294.1067, 241.2893, 243.506, 242.8609, 296.4283, 273.6231, 369.6888, 93.9055, 186.4424, 348.7598, 203.1118, 295.8892, 290.9491, 305.3318, 259.0495, 89.5643, 178.609, 169.5732, 76.0916, 162.8895, 99.9936, 66.7559, 216.8717, 196.5127, 144.9748, 123.9531, 156.6981, 168.4728, 167.3512, 195.7834, 165.1567, 230.9578, 241.8297, 228.6296, 146.9517, 150.6795, 234.7891, 184.2366, 196.5479, 0.6404, -16.0083, 226.9719, 226.3647, 311.4745, 257.693, 217.7391, 201.309, 85.8608, 270.6541, 151.7131, 240.1988, 216.0033, 221.7678, 271.414, 160.8107, 169.0212, 131.5311, 169.8278, 333.2753, 170.9345, 294.8493, 266.0809, 258.3425, 264.2412, 118.8579, 229.8758, 327.073, 144.3363, 196.2314, 144.8673, 225.3609, 113.7176], "truth": "00000000000000000000000000000000000000000000000000000000000000000000001111111111111111111111111111111111111111111111111111111111111111122222222222222222222222222222222222222222222222222222222222222222", "km": "22221211221112122222021121221221222211222121222122222222211112212112210010000000100002000010111001101001100000011111102100000001011100021010001211212211121111111111111221101112011110111101001021011112", "n": 200}, "units_scaled": {"X": [0.6792, 0.4703, 0.9007, 1.1682, 1.4544, 1.0439, 0.7789, 0.6861, 1.2995, 1.6539, 1.1091, 0.5067, 0.6167, 1.64, 1.0812, 0.3071, 0.9665, 0.5347, 0.7483, 0.8048, 0.7147, 1.2214, 0.9748, 0.7642, 1.1639, 1.3319, 0.3428, 0.8973, 0.6077, 0.9307, 0.4842, 1.0083, 0.9848, 0.8783, 0.5808, 0.8415, 0.5635, 0.4579, 1.0899, 0.5563, 1.4681, 1.2866, 0.2009, 1.1089, 0.5593, 1.0132, 1.0175, 0.2046, 0.9066, 0.8977, 1.3848, 0.5274, 1.2952, 0.5604, 0.8675, 0.6638, 1.5795, 1.2273, 1.9727, 1.2568, 1.338, 1.3363, 0.7574, 0.972, 1.5402, 0.8414, 1.0755, 0.9915, 1.2437, 0.854, 2.9391, 3.097, 3.0412, 2.654, 3.3583, 2.4806, 2.5196, 2.487, 3.3868, 2.8558, 2.6116, 2.5456, 3.1685, 2.5781, 2.4912, 3.2456, 2.5213, 2.871, 2.9973, 2.8219, 2.9784, 3.5355, 2.7932, 2.4963, 2.2653, 2.9181, 2.8591, 3.106, 2.8143, 2.8085, 2.7115, 2.7921, 3.0641, 2.8479, 3.0402, 3.7605, 3.1916, 2.3696, 3.6934, 3.1391, 2.6234, 3.3628, 3.0071, 2.7539, 2.7466, 2.6026, 3.0192, 3.4275, 2.87, 3.1683, 3.7503, 2.5142, 3.103, 2.8774, 2.5763, 2.5897, 2.9939, 3.1735, 2.7874, 3.0218, 3.2889, 3.1186, 3.3475, 3.1846, 3.1952, 5.7307, 5.2493, 5.0518, 5.284, 4.6324, 4.8649, 5.3173, 5.2523, 5.6193, 5.0042, 4.4151, 5.7789, 5.4372, 4.5765, 5.5503, 5.013, 4.2744, 4.8319, 4.7964, 5.6363, 4.6832, 4.8986, 4.8893, 4.8484, 4.6344, 5.0876, 5.4307, 5.2496, 4.629, 4.5401, 5.0476, 4.7174, 4.7479, 4.3281, 5.7802, 5.3666, 4.6104, 5.3633, 5.537, 4.0442, 4.7804, 4.8448, 5.2593, 4.9514, 4.9078, 4.9767, 5.7413, 5.864, 4.7901, 4.6295, 6.077, 4.6081, 4.7706, 5.0146, 5.1933, 5.4116, 5.1564, 4.651, 5.2026, 5.1, 5.7508, 4.994, 4.4652, 4.582, 5.5801, 56.7895, -68.3573, 53.544, 100.0012, 195.1065, 18.8425, 153.3347, 163.6239, 44.0489, 84.9928, 241.556, 237.6388, 168.4418, 126.5557, 191.0648, 88.7458, 92.3926, 31.1712, 100.4451, 93.4387, 321.8905, 84.5725, 201.6654, 205.6398, 85.0817, 193.5518, -74.1451, 107.5942, 168.5809, -91.8292, 7.2663, 184.4859, 79.4391, 12.1441, 70.1123, 56.5929, 157.9558, 136.3109, 77.5817, 46.7726, 95.6899, 206.0125, 127.9221, 151.1156, 87.9455, -3.3453, 43.1325, 152.0989, 108.2573, 27.6928, -29.4296, 108.8546, 72.8375, 71.9576, 73.644, 122.7124, 123.5558, 176.9703, 174.2737, 206.5674, 164.509, 73.1514, 95.6585, 139.5372, 75.1766, 143.9551, 192.2888, 35.9003, -41.6307, 195.4924, 301.4208, 356.6936, 193.4156, 438.6394, 359.0896, 289.9141, 271.841, 309.1117, 286.6615, 277.7048, 210.432, 401.0248, 296.8338, 305.9709, 307.4333, 111.3426, 342.1713, 273.6676, 276.8617, 305.583, 222.202, 367.4705, 244.3308, 227.7074, 231.0248, 312.7002, 359.6624, 252.3957, 179.1851, 384.9993, 214.7933, 395.5864, 295.6563, 244.132, 248.7968, 336.9493, 371.1497, 284.1464, 375.7548, 466.9583, 283.3353, 208.0443, 215.648, 188.7732, 248.8268, 242.0977, 193.9917, 342.4147, 91.0929, 194.3361, 461.2201, 383.0242, 341.8233, 336.5807, 441.675, 342.8504, 306.2062, 201.5872, 294.1067, 241.2893, 243.506, 242.8609, 296.4283, 273.6231, 369.6888, 93.9055, 186.4424, 348.7598, 203.1118, 295.8892, 290.9491, 305.3318, 259.0495, 89.5643, 178.609, 169.5732, 76.0916, 162.8895, 99.9936, 66.7559, 216.8717, 196.5127, 144.9748, 123.9531, 156.6981, 168.4728, 167.3512, 195.7834, 165.1567, 230.9578, 241.8297, 228.6296, 146.9517, 150.6795, 234.7891, 184.2366, 196.5479, 0.6404, -16.0083, 226.9719, 226.3647, 311.4745, 257.693, 217.7391, 201.309, 85.8608, 270.6541, 151.7131, 240.1988, 216.0033, 221.7678, 271.414, 160.8107, 169.0212, 131.5311, 169.8278, 333.2753, 170.9345, 294.8493, 266.0809, 258.3425, 264.2412, 118.8579, 229.8758, 327.073, 144.3363, 196.2314, 144.8673, 225.3609, 113.7176], "truth": "00000000000000000000000000000000000000000000000000000000000000000000001111111111111111111111111111111111111111111111111111111111111111122222222222222222222222222222222222222222222222222222222222222222", "km": "22222222220222222222022222222222222222222222222222222222222222222222220000000000000001000000000000000000000000000000002000000000000000011010111111111111111111111111111111101111111111111101111111011111", "n": 200}}, "iris": {"ct": [[0, 50, 0], [48, 0, 2], [14, 0, 36]], "X": [1.4, 1.4, 1.3, 1.5, 1.4, 1.7, 1.4, 1.5, 1.4, 1.5, 1.5, 1.6, 1.4, 1.1, 1.2, 1.5, 1.3, 1.4, 1.7, 1.5, 1.7, 1.5, 1.0, 1.7, 1.9, 1.6, 1.6, 1.5, 1.4, 1.6, 1.6, 1.5, 1.5, 1.4, 1.5, 1.2, 1.3, 1.4, 1.3, 1.5, 1.3, 1.3, 1.3, 1.6, 1.9, 1.4, 1.6, 1.4, 1.5, 1.4, 4.7, 4.5, 4.9, 4.0, 4.6, 4.5, 4.7, 3.3, 4.6, 3.9, 3.5, 4.2, 4.0, 4.7, 3.6, 4.4, 4.5, 4.1, 4.5, 3.9, 4.8, 4.0, 4.9, 4.7, 4.3, 4.4, 4.8, 5.0, 4.5, 3.5, 3.8, 3.7, 3.9, 5.1, 4.5, 4.5, 4.7, 4.4, 4.1, 4.0, 4.4, 4.6, 4.0, 3.3, 4.2, 4.2, 4.2, 4.3, 3.0, 4.1, 6.0, 5.1, 5.9, 5.6, 5.8, 6.6, 4.5, 6.3, 5.8, 6.1, 5.1, 5.3, 5.5, 5.0, 5.1, 5.3, 5.5, 6.7, 6.9, 5.0, 5.7, 4.9, 6.7, 4.9, 5.7, 6.0, 4.8, 4.9, 5.6, 5.8, 6.1, 6.4, 5.6, 5.1, 5.6, 6.1, 5.6, 5.5, 4.8, 5.4, 5.6, 5.1, 5.1, 5.9, 5.7, 5.2, 5.0, 5.2, 5.4, 5.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1, 0.2, 0.2, 0.1, 0.1, 0.2, 0.4, 0.4, 0.3, 0.3, 0.3, 0.2, 0.4, 0.2, 0.5, 0.2, 0.2, 0.4, 0.2, 0.2, 0.2, 0.2, 0.4, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1, 0.2, 0.2, 0.3, 0.3, 0.2, 0.6, 0.4, 0.3, 0.2, 0.2, 0.2, 0.2, 1.4, 1.5, 1.5, 1.3, 1.5, 1.3, 1.6, 1.0, 1.3, 1.4, 1.0, 1.5, 1.0, 1.4, 1.3, 1.4, 1.5, 1.0, 1.5, 1.1, 1.8, 1.3, 1.5, 1.2, 1.3, 1.4, 1.4, 1.7, 1.5, 1.0, 1.1, 1.0, 1.2, 1.6, 1.5, 1.6, 1.5, 1.3, 1.3, 1.3, 1.2, 1.4, 1.2, 1.0, 1.3, 1.2, 1.3, 1.3, 1.1, 1.3, 2.5, 1.9, 2.1, 1.8, 2.2, 2.1, 1.7, 1.8, 1.8, 2.5, 2.0, 1.9, 2.1, 2.0, 2.4, 2.3, 1.8, 2.2, 2.3, 1.5, 2.3, 2.0, 2.0, 1.8, 2.1, 1.8, 1.8, 1.8, 2.1, 1.6, 1.9, 2.0, 2.2, 1.5, 1.4, 2.3, 2.4, 1.8, 1.8, 2.1, 2.4, 2.3, 1.9, 2.3, 2.5, 2.3, 1.9, 2.0, 2.3, 1.8], "y": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], "cl": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 0, 2, 0, 2, 0, 2, 2, 0, 0, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 2, 2, 0, 2, 2, 2, 0, 2, 2, 0]}};
+(function () {
+  "use strict";
+  var $ = Lab.$, esc = Lab.esc, P = MiniPy, D = LAB_DATA, C = Plot.C;
+  var KC = ["#2459C4", "#E07A1F", "#1F8A7A", "#6B3FA0", "#B4432A", "#C9A227", "#3A8FB7", "#7A5C3E"];
+  function pyRound(v, d) { return P.repr(P.evalExpr("round(v, " + d + ")", { v: P.F(v) }).value); }
+  function nice(v) { var r = Math.round(v * 100) / 100; return Number.isInteger(r) ? String(r) : pyRound(v, 2); }
+  function pct(v) { return (v * 100).toFixed(1) + "%"; }
+  function unflat(a) { var n = a.length / 2, out = []; for (var i = 0; i < n; i++) out.push([a[i], a[n + i]]); return out; }
+  function sq(a, b) { var s = 0; for (var i = 0; i < a.length; i++) s += (a[i] - b[i]) * (a[i] - b[i]); return s; }
+  /* one Lloyd round, the same rules as scikit-learn: nearest centre (first on ties), then the mean of each group */
+  function assign(X, cs) { return X.map(function (p) { var b = 0, bd = Infinity; cs.forEach(function (c, j) { var d = sq(p, c); if (d < bd) { bd = d; b = j; } }); return b; }); }
+  function move(X, lab, cs) { return cs.map(function (c, j) { var s = c.map(function () { return 0; }), n = 0; X.forEach(function (p, i) { if (lab[i] === j) { n++; p.forEach(function (v, d) { s[d] += v; }); } }); return n ? s.map(function (v) { return v / n; }) : c.slice(); }); }
+  function inertia(X, lab, cs) { return X.reduce(function (s, p, i) { return s + sq(p, cs[lab[i]]); }, 0); }
+  function lloyd(X, cs) { var lab = null, it = 0; for (;;) { var nl = assign(X, cs); if (lab && nl.every(function (v, i) { return v === lab[i]; })) break; lab = nl; cs = move(X, lab, cs); if (++it > 500) break; } return { centres: cs, labels: lab, inertia: inertia(X, lab, cs) }; }
+
+  /* ================= 1. By hand on a number line ================= */
+  var h = null;
+  function nums(s) { return s.split(/[,\s]+/).filter(Boolean).map(Number); }
+  function hReset() {
+    var pts = nums($("#h-pts").value), cs = nums($("#h-c").value), st = $("#h-status");
+    if (pts.some(isNaN) || cs.some(isNaN) || pts.length < 2 || cs.length < 1) { h = null; st.className = "status bad"; st.textContent = "Type numbers separated by commas: at least 2 points and 1 centre."; $("#h-table").innerHTML = ""; $("#h-svg").innerHTML = ""; return; }
+    if (cs.length > 5) cs = cs.slice(0, 5);
+    h = { pts: pts, cs: cs, lab: null, phase: "assign", rounds: [], done: false }; hDraw();
+  }
+  function hDraw() {
+    if (!h) return;
+    var lo = Math.min.apply(null, h.pts.concat(h.cs)), hi = Math.max.apply(null, h.pts.concat(h.cs)), pad = (hi - lo || 1) * 0.08;
+    var F = Plot.frame({ W: 560, H: 170, m: { l: 20, r: 20, t: 20, b: 40 }, x: [lo - pad, hi + pad], y: [0, 1], yticks: [] }), g = "";
+    h.pts.forEach(function (p, i) { var c = h.lab ? KC[h.lab[i]] : "#9AA3B2"; g += Plot.dot(F.X(p), F.Y(0.35), 9, c, "#fff") + Plot.text(F.X(p), F.Y(0.35) + 4, String(p), { anchor: "middle", size: 10, bold: true, fill: "#fff" }); });
+    h.cs.forEach(function (c, j) { var x = F.X(c), y = F.Y(0.8); g += '<path d="M' + (x - 9) + "," + (y - 9) + " L" + x + "," + (y + 6) + " L" + (x + 9) + "," + (y - 9) + 'Z" fill="' + KC[j] + '" stroke="#fff" stroke-width="1.5"/>' + Plot.text(x, y - 14, nice(c), { anchor: "middle", size: 12, bold: true, fill: KC[j] }); });
+    Plot.put($("#h-svg"), F.W, F.H, F.axes + g);
+    var groups = function (lab) { return h.cs.map(function (_, j) { return "[" + h.pts.filter(function (_, i) { return lab[i] === j; }).join(", ") + "]"; }); };
+    $("#h-table").innerHTML = "<tr><th>round</th><th>centres</th>" + h.cs.map(function (_, j) { return '<th style="color:' + KC[j] + '">group ' + (j + 1) + "</th>"; }).join("") + "<th>new centres</th></tr>" +
+      h.rounds.map(function (r, k) { return "<tr" + (k === h.rounds.length - 1 ? ' class="hi"' : "") + '><td class="m">' + (k + 1) + '</td><td class="m">' + r.cs.map(nice).join(", ") + "</td>" + groups(r.lab).map(function (s) { return '<td class="m">' + s + "</td>"; }).join("") + '<td class="m">' + (r.ncs ? r.ncs.map(nice).join(", ") : "?") + "</td></tr>"; }).join("");
+    var st = $("#h-status"), b = $("#h-step");
+    if (h.done) { st.className = "status good"; st.innerHTML = "<b>Nothing changed, so k-means stops</b> after " + h.rounds.length + " rounds. Final centres " + h.cs.map(nice).join(", ") + "."; b.disabled = true; b.textContent = "Finished"; }
+    else if (h.phase === "assign") { st.className = "status"; st.innerHTML = h.rounds.length ? "Predict: will any point change group this round?" : "Predict: which points are nearer to centre " + nice(h.cs[0]) + " and which to " + (h.cs.length > 1 ? nice(h.cs[1]) : "") + "?"; b.disabled = false; b.textContent = "Assign each point"; }
+    else { st.className = "status"; st.innerHTML = "Predict: where does each centre move? (the mean of its group)"; b.disabled = false; b.textContent = "Move the centres"; }
+  }
+  $("#h-step").addEventListener("click", function () {
+    if (!h || h.done) return;
+    if (h.phase === "assign") { var nl = assign(h.pts.map(function (v) { return [v]; }), h.cs.map(function (v) { return [v]; }));
+      if (h.rounds.length && nl.every(function (v, i) { return v === h.lab[i]; })) { h.rounds.push({ cs: h.cs.slice(), lab: nl, ncs: h.cs.slice() }); h.done = true; }
+      else { h.lab = nl; h.rounds.push({ cs: h.cs.slice(), lab: nl, ncs: null }); h.phase = "move"; } }
+    else { var nc = move(h.pts.map(function (v) { return [v]; }), h.lab, h.cs.map(function (v) { return [v]; })).map(function (c) { return c[0]; });
+      h.rounds[h.rounds.length - 1].ncs = nc; h.cs = nc; h.phase = "assign"; }
+    hDraw();
+  });
+  $("#h-reset").addEventListener("click", hReset); $("#h-pts").addEventListener("change", hReset); $("#h-c").addEventListener("change", hReset);
+
+  /* ================= 2. Watch k-means in 2-D ================= */
+  var X = unflat(D.X), XR = [-11, 9], YR = [-11, 13.5], w = null, seed = 7;
+  function rnd() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }
+  function wStart(cs, why) { w = { cs: cs.map(function (c) { return c.slice(); }), trail: cs.map(function (c) { return [c.slice()]; }), lab: null, phase: "assign", round: 0, hist: [], done: false, why: why }; wDraw(); }
+  function wRandom() { var k = +$("#w-k").value, idx = []; while (idx.length < k) { var i = Math.floor(rnd() * X.length); if (idx.indexOf(i) < 0) idx.push(i); } wStart(idx.map(function (i) { return X[i]; }), "random"); }
+  function wBad() { var k = +$("#w-k").value, base = [[-8, -8], [-7, -6], [0, 0], [-6, -8], [-7.5, -5], [-5.5, -6.5]]; wStart(base.slice(0, k), "bad"); }
+  function wStep() {
+    if (w.done) return;
+    if (w.phase === "assign") { var nl = assign(X, w.cs); if (w.lab && nl.every(function (v, i) { return v === w.lab[i]; })) { w.done = true; } else { w.lab = nl; w.phase = "move"; w.round++; } w.hist.push(inertia(X, w.lab, w.cs)); }
+    else { w.cs = move(X, w.lab, w.cs); w.cs.forEach(function (c, j) { w.trail[j].push(c.slice()); }); w.phase = "assign"; w.hist.push(inertia(X, w.lab, w.cs)); }
+  }
+  var wF = null;
+  function wDraw() {
+    var F = Plot.frame({ W: 560, H: 460, x: XR, y: YR, xlabel: "feature 1", ylabel: "feature 2" }), g = "<g " + F.clip + ">"; wF = F;
+    X.forEach(function (p, i) { g += Plot.dot(F.X(p[0]), F.Y(p[1]), 4, w.lab ? KC[w.lab[i]] : "#9AA3B2", "#fff"); });
+    w.trail.forEach(function (t, j) { if (t.length > 1) g += Plot.path(t.map(function (c) { return [F.X(c[0]), F.Y(c[1])]; }), KC[j], 1.5, "4 3"); });
+    w.cs.forEach(function (c, j) { var x = F.X(c[0]), y = F.Y(c[1]); g += '<path d="M' + (x - 9) + "," + (y - 9) + "L" + (x + 9) + "," + (y + 9) + "M" + (x + 9) + "," + (y - 9) + "L" + (x - 9) + "," + (y + 9) + '" stroke="#fff" stroke-width="7" stroke-linecap="round"/><path d="M' + (x - 9) + "," + (y - 9) + "L" + (x + 9) + "," + (y + 9) + "M" + (x + 9) + "," + (y - 9) + "L" + (x - 9) + "," + (y + 9) + '" stroke="' + KC[j] + '" stroke-width="4" stroke-linecap="round"/>'; });
+    Plot.put($("#w-svg"), F.W, F.H, F.axes + g + "</g>");
+    $("#w-round").textContent = w.round; $("#w-in").textContent = w.lab ? pyRound(inertia(X, w.lab, w.cs), 1) : "–";
+    $("#w-step").textContent = w.phase === "assign" ? "Assign" : "Move centres"; $("#w-step").disabled = w.done;
+    $("#w-hist").textContent = w.hist.length ? "inertia after each step: " + (function (hs) { var t = hs.map(function (v) { return pyRound(v, 0).replace(".0", ""); }); return (t.length > 12 ? t.slice(0, 5).concat(["…"], t.slice(-5)) : t).join(" → "); })(w.hist) : "";
+    var st = $("#w-status"), I = w.lab ? inertia(X, w.lab, w.cs) : 0, best = +$("#w-k").value <= 8 ? D.elbow[+$("#w-k").value - 1] : 0;
+    if (!w.done) { st.className = "status"; st.innerHTML = w.lab ? (w.phase === "assign" ? "Each centre moved to the mean of its points. Next: re-assign." : "Every point took the colour of its nearest centre. Next: move the centres.") : "Grey points: no clusters yet. Press <b>Assign</b>."; }
+    else { var good = I <= best * 1.001; st.className = "status " + (good ? "good" : "bad");
+      st.innerHTML = "<b>Stopped after " + w.round + " rounds</b>: no point changed group. Inertia " + pyRound(I, 1) + (good ? ", the same as scikit-learn's best of 10 starts." : ", but scikit-learn's best of 10 starts reaches " + pyRound(best, 1) + ". This start got stuck in a worse answer."); }
+  }
+  $("#w-step").addEventListener("click", function () { wStep(); wDraw(); });
+  $("#w-run").addEventListener("click", function () { var n = 0; while (!w.done && n++ < 400) wStep(); wDraw(); });
+  $("#w-rand").addEventListener("click", wRandom); $("#w-bad").addEventListener("click", wBad); $("#w-k").addEventListener("change", wRandom);
+  $("#w-svg").addEventListener("click", function (e) {
+    if (!wF) return; var r = $("#w-svg").getBoundingClientRect(), px = (e.clientX - r.left) / r.width * wF.W, py = (e.clientY - r.top) / r.height * wF.H;
+    if (!wF.inside(px, py)) return; var p = [wF.invX(px), wF.invY(py)], j = 0, bd = Infinity; w.cs.forEach(function (c, k) { var d = sq(c, p); if (d < bd) { bd = d; j = k; } });
+    var cs = w.cs.map(function (c) { return c.slice(); }); cs[j] = p; wStart(cs, "click");
+  });
+
+  /* ================= 3. Elbow ================= */
+  function eDraw() {
+    var k = +$("#e-k").value, lab = D.labels[k], cs = D.centres_k[k]; $("#e-k-v").textContent = k;
+    var F = Plot.frame({ W: 560, H: 420, x: XR, y: YR, xlabel: "feature 1", ylabel: "feature 2" }), g = "<g " + F.clip + ">";
+    X.forEach(function (p, i) { g += Plot.dot(F.X(p[0]), F.Y(p[1]), 4, KC[+lab[i]], "#fff"); });
+    for (var j = 0; j < k; j++) { var x = F.X(cs[2 * j]), y = F.Y(cs[2 * j + 1]); g += '<path d="M' + (x - 8) + "," + (y - 8) + "L" + (x + 8) + "," + (y + 8) + "M" + (x + 8) + "," + (y - 8) + "L" + (x - 8) + "," + (y + 8) + '" stroke="#B4432A" stroke-width="4" stroke-linecap="round"/>'; }
+    Plot.put($("#e-svg"), F.W, F.H, F.axes + g + "</g>");
+    var E = D.elbow, G = Plot.frame({ W: 560, H: 260, x: [0.5, 8.5], y: [0, 14000], xticks: [1, 2, 3, 4, 5, 6, 7, 8], xlabel: "k", ylabel: "inertia" }), s = Plot.path(E.map(function (v, i) { return [G.X(i + 1), G.Y(v)]; }), C.blue, 2.5);
+    E.forEach(function (v, i) { s += Plot.dot(G.X(i + 1), G.Y(v), i + 1 === k ? 8 : 5, i + 1 === k ? C.orange : C.blue, "#fff", "k=" + (i + 1) + ": " + pyRound(v, 1)); });
+    s += Plot.text(G.X(k) + 10, G.Y(E[k - 1]) - 10, pyRound(E[k - 1], 1), { size: 12, bold: true, fill: C.orange });
+    Plot.put($("#e-curve"), G.W, G.H, G.axes + s);
+    var st = $("#e-status"), drop = k > 1 ? (E[k - 2] - E[k - 1]) / E[k - 2] : 0;
+    st.className = "status" + (k === 3 ? " good" : "");
+    st.innerHTML = k === 1 ? "One cluster: inertia is just the total spread of the data." : "From k = " + (k - 1) + " to " + k + ", inertia falls by <b>" + Math.round(drop * 100) + "%</b>. " + (k === 3 ? "The last big drop: this is the elbow." : k < 3 ? "Still a big drop: a real group is being separated." : "A small drop: a real group is just being cut into pieces.");
+  }
+  $("#e-k").addEventListener("input", eDraw);
+  function npArray2(rows) { var s = rows.map(function (r) { return r.map(function (v) { return pyRound(v, 2); }); }), wd = Math.max.apply(null, s.map(function (r) { return Math.max.apply(null, r.map(function (x) { return x.length; })); }));
+    return "[" + s.map(function (r, i) { return (i ? " " : "") + "[" + r.map(function (x) { return (" ".repeat(wd) + x).slice(-wd); }).join(" ") + "]"; }).join("\n") + "]"; }
+  function slide7() { var c = D.centres_k[3], rows = [[c[0], c[1]], [c[2], c[3]], [c[4], c[5]]], cnt = [0, 0, 0]; D.labels[3].split("").forEach(function (v) { cnt[+v]++; }); return npArray2(rows) + "\n[" + cnt.join(" ") + "]"; }
+  Lab.renderCode($("#e-code"), ["km = KMeans(n_clusters=3, n_init=10, random_state=0)", "labels = km.fit_predict(X)", "print(km.cluster_centers_.round(2))", "print(np.bincount(labels))"]);
+  $("#e-out").textContent = slide7();
+  function nDraw() {
+    var k = $("#n-k").value, S = D.starts[k], top = Math.max.apply(null, S) * 1.12, best = Math.min.apply(null, S);
+    var F = Plot.frame({ W: 1120, H: 230, x: [0.4, 10.6], y: [0, top], xticks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], xlabel: "one start each: KMeans(n_clusters=k, init=\"random\", n_init=1, random_state = 0 … 9)", ylabel: "inertia" }), g = "";
+    S.forEach(function (v, i) { var x0 = F.X(i + 1 - 0.32), wd = F.X(0.64) - F.X(0), bad = v > best * 1.05; g += '<rect x="' + x0 + '" y="' + F.Y(v) + '" width="' + wd + '" height="' + (F.Y(0) - F.Y(v)) + '" fill="' + (bad ? C.red : C.teal) + '" opacity=".85"/>' + Plot.text(x0 + wd / 2, F.Y(v) - 5, pyRound(v, 0).replace(".0", ""), { anchor: "middle", size: 11, bold: true }); });
+    Plot.put($("#n-svg"), F.W, F.H, F.axes + g);
+    var nb = S.filter(function (v) { return v > best * 1.05; }).length;
+    $("#n-note").textContent = nb + " of 10 single random starts (red) stop at a clearly worse answer. n_init=10 runs ten starts and keeps the lowest. (scikit-learn's default start, k-means++, spreads the first centres out and gets stuck less often, but it can still happen.)";
+  }
+  $("#n-k").addEventListener("change", nDraw);
+
+  /* ================= 4. Limits ================= */
+  function perms(n) { if (n === 1) return [[0]]; var out = []; perms(n - 1).forEach(function (p) { for (var i = 0; i <= p.length; i++) { var q = p.slice(); q.splice(i, 0, n - 1); out.push(q); } }); return out; }
+  function matchAcc(truth, cl) { var K = 1 + Math.max.apply(null, truth.concat(cl)), best = 0; perms(K).forEach(function (p) { var s = 0; for (var i = 0; i < truth.length; i++) if (p[cl[i]] === truth[i]) s++; best = Math.max(best, s); }); return best / truth.length; }
+  var LIM_TXT = { moons: "Two curved groups. k-means cuts straight across them, because its borders are straight lines halfway between centres.", stretched: "Long, tilted groups. k-means prefers round groups, so it mixes the ends of neighbouring groups.",
+    uneven: "One wide group and two small ones. To lower inertia, k-means splits the big group and merges the two small ones.", units: "Feature 2 is in large units, so its spread decides every distance. The groups really differ in feature 1, which k-means almost ignores. (The plot stretches feature 1 so you can see it; for the distance, feature 1 spans about 6 units and feature 2 about 500.)",
+    units_scaled: "Same data after StandardScaler: both features count, and the three groups come back." };
+  function lDraw() {
+    var d = $("#l-d").value, L = D.lim[d], pts = unflat(L.X), by = document.querySelector('input[name="l-c"]:checked').value, lab = L[by].split("").map(Number);
+    var xs = pts.map(function (p) { return p[0]; }), ys = pts.map(function (p) { return p[1]; }), x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys), px = (x1 - x0) * 0.06, py = (y1 - y0) * 0.06;
+    var F = Plot.frame({ W: 560, H: 420, x: [x0 - px, x1 + px], y: [y0 - py, y1 + py], xlabel: d.indexOf("units") === 0 ? "feature 1 (small units)" : "feature 1", ylabel: d.indexOf("units") === 0 ? "feature 2 (large units)" : "feature 2" }), g = "";
+    pts.forEach(function (p, i) { g += Plot.dot(F.X(p[0]), F.Y(p[1]), 4, KC[lab[i]], "#fff"); });
+    Plot.put($("#l-svg"), F.W, F.H, F.axes + g);
+    var a = matchAcc(L.truth.split("").map(Number), L.km.split("").map(Number)); $("#l-acc").textContent = pct(a);
+    var st = $("#l-status"); st.className = "status " + (a > 0.9 ? "good" : "bad"); st.innerHTML = LIM_TXT[d] + (by === "km" ? " Switch to 'true group' to compare." : "");
+  }
+  $("#l-d").addEventListener("change", lDraw); Array.prototype.forEach.call(document.querySelectorAll('input[name="l-c"]'), function (r) { r.addEventListener("change", lDraw); });
+  function irisDraw() {
+    var I = D.iris, ct = I.ct, names = ["setosa", "versicolor", "virginica"], pts = unflat(I.X);
+    $("#l-iris").textContent = "cluster      0   1   2\nspecies                \n" + ct.map(function (r, i) { return (names[i] + "          ").slice(0, 10) + r.map(function (v) { return ("    " + v).slice(-4); }).join("").replace(/^ /, " "); }).join("\n");
+    var F = Plot.frame({ W: 560, H: 300, x: [0.5, 7.2], y: [0, 2.7], xlabel: "petal length (cm)", ylabel: "petal width (cm)" }), g = "", SH = function (s, x, y, c) { return s === 0 ? Plot.dot(x, y, 4.5, c, "#fff") : s === 1 ? '<rect x="' + (x - 4) + '" y="' + (y - 4) + '" width="8" height="8" fill="' + c + '" stroke="#fff"/>' : '<path d="M' + x + "," + (y - 5.5) + "L" + (x + 5) + "," + (y + 4) + "L" + (x - 5) + "," + (y + 4) + 'Z" fill="' + c + '" stroke="#fff"/>'; };
+    pts.forEach(function (p, i) { g += SH(I.y[i], F.X(p[0]), F.Y(p[1]), KC[I.cl[i]]); });
+    g += Plot.text(F.X(0.7), F.Y(2.5), "shape = true species: ● setosa  ■ versicolor  ▲ virginica", { size: 11, fill: C.muted }) + Plot.text(F.X(0.7), F.Y(2.28), "colour = the cluster k-means chose", { size: 11, fill: C.muted });
+    Plot.put($("#l-isvg"), F.W, F.H, F.axes + g);
+  }
+
+  window.L13TEST = { vals: function () {
+    var ll = D.__lloyd || [];
+    return { slide7: slide7(), lloyd: ll.map(function (c) { var r = lloyd(X, c); return { centres: r.centres, inertia: r.inertia, labels: r.labels.join("") }; }),
+      hand: (function () { var p = [[1], [2], [3], [10], [11], [12]], cs = [[1], [2]], rows = []; for (var i = 0; i < 5; i++) { var l = assign(p, cs), n = move(p, l, cs); rows.push([cs.map(function (c) { return nice(c[0]); }).join(", "), n.map(function (c) { return nice(c[0]); }).join(", ")]); if (n.every(function (c, j) { return c[0] === cs[j][0]; })) break; cs = n; } return rows; })(),
+      lim: Object.keys(D.lim).reduce(function (o, k) { o[k] = matchAcc(D.lim[k].truth.split("").map(Number), D.lim[k].km.split("").map(Number)); return o; }, {}),
+      iris: $("#l-iris").textContent };
+  }, lloyd: function (inits) { return inits.map(function (c) { var r = lloyd(X, c); return { centres: r.centres, inertia: r.inertia, labels: r.labels.join("") }; }); } };
+  document.addEventListener("DOMContentLoaded", function () { hReset(); wRandom(); eDraw(); nDraw(); lDraw(); irisDraw(); });
+})();
+</script></body></html>

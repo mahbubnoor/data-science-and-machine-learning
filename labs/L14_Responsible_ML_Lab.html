@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Responsible ML Lab · Lecture 14</title>
+<style>:root{
+  --navy:#15213A; --navy2:#1E2D4D; --blue:#2459C4; --bsoft:#E3EAF8; --orange:#E07A1F; --oink:#A4520C; --osoft:#FBE3CC;
+  --teal:#1F8A7A; --tink:#17695D; --tsoft:#E3F2EF; --red:#B4432A; --rsoft:#F8E1DB; --ink:#15213A; --muted:#5D6573;
+  --panel:#F3F5F9; --line:#D5DBE6; --bg:#EEF1F6; --card:#FFFFFF; --code:#1B2742; --codefg:#E8ECF4; --hl:#FFE3B8;
+  --sans:"Segoe UI",Calibri,Carlito,"Helvetica Neue",Arial,sans-serif; --mono:Consolas,"Courier New","Liberation Mono",monospace;
+  box-sizing:border-box;
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+code,.mono{font-family:var(--mono)}
+.top{background:var(--navy);color:#fff;padding:18px 28px 16px;display:flex;gap:24px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.top .kicker{color:var(--orange);font-weight:700;letter-spacing:.12em;font-size:13px;text-transform:uppercase}
+.top h1{margin:2px 0 2px;font-size:30px;line-height:1.15;font-family:Arial,"Helvetica Neue",sans-serif}
+.top p{margin:0;color:#D9DEE8;font-size:16px}
+.top .meta{text-align:right;color:#B9C1D0;font-size:13px;line-height:1.5}
+.tabs{display:flex;gap:6px;padding:10px 28px 0;background:var(--navy);flex-wrap:wrap}
+.tabs button{background:#22335A;color:#D9DEE8;border:0;border-radius:10px 10px 0 0;padding:10px 16px;cursor:pointer;font-weight:600;font-size:15px}
+.tabs button .n{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#33477A;color:#fff;align-items:center;justify-content:center;font-size:12px;margin-right:8px}
+.tabs button[aria-selected="true"]{background:var(--bg);color:var(--ink)}
+.tabs button[aria-selected="true"] .n{background:var(--orange)}
+.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+main{max-width:1320px;margin:0 auto;padding:20px 28px 40px}
+.exp{display:none}.exp.on{display:block}
+.exp-head h2{margin:0 0 4px;font-size:24px;font-family:Arial,"Helvetica Neue",sans-serif}
+.exp-head p{margin:0 0 16px;color:var(--muted);max-width:90ch}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:18px;align-items:start}
+.grid.even{grid-template-columns:1fr 1fr}
+.grid.wide-right{grid-template-columns:minmax(0,4fr) minmax(0,7fr)}
+@media (max-width:900px){.grid,.grid.even,.grid.wide-right{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.panel h3{margin:0 0 10px;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:0;border-radius:9px;padding:9px 16px;cursor:pointer;font-weight:700;background:var(--navy);color:#fff}
+.btn.alt{background:var(--bsoft);color:var(--ink)}.btn.warm{background:var(--orange);color:var(--navy)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:6px 12px;font-size:14px}
+select,input[type=text],input[type=number],textarea{border:2px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff}
+input[type=number]{width:92px}
+input[type=range]{width:100%;accent-color:var(--orange)}
+label.lab{font-weight:700;font-size:14px;color:var(--muted)}
+.code{background:var(--code);color:var(--codefg);border-radius:12px;padding:12px 0;font-family:var(--mono);font-size:17px;overflow:auto}
+.code .ln{display:flex;padding:1px 14px 1px 0;white-space:pre;min-height:1.5em;border-left:5px solid transparent}
+.code .ln .no{width:38px;text-align:right;padding-right:12px;color:#7F8BA6;flex:none;user-select:none}
+.code .ln.cur{background:rgba(224,122,31,.28);border-left-color:var(--orange)}
+.code .ln.done{color:#B9C3D8}
+.code .ln.skip{color:#6E7891;text-decoration:line-through;text-decoration-color:#6E7891}
+.code .ln.err{background:rgba(180,67,42,.45);border-left-color:#F08A70}
+.code .kw{color:#F5AD69}.code .st{color:#A8D8A8}.code .nu{color:#9FC1E6}.code .cm{color:#7F8BA6;font-style:italic}.code .fn{color:#E8C27A}
+textarea.editor{width:100%;min-height:210px;font-family:var(--mono);font-size:17px;line-height:1.5;background:var(--code);color:var(--codefg);border:2px solid var(--code);border-radius:12px;padding:12px 14px;resize:vertical;tab-size:4}
+.out{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-family:var(--mono);font-size:16px;min-height:52px;white-space:pre-wrap;word-break:break-word}
+.out .e{color:var(--red);font-weight:700}.out .hint{color:var(--oink)}
+.out .label{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--muted);display:block;margin-bottom:2px}
+.status{border-left:6px solid var(--blue);background:var(--bsoft);padding:9px 14px;border-radius:0 10px 10px 0;margin:12px 0;min-height:46px}
+.status.bad{border-left-color:var(--red);background:var(--rsoft)}.status.good{border-left-color:var(--teal);background:var(--tsoft)}
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+@media (max-width:900px){.notes{grid-template-columns:1fr}}
+.notice{background:var(--osoft);border-radius:14px;padding:14px 18px}
+.notice h4,.try h4{margin:0 0 6px;font-size:16px}
+.notice ul{margin:0;padding-left:20px}
+.try{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.try label{display:flex;gap:10px;align-items:flex-start;margin:6px 0;cursor:pointer}
+.try input{margin-top:5px;accent-color:var(--teal);width:18px;height:18px;flex:none}
+.try label.done span{color:var(--muted);text-decoration:line-through}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 11px;font-size:13px;font-weight:700;background:var(--panel);border:1px solid var(--line);white-space:nowrap}
+.chip.t{background:var(--tsoft);color:var(--tink);border-color:#B9DCD5}.chip.f{background:var(--rsoft);color:var(--red);border-color:#EBC2B8}.chip.n{color:var(--muted)}
+.chip.int{background:var(--bsoft);color:var(--blue);border-color:#C3D2EF}.chip.float{background:#EDE3F7;color:#6B3FA0;border-color:#D7C5EC}.chip.str{background:var(--tsoft);color:var(--tink);border-color:#B9DCD5}.chip.bool{background:var(--osoft);color:var(--oink);border-color:#F1CDA9}.chip.list,.chip.tuple,.chip.NoneType{background:var(--panel);color:var(--muted)}
+table.t{border-collapse:collapse;width:100%;font-size:16px}
+table.t th{background:var(--navy);color:#fff;text-align:left;padding:7px 10px;font-size:14px}
+table.t td{border-bottom:1px solid var(--line);padding:7px 10px;vertical-align:middle}
+table.t tr.hi td{background:var(--hl)}
+table.t td.m{font-family:var(--mono)}
+.muted{color:var(--muted)}.small{font-size:14px}
+.big{font-size:34px;font-weight:700;font-family:Arial,sans-serif}
+.foot{max-width:1320px;margin:0 auto;padding:0 28px 30px;color:var(--muted);font-size:13px}
+@keyframes flash{0%{background:var(--hl)}100%{background:transparent}}
+.flash{animation:flash 1.2s ease-out}
+@media (prefers-reduced-motion:reduce){.flash{animation:none}*{transition:none!important}}
+[hidden]{display:none!important}
+</style></head><body>
+<header class="top"><div><div class="kicker">Lecture 14 · Interactive lab</div><h1>Responsible ML Lab</h1><p>Check a model per group, see who can be identified in &#x27;anonymous&#x27; data, compute a neuron, and watch a small network learn</p></div>
+<div class="meta">Introduction to Data Science and Machine Learning<br>Md Mahbub E Noor · University of Barishal<br><a href="START_HERE.html" style="color:#F5AD69">All labs</a></div></header>
+<nav class="tabs" role="tablist"><button role="tab" data-tab="t1"><span class="n">1</span>Check every group</button><button role="tab" data-tab="t2"><span class="n">2</span>Privacy</button><button role="tab" data-tab="t3"><span class="n">3</span>One neuron</button><button role="tab" data-tab="t4"><span class="n">4</span>A small network</button></nav>
+<main><section class="exp" id="t1">
+  <div class="exp-head"><h2>Check every group, not just the average</h2>
+  <p>First the per-department check from slide 5. Then an invented experiment: what happens to a small group when the training data has few of its members?</p></div>
+  <div class="grid">
+    <div class="panel">
+      <h3>Slide 5: accuracy per department (students.csv, invented)</h3>
+      <div class="code" id="g-code" style="font-size:13px"></div>
+      <div class="out" id="g-out" style="margin-top:8px"></div>
+      <div class="status" id="g-status"></div>
+    </div>
+    <div class="panel">
+      <h3>Experiment: how much of group B is in the training data?</h3>
+      <div class="row"><label class="lab" style="width:150px" for="f-s">group B share: <b id="f-s-v"></b></label><input type="range" id="f-s" min="0" max="5" value="1" style="flex:1"></div>
+      <svg id="f-svg" width="100%" role="img" aria-label="Test accuracy for group A and group B against the share of group B in training"></svg>
+      <div class="row" style="gap:22px">
+        <div><div class="small muted">group A accuracy</div><div class="big" id="f-a" style="color:#2459C4"></div></div>
+        <div><div class="small muted">group B accuracy</div><div class="big" id="f-b" style="color:#E07A1F"></div></div>
+        <div><div class="small muted">gap</div><div class="big" id="f-gap"></div></div>
+      </div>
+      <div class="status" id="f-status"></div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:16px"><h3>Before trusting any model (slide 7)</h3><div id="ck"></div></div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>An overall accuracy can hide a group for whom the model works much worse.</li>
+      <li>In the experiment both groups are equally easy to predict; group B just follows a slightly different pattern. With 2% of the training data it gets about 66% right, group A about 84%.</li>
+      <li>More group B data closes the gap. Collecting better data is often the real fix, not a cleverer model.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>At what share does the gap fall below 5 percentage points?</span></label>
+      <label><input type="checkbox"><span>Homework 14.2: repeat the slide 5 check with a decision tree. Do the groups differ more or less?</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t2">
+  <div class="exp-head"><h2>Privacy: is "anonymous" data really anonymous?</h2>
+  <p>150 invented students (names and numbers are made up). Choose which columns to share in a data set. The lab counts how many people are the only one with their combination of values, so anyone who knows them a little can find their row.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <h3>Columns to share</h3><div id="p-cols" class="row" style="gap:10px 18px"></div>
+      <h3 style="margin-top:14px">Make some columns less exact</h3>
+      <label class="small" style="display:block"><input type="checkbox" id="p-g-born"> birth year → "2004 or earlier" / "2005 or later"</label>
+      <label class="small" style="display:block;margin-top:4px"><input type="checkbox" id="p-g-dist"> home district → "Barishal division" / "other"</label>
+      <h3 style="margin-top:14px">The shared table (first 6 rows)</h3>
+      <div style="overflow-x:auto"><table class="t" id="p-table" style="font-size:12.5px"></table></div>
+    </div>
+    <div class="panel">
+      <div class="row" style="gap:22px">
+        <div><div class="small muted">people who are unique (identifiable)</div><div class="big" id="p-u"></div></div>
+        <div><div class="small muted">smallest group of look-alikes</div><div class="big" id="p-k"></div></div>
+      </div>
+      <svg id="p-svg" width="100%" role="img" aria-label="How many people share each combination of values"></svg>
+      <div class="status" id="p-status"></div>
+    </div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>Removing names and phone numbers is necessary but not enough: department, year, gender, district and birth year together single out most people.</li>
+      <li>Making values less exact (an age band, a division) puts people in larger groups of look-alikes.</li>
+      <li>Collect only what the question needs. A column you never collected cannot leak.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Remove name, phone and student ID. How many people are still unique?</span></label>
+      <label><input type="checkbox"><span>Find a set of columns where nobody is unique but the table is still useful for studying marks.</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t3">
+  <div class="exp-head"><h2>One neuron, by hand</h2>
+  <p>Slide 9: inputs times weights, plus a bias, then a simple rule. Move any slider and follow the numbers.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <svg id="n-svg" width="100%" role="img" aria-label="A neuron with three inputs, weights, a bias and the output"></svg>
+      <table class="t" id="n-table"></table>
+    </div>
+    <div class="panel">
+      <h3>Inputs</h3><div id="n-in"></div>
+      <h3 style="margin-top:10px">Weights and bias</h3><div id="n-w"></div>
+      <div class="row" style="margin-top:10px"><label class="lab" for="n-act">Function</label><select id="n-act"><option value="step">step: 1 if total &gt; 0, else 0</option><option value="sig">sigmoid: a smooth 0 to 1</option></select><button class="btn alt sm" id="n-slide">Slide 9 values</button></div>
+      <div class="status" id="n-status"></div>
+      <div class="small muted" id="n-cls" style="margin-top:6px"></div>
+    </div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>A weight says how much an input matters; its sign says in which direction.</li>
+      <li>The bias moves the threshold: a lower bias needs more evidence before the output becomes 1.</li>
+      <li>"Learning" means a computer adjusts these weights, a little at a time, to make fewer mistakes.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Homework 14.1: find a student (hours, attendance, GPA) for whom the output is 0. Check the total here.</span></label>
+      <label><input type="checkbox"><span>Change the weights so that more of the 150 invented students are classified like their real result.</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t4">
+  <div class="exp-head"><h2>A small network learning</h2>
+  <p>A network with one hidden layer, trained on 200 invented points. Move through the training rounds (epochs) and change the number of hidden neurons.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <div class="row"><label class="lab" for="m-d">Data</label><select id="m-d"><option value="moons">two moons</option><option value="circles">ring around a centre</option></select>
+        <label class="lab" for="m-h">Hidden neurons</label><select id="m-h"><option>1</option><option>2</option><option>4</option><option selected>16</option></select></div>
+      <div class="row" style="margin-top:10px"><label class="lab" style="width:130px" for="m-e">epoch <b id="m-e-v"></b></label><input type="range" id="m-e" min="0" max="7" value="6" style="flex:1"></div>
+      <svg id="m-svg" width="100%" role="img" aria-label="The network's decision regions and the training points"></svg>
+    </div>
+    <div class="panel">
+      <div class="row" style="gap:22px"><div><div class="small muted">training accuracy</div><div class="big" id="m-acc"></div></div><div><div class="small muted">loss (error)</div><div class="big" id="m-loss"></div></div></div>
+      <svg id="m-loss-svg" width="100%" role="img" aria-label="Loss against epoch"></svg>
+      <div class="status" id="m-status"></div>
+      <h3 style="margin-top:14px">Slide 11: the digits, same split</h3>
+      <div class="out" id="m-dig"></div>
+    </div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>At first the border is almost a straight line. Each epoch nudges every weight and the border bends.</li>
+      <li>The loss falls fast at first, may rest on a plateau while the border searches for the curve, then flattens (slide 12).</li>
+      <li>One hidden neuron can only draw a straight-ish border. More neurons allow curved borders, and also more memorising (Lecture 11).</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>On the ring, find the smallest number of hidden neurons that separates the two classes.</span></label>
+      <label><input type="checkbox"><span>Homework 14.3: train MLPClassifier on the digits with 8, 32 and 128 neurons in Colab.</span></label>
+    </div>
+  </div>
+</section>
+</main>
+<p class="foot">Works offline: no internet needed. The data and the trained models are built into this page. Every number was calculated with scikit-learn and checked, so it matches what you will see in Jupyter or Colab.</p>
+<script>/* minipy: a small, faithful subset of Python 3 for teaching labs.
+   Values: int (BigInt), float, bool, str, NoneType, list, tuple, dict, builtin, module, function (hook).
+   Statements: assignment, augmented assignment, tuple unpacking, expression statements.
+   Errors mirror CPython 3.12 messages. */
+var MiniPy = (function () {
+  "use strict";
+  function PyError(type, msg) { this.type = type; this.msg = msg; }
+  PyError.prototype.toString = function () { return this.type + (this.msg ? ": " + this.msg : ""); };
+
+  var NONE = { t: "NoneType" };
+  function I(n) { return { t: "int", v: BigInt(n) }; }
+  function F(x) { return { t: "float", v: x }; }
+  function B(b) { return { t: "bool", v: !!b }; }
+  function S(s) { return { t: "str", v: s }; }
+  function L(a) { return { t: "list", v: a }; }
+  function T(a) { return { t: "tuple", v: a }; }
+  function D() { return { t: "dict", m: new Map() }; }
+  function hashKey(v) {
+    switch (v.t) {
+      case "int": return "n:" + v.v.toString();
+      case "bool": return "n:" + (v.v ? "1" : "0");
+      case "float": return Number.isInteger(v.v) ? "n:" + BigInt(v.v).toString() : "f:" + v.v;
+      case "str": return "s:" + v.v;
+      case "NoneType": return "N";
+      case "tuple": return "t:(" + v.v.map(hashKey).join(",") + ")";
+    }
+    if (v.t === "list" || v.t === "dict") throw new PyError("TypeError", "unhashable type: '" + v.t + "'");
+    return "o:" + objId(v);
+  }
+  var ids = new WeakMap(), idNext = 0;
+  function objId(v) { if (!ids.has(v)) ids.set(v, 140601564316704 + 48 * (idNext++)); return ids.get(v); }
+  function dget(d, k) { var e = d.m.get(hashKey(k)); return e ? e[1] : undefined; }
+  function dset(d, k, v) { var h = hashKey(k), e = d.m.get(h); if (e) e[1] = v; else d.m.set(h, [k, v]); }
+  function dkeys(d) { return Array.from(d.m.values()).map(function (e) { return e[0]; }); }
+  function dvals(d) { return Array.from(d.m.values()).map(function (e) { return e[1]; }); }
+  function ditems(d) { return Array.from(d.m.values()).map(function (e) { return T([e[0], e[1]]); }); }
+
+  /* ---------- repr / str ---------- */
+  function floatRepr(x) {
+    if (x !== x) return "nan";
+    if (x === Infinity) return "inf";
+    if (x === -Infinity) return "-inf";
+    if (x === 0) return (1 / x < 0) ? "-0.0" : "0.0";
+    var e = x.toExponential(); // shortest round-trip digits
+    var m = e.split("e"), mant = m[0], exp = parseInt(m[1], 10);
+    var neg = mant[0] === "-"; if (neg) mant = mant.slice(1);
+    var digits = mant.replace(".", "");
+    var out;
+    if (exp >= -4 && exp < 16) {
+      if (exp >= 0) {
+        if (digits.length <= exp + 1) out = digits + "0".repeat(exp + 1 - digits.length) + ".0";
+        else out = digits.slice(0, exp + 1) + "." + digits.slice(exp + 1);
+      } else out = "0." + "0".repeat(-exp - 1) + digits;
+    } else {
+      var mm = digits.length > 1 ? digits[0] + "." + digits.slice(1) : digits;
+      var es = Math.abs(exp) < 10 ? "0" + Math.abs(exp) : String(Math.abs(exp));
+      out = mm + "e" + (exp < 0 ? "-" : "+") + es;
+    }
+    return (neg ? "-" : "") + out;
+  }
+  function strRepr(s) {
+    var q = (s.indexOf("'") >= 0 && s.indexOf('"') < 0) ? '"' : "'";
+    var body = s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/\t/g, "\\t");
+    if (q === "'") body = body.replace(/'/g, "\\'");
+    return q + body + q;
+  }
+  function repr(v) {
+    switch (v.t) {
+      case "int": return v.v.toString();
+      case "float": return floatRepr(v.v);
+      case "bool": return v.v ? "True" : "False";
+      case "str": return strRepr(v.v);
+      case "NoneType": return "None";
+      case "list": return "[" + v.v.map(repr).join(", ") + "]";
+      case "tuple": return v.v.length === 1 ? "(" + repr(v.v[0]) + ",)" : "(" + v.v.map(repr).join(", ") + ")";
+      case "type": return "<class '" + v.v + "'>";
+      case "builtin": return "<built-in function " + v.name.replace(/^math\./, "") + ">";
+      case "dict": return "{" + Array.from(v.m.values()).map(function (e) { return repr(e[0]) + ": " + repr(e[1]); }).join(", ") + "}";
+      case "dict_keys": case "dict_values": case "dict_items": return v.t + "([" + v.v.map(repr).join(", ") + "])";
+      case "function": return "<function " + v.name + " at 0x" + objId(v).toString(16) + ">";
+      case "module": return "<module '" + v.name + "' (built-in)>";
+      case "boundmethod": return "<built-in method " + v.name + " of " + typeName(v.obj) + " object>";
+    }
+    return "?";
+  }
+  function str(v) { return v.t === "str" ? v.v : repr(v); }
+  function typeName(v) { return v.t === "builtin" || v.t === "boundmethod" ? "builtin_function_or_method" : v.t; }
+
+  /* ---------- tokenizer ---------- */
+  var KW = { and: 1, or: 1, not: 1, "in": 1, is: 1, None: 1, True: 1, False: 1, "if": 1, "else": 1, elif: 1, "for": 1, "while": 1, def: 1, "return": 1, lambda: 1, "import": 1, from: 1, "class": 1, pass: 1, "break": 1, "continue": 1 };
+  var OPS = ["**=", "//=", "**", "//", "==", "!=", "<=", ">=", "+=", "-=", "*=", "/=", "%=", "+", "-", "*", "/", "%", "<", ">", "=", "(", ")", "[", "]", "{", "}", ",", ":", "."];
+  function tokenize(src) {
+    var toks = [], i = 0, n = src.length;
+    while (i < n) {
+      var c = src[i];
+      if (c === " " || c === "\t") { i++; continue; }
+      if (c === "#") break;
+      var start = i;
+      if (/[0-9]/.test(c) || (c === "." && /[0-9]/.test(src[i + 1] || ""))) {
+        var m = /^(\d[\d_]*\.?[\d_]*([eE][+-]?\d+)?|\.\d[\d_]*([eE][+-]?\d+)?)/.exec(src.slice(i));
+        var txt = m[0].replace(/_/g, "");
+        var isF = /[.eE]/.test(txt);
+        toks.push({ k: "num", v: isF ? F(parseFloat(txt)) : I(txt), p: start });
+        i += m[0].length;
+        if (/[A-Za-z_]/.test(src[i] || "")) throw new PyError("SyntaxError", "invalid decimal literal");
+        continue;
+      }
+      var fpre = /^([fFrRbB]{0,2})(['"])/.exec(src.slice(i));
+      if (fpre && (fpre[1] === "" || /^[fFrR]{1,2}$/.test(fpre[1])) && (fpre[1] !== "" || c === "'" || c === '"')) {
+        var pref = fpre[1].toLowerCase(), q = fpre[2];
+        i += fpre[0].length;
+        var s = "", closed = false;
+        while (i < n) {
+          var ch = src[i];
+          if (ch === "\\" && pref.indexOf("r") < 0) {
+            var nx = src[i + 1]; var map = { n: "\n", t: "\t", "\\": "\\", "'": "'", '"': '"' };
+            s += (nx in map) ? map[nx] : "\\" + nx; i += 2; continue;
+          }
+          if (ch === q) { closed = true; i++; break; }
+          s += ch; i++;
+        }
+        if (!closed) throw new PyError("SyntaxError", "unterminated string literal (detected at line 1)");
+        toks.push({ k: pref.indexOf("f") >= 0 ? "fstr" : "str", v: s, p: start });
+        continue;
+      }
+      if (/[A-Za-z_]/.test(c)) {
+        var mm = /^[A-Za-z_]\w*/.exec(src.slice(i))[0];
+        toks.push({ k: KW[mm] ? "kw" : "name", v: mm, p: start }); i += mm.length; continue;
+      }
+      var op = null;
+      for (var j = 0; j < OPS.length; j++) if (src.substr(i, OPS[j].length) === OPS[j]) { op = OPS[j]; break; }
+      if (!op) {
+        if (c === "!") throw new PyError("SyntaxError", "invalid syntax");
+        throw new PyError("SyntaxError", "invalid character '" + c + "'");
+      }
+      toks.push({ k: "op", v: op, p: start }); i += op.length;
+    }
+    toks.push({ k: "end", v: "", p: n });
+    return toks;
+  }
+
+  /* ---------- parser (Pratt) ---------- */
+  function Parser(toks) { this.t = toks; this.i = 0; }
+  Parser.prototype.peek = function () { return this.t[this.i]; };
+  Parser.prototype.next = function () { return this.t[this.i++]; };
+  Parser.prototype.is = function (k, v) { var t = this.t[this.i]; return t.k === k && (v === undefined || t.v === v); };
+  Parser.prototype.eat = function (k, v) { if (this.is(k, v)) return this.next(); return null; };
+  Parser.prototype.expect = function (k, v) {
+    var t = this.peek();
+    if (t.k === k && (v === undefined || t.v === v)) return this.next();
+    if (v === ")" || v === "]") throw new PyError("SyntaxError", t.k === "end" ? "'" + (v === ")" ? "(" : "[") + "' was never closed" : "invalid syntax");
+    throw new PyError("SyntaxError", "invalid syntax");
+  };
+  Parser.prototype.exprList = function () { // for tuple without parens
+    var first = this.expr();
+    if (!this.is("op", ",")) return first;
+    var items = [first];
+    while (this.eat("op", ",")) { if (this.is("end") || this.is("op", "=") || this.is("op", ")")) break; items.push(this.expr()); }
+    return { n: "tuple", items: items };
+  };
+  Parser.prototype.expr = function () { return this.ternary(); };
+  Parser.prototype.ternary = function () {
+    var body = this.or();
+    if (this.eat("kw", "if")) { var cond = this.or(); this.expect("kw", "else"); var other = this.ternary(); return { n: "ifexp", cond: cond, a: body, b: other }; }
+    return body;
+  };
+  Parser.prototype.or = function () { var l = this.and(); while (this.eat("kw", "or")) l = { n: "bool", op: "or", l: l, r: this.and() }; return l; };
+  Parser.prototype.and = function () { var l = this.not(); while (this.eat("kw", "and")) l = { n: "bool", op: "and", l: l, r: this.not() }; return l; };
+  Parser.prototype.not = function () { if (this.eat("kw", "not")) return { n: "not", e: this.not() }; return this.cmp(); };
+  Parser.prototype.cmp = function () {
+    var first = this.arith(), ops = [], rest = [];
+    for (;;) {
+      var t = this.peek(), op = null;
+      if (t.k === "op" && ["<", ">", "==", "!=", "<=", ">="].indexOf(t.v) >= 0) { this.next(); op = t.v; }
+      else if (this.is("kw", "in")) { this.next(); op = "in"; }
+      else if (this.is("kw", "not") && this.t[this.i + 1].k === "kw" && this.t[this.i + 1].v === "in") { this.i += 2; op = "not in"; }
+      else if (this.is("kw", "is")) { this.next(); op = this.eat("kw", "not") ? "is not" : "is"; }
+      if (!op) break;
+      ops.push(op); rest.push(this.arith());
+    }
+    return ops.length ? { n: "cmp", first: first, ops: ops, rest: rest } : first;
+  };
+  Parser.prototype.arith = function () {
+    var l = this.term();
+    while (this.is("op", "+") || this.is("op", "-")) { var op = this.next().v; l = { n: "bin", op: op, l: l, r: this.term() }; }
+    return l;
+  };
+  Parser.prototype.term = function () {
+    var l = this.unary();
+    while (this.is("op", "*") || this.is("op", "/") || this.is("op", "//") || this.is("op", "%")) { var op = this.next().v; l = { n: "bin", op: op, l: l, r: this.unary() }; }
+    return l;
+  };
+  Parser.prototype.unary = function () {
+    if (this.is("op", "-") || this.is("op", "+")) { var op = this.next().v; return { n: "unary", op: op, e: this.unary() }; }
+    return this.power();
+  };
+  Parser.prototype.power = function () {
+    var b = this.postfix();
+    if (this.eat("op", "**")) return { n: "bin", op: "**", l: b, r: this.unary() };
+    return b;
+  };
+  Parser.prototype.postfix = function () {
+    var e = this.atom();
+    for (;;) {
+      if (this.eat("op", "(")) {
+        var args = [], kws = [];
+        if (!this.is("op", ")")) { do {
+          if (this.is("op", ")")) break;
+          if (this.is("name") && this.t[this.i + 1].k === "op" && this.t[this.i + 1].v === "=") { var kn = this.next().v; this.next(); kws.push([kn, this.expr()]); }
+          else { if (kws.length) throw new PyError("SyntaxError", "positional argument follows keyword argument"); args.push(this.expr()); }
+        } while (this.eat("op", ",")); }
+        this.expect("op", ")"); e = { n: "call", f: e, args: args, kws: kws };
+      } else if (this.eat("op", "[")) {
+        var a = null, b = null, isSlice = false;
+        if (!this.is("op", ":")) a = this.expr();
+        var c = null;
+        if (this.eat("op", ":")) { isSlice = true; if (!this.is("op", "]") && !this.is("op", ":")) b = this.expr(); if (this.eat("op", ":")) { if (!this.is("op", "]")) c = this.expr(); } }
+        this.expect("op", "]");
+        e = isSlice ? { n: "slice", o: e, a: a, b: b, c: c } : { n: "index", o: e, i: a };
+      } else if (this.eat("op", ".")) {
+        var nm = this.next(); if (nm.k !== "name") throw new PyError("SyntaxError", "invalid syntax");
+        e = { n: "attr", o: e, name: nm.v };
+      } else break;
+    }
+    return e;
+  };
+  Parser.prototype.atom = function () {
+    var t = this.next();
+    if (t.k === "num") return { n: "const", v: t.v };
+    if (t.k === "str") { var s = t.v; while (this.is("str")) s += this.next().v; return { n: "const", v: S(s) }; }
+    if (t.k === "fstr") return { n: "fstr", parts: parseF(t.v) };
+    if (t.k === "name") return { n: "name", id: t.v, p: t.p };
+    if (t.k === "kw" && t.v === "None") return { n: "const", v: NONE };
+    if (t.k === "kw" && t.v === "True") return { n: "const", v: B(true) };
+    if (t.k === "kw" && t.v === "False") return { n: "const", v: B(false) };
+    if (t.k === "op" && t.v === "(") {
+      if (this.eat("op", ")")) return { n: "tuple", items: [] };
+      var e = this.expr();
+      if (this.is("op", ",")) { var items = [e]; while (this.eat("op", ",")) { if (this.is("op", ")")) break; items.push(this.expr()); } this.expect("op", ")"); return { n: "tuple", items: items }; }
+      this.expect("op", ")"); return e;
+    }
+    if (t.k === "op" && t.v === "[") {
+      var its = [];
+      if (!this.is("op", "]")) { do { if (this.is("op", "]")) break; its.push(this.expr()); } while (this.eat("op", ",")); }
+      this.expect("op", "]"); return { n: "list", items: its };
+    }
+    if (t.k === "op" && t.v === "{") {
+      var pairs = [];
+      if (!this.is("op", "}")) { do {
+        if (this.is("op", "}")) break;
+        var kk = this.expr();
+        if (!this.eat("op", ":")) throw new PyError("NotSupported", "Sets are not part of this lab. A dictionary needs key: value pairs.");
+        pairs.push([kk, this.expr()]);
+      } while (this.eat("op", ",")); }
+      this.expect("op", "}"); return { n: "dict", items: pairs };
+    }
+    if (t.k === "end") throw new PyError("SyntaxError", "invalid syntax");
+    throw new PyError("SyntaxError", "invalid syntax");
+  };
+  function parseF(s) {
+    var parts = [], i = 0, lit = "";
+    while (i < s.length) {
+      if (s[i] === "{" && s[i + 1] === "{") { lit += "{"; i += 2; continue; }
+      if (s[i] === "}" && s[i + 1] === "}") { lit += "}"; i += 2; continue; }
+      if (s[i] === "{") {
+        if (lit) { parts.push({ lit: lit }); lit = ""; }
+        var depth = 1, j = i + 1, inner = "";
+        while (j < s.length && depth) { if (s[j] === "{") depth++; if (s[j] === "}") depth--; if (depth) inner += s[j]; j++; }
+        if (depth) throw new PyError("SyntaxError", "f-string: expecting '}'");
+        var spec = null, colon = -1, d2 = 0;
+        for (var k = 0; k < inner.length; k++) { var ch = inner[k]; if ("([{".indexOf(ch) >= 0) d2++; if (")]}".indexOf(ch) >= 0) d2--; if (ch === ":" && d2 === 0) { colon = k; break; } }
+        var src = inner; if (colon >= 0) { src = inner.slice(0, colon); spec = inner.slice(colon + 1); }
+        if (!src.trim()) throw new PyError("SyntaxError", "f-string: valid expression required before '}'");
+        var p = new Parser(tokenize(src)); var node = p.expr(); if (!p.is("end")) throw new PyError("SyntaxError", "f-string: invalid syntax");
+        parts.push({ node: node, spec: spec, src: src.trim() });
+        i = j; continue;
+      }
+      if (s[i] === "}") throw new PyError("SyntaxError", "f-string: single '}' is not allowed");
+      lit += s[i]; i++;
+    }
+    if (lit) parts.push({ lit: lit });
+    return parts;
+  }
+
+  /* ---------- numeric helpers ---------- */
+  function isNum(v) { return v.t === "int" || v.t === "float" || v.t === "bool"; }
+  function toF(v) { return v.t === "float" ? v.v : v.t === "bool" ? (v.v ? 1 : 0) : Number(v.v); }
+  function toBI(v) { return v.t === "bool" ? BigInt(v.v ? 1 : 0) : v.v; }
+  function truthy(v) {
+    switch (v.t) {
+      case "int": return v.v !== 0n; case "float": return v.v !== 0; case "bool": return v.v; case "str": case "list": case "tuple": case "dict_keys": case "dict_values": case "dict_items": return v.v.length > 0;
+      case "dict": return v.m.size > 0;
+      case "NoneType": return false;
+    }
+    return true;
+  }
+  function floorDivBI(a, b) { var q = a / b; if ((a % b !== 0n) && ((a < 0n) !== (b < 0n))) q -= 1n; return q; }
+  function modBI(a, b) { var r = a % b; if (r !== 0n && ((r < 0n) !== (b < 0n))) r += b; return r; }
+  function fmod(a, b) { var r = a - b * Math.floor(a / b); if (r === 0 && b < 0) return -0; return r; }
+  var OPNAME = { "+": "+", "-": "-", "*": "*", "/": "/", "//": "//", "%": "%", "**": "** or pow()" };
+  function unsupported(op, a, b) { return new PyError("TypeError", "unsupported operand type(s) for " + OPNAME[op] + ": '" + typeName(a) + "' and '" + typeName(b) + "'"); }
+  function binop(op, a, b) {
+    if (isNum(a) && isNum(b)) {
+      var intOp = (a.t !== "float" && b.t !== "float");
+      if (intOp) {
+        var x = toBI(a), y = toBI(b);
+        switch (op) {
+          case "+": return I(x + y); case "-": return I(x - y); case "*": return I(x * y);
+          case "/": if (y === 0n) throw new PyError("ZeroDivisionError", "division by zero"); return F(Number(x) / Number(y));
+          case "//": if (y === 0n) throw new PyError("ZeroDivisionError", "integer division or modulo by zero"); return I(floorDivBI(x, y));
+          case "%": if (y === 0n) throw new PyError("ZeroDivisionError", "integer modulo by zero"); return I(modBI(x, y));
+          case "**":
+            if (y < 0n) { if (x === 0n) throw new PyError("ZeroDivisionError", "0.0 cannot be raised to a negative power"); return F(Math.pow(Number(x), Number(y))); }
+            if (y > 4000n) throw new PyError("OverflowError", "result too large for this lab");
+            return I(x ** y);
+        }
+      } else {
+        var p = toF(a), q = toF(b);
+        switch (op) {
+          case "+": return F(p + q); case "-": return F(p - q); case "*": return F(p * q);
+          case "/": if (q === 0) throw new PyError("ZeroDivisionError", "float division by zero"); return F(p / q);
+          case "//": if (q === 0) throw new PyError("ZeroDivisionError", "float floor division by zero"); return F(Math.floor(p / q));
+          case "%": if (q === 0) throw new PyError("ZeroDivisionError", "float modulo by zero"); return F(fmod(p, q));
+          case "**":
+            if (p === 0 && q < 0) throw new PyError("ZeroDivisionError", "zero to a negative power");
+            var r = Math.pow(p, q); if (r !== r && p < 0) throw new PyError("ValueError", "complex results are not supported in this lab"); if (!isFinite(r)) throw new PyError("OverflowError", "(34, 'Numerical result out of range')"); return F(r);
+        }
+      }
+    }
+    if (op === "+") {
+      if (a.t === "str") { if (b.t !== "str") throw new PyError("TypeError", 'can only concatenate str (not "' + typeName(b) + '") to str'); return S(a.v + b.v); }
+      if (a.t === "list") { if (b.t !== "list") throw new PyError("TypeError", 'can only concatenate list (not "' + typeName(b) + '") to list'); return L(a.v.concat(b.v)); }
+      if (a.t === "tuple" && b.t === "tuple") return T(a.v.concat(b.v));
+    }
+    if (op === "*") {
+      var seq = null, cnt = null;
+      if ((a.t === "str" || a.t === "list" || a.t === "tuple") && (b.t === "int" || b.t === "bool")) { seq = a; cnt = b; }
+      else if ((b.t === "str" || b.t === "list" || b.t === "tuple") && (a.t === "int" || a.t === "bool")) { seq = b; cnt = a; }
+      if (seq) {
+        var k = Number(toBI(cnt)); if (k < 0) k = 0;
+        if (seq.v.length * k > 100000) throw new PyError("MemoryError", "too large for this lab");
+        if (seq.t === "str") return S(seq.v.repeat(k));
+        var out = []; for (var z = 0; z < k; z++) out = out.concat(seq.v);
+        return seq.t === "list" ? L(out) : T(out);
+      }
+      if ((a.t === "str" || a.t === "list") && (b.t === "str" || b.t === "list" || b.t === "float")) throw new PyError("TypeError", "can't multiply sequence by non-int of type '" + typeName(b) + "'");
+      if ((b.t === "str" || b.t === "list") && a.t === "float") throw new PyError("TypeError", "can't multiply sequence by non-int of type '" + typeName(a) + "'");
+    }
+    if (op === "%" && a.t === "str") throw new PyError("TypeError", "this lab does not support % formatting; use an f-string");
+    throw unsupported(op, a, b);
+  }
+  function eq(a, b) {
+    if (isNum(a) && isNum(b)) {
+      if (a.t !== "float" && b.t !== "float") return toBI(a) === toBI(b);
+      return toF(a) === toF(b);
+    }
+    if (a.t !== b.t) return false;
+    if (a.t === "str") return a.v === b.v;
+    if (a.t === "NoneType") return true;
+    if (a.t === "list" || a.t === "tuple") { if (a.v.length !== b.v.length) return false; for (var i = 0; i < a.v.length; i++) if (!eq(a.v[i], b.v[i])) return false; return true; }
+    if (a.t === "dict") { if (a.m.size !== b.m.size) return false; var ok = true; a.m.forEach(function (e, h) { var o = b.m.get(h); if (!o || !eq(e[1], o[1])) ok = false; }); return ok; }
+    return a === b;
+  }
+  function lt(a, b, op) {
+    if (isNum(a) && isNum(b)) { if (a.t !== "float" && b.t !== "float") return toBI(a) < toBI(b); return toF(a) < toF(b); }
+    if (a.t === "str" && b.t === "str") return a.v < b.v;
+    if ((a.t === "list" && b.t === "list") || (a.t === "tuple" && b.t === "tuple")) {
+      for (var i = 0; i < Math.min(a.v.length, b.v.length); i++) { if (!eq(a.v[i], b.v[i])) return lt(a.v[i], b.v[i], "<"); }
+      return a.v.length < b.v.length;
+    }
+    throw new PyError("TypeError", "'" + op + "' not supported between instances of '" + typeName(a) + "' and '" + typeName(b) + "'");
+  }
+  function checkOrder(a, b, op) {
+    var ok = (isNum(a) && isNum(b)) || (a.t === "str" && b.t === "str") || (a.t === "list" && b.t === "list") || (a.t === "tuple" && b.t === "tuple");
+    if (!ok) throw new PyError("TypeError", "'" + op + "' not supported between instances of '" + typeName(a) + "' and '" + typeName(b) + "'");
+  }
+  function compare(op, a, b) {
+    switch (op) {
+      case "==": return eq(a, b); case "!=": return !eq(a, b);
+      case "<": return lt(a, b, "<"); case ">": checkOrder(a, b, ">"); return lt(b, a, ">");
+      case "<=": return lt(a, b, "<=") || eq(a, b); case ">=": checkOrder(a, b, ">="); return lt(b, a, ">=") || eq(a, b);
+      case "in": case "not in":
+        var r;
+        if (b.t === "str") { if (a.t !== "str") throw new PyError("TypeError", "'in <string>' requires string as left operand, not " + typeName(a)); r = b.v.indexOf(a.v) >= 0; }
+        else if (b.t === "list" || b.t === "tuple" || /^dict_/.test(b.t)) r = b.v.some(function (x) { return eq(x, a); });
+        else if (b.t === "dict") r = b.m.has(hashKey(a));
+        else throw new PyError("TypeError", "argument of type '" + typeName(b) + "' is not iterable");
+        return op === "in" ? r : !r;
+      case "is": return a === b || (a.t === "NoneType" && b.t === "NoneType") || (a.t === "bool" && b.t === "bool" && a.v === b.v);
+      case "is not": return !compare("is", a, b);
+    }
+  }
+
+  /* ---------- formatting for f-strings ---------- */
+  function pyFixed(x, p) { if (!isFinite(x)) return floatRepr(x); var r = pyRound(x, p); return (r === 0 && x < 0 ? "-" : "") + Math.abs(r).toFixed(p).replace(/^/, r < 0 ? "-" : ""); }
+  function fmtNumber(v, spec) {
+    var m = /^([<>^]?)(\+?)(0?)(\d*)(,?)(?:\.(\d+))?([fdeg%s]?)$/.exec(spec);
+    if (!m) throw new PyError("ValueError", "Invalid format specifier '" + spec + "' for object of type '" + typeName(v) + "'");
+    var kind = m[7], prec = m[6] === undefined ? null : parseInt(m[6], 10), width = m[4] ? parseInt(m[4], 10) : 0, comma = m[5] === ",";
+    var s;
+    if (kind === "s") { if (v.t !== "str") throw new PyError("ValueError", "Unknown format code 's' for object of type '" + typeName(v) + "'"); s = v.v; }
+    else if (v.t === "str") { if (kind || prec !== null || comma) throw new PyError("ValueError", "Unknown format code '" + (kind || "f") + "' for object of type 'str'"); s = v.v; }
+    else if (kind === "d") { if (v.t === "float") throw new PyError("ValueError", "Unknown format code 'd' for object of type 'float'"); s = toBI(v).toString(); }
+    else if (kind === "%") { s = pyFixed(toF(v) * 100, prec === null ? 6 : prec) + "%"; }
+    else if (kind === "f") { s = pyFixed(toF(v), prec === null ? 6 : prec); }
+    else if (kind === "e") { var e = toF(v).toExponential(prec === null ? 6 : prec); s = e.replace(/e([+-])(\d)$/, "e$10$2"); }
+    else if (prec !== null) { s = Number(toF(v).toPrecision(prec)).toString(); }
+    else s = str(v);
+    if (comma) { var parts = s.split("."); var neg = parts[0][0] === "-"; var ip = neg ? parts[0].slice(1) : parts[0]; ip = ip.replace(/\B(?=(\d{3})+(?!\d))/g, ","); parts[0] = (neg ? "-" : "") + ip; s = parts.join("."); }
+    if (m[2] === "+" && s[0] !== "-" && v.t !== "str") s = "+" + s;
+    if (width && s.length < width) {
+      var align = m[1] || (v.t === "str" ? "<" : ">"), pad = width - s.length, fill = m[3] === "0" ? "0" : " ";
+      if (align === "<") s = s + " ".repeat(pad); else if (align === "^") s = " ".repeat(Math.floor(pad / 2)) + s + " ".repeat(Math.ceil(pad / 2)); else s = fill.repeat(pad) + s;
+    }
+    return s;
+  }
+
+  /* ---------- builtins ---------- */
+  function argc(name, args, lo, hi) {
+    if (args.length < lo || args.length > hi) {
+      if (lo === hi) throw new PyError("TypeError", name + "() takes exactly one argument (" + args.length + " given)");
+      throw new PyError("TypeError", name + " expected at most " + hi + " argument" + (hi > 1 ? "s" : "") + ", got " + args.length);
+    }
+  }
+  function lenOf(v) {
+    if (v.t === "str" || v.t === "list" || v.t === "tuple" || /^dict_/.test(v.t)) return v.v.length;
+    if (v.t === "dict") return v.m.size;
+    throw new PyError("TypeError", "object of type '" + typeName(v) + "' has no len()");
+  }
+  function iter(v) {
+    if (v.t === "str") return Array.from(v.v).map(S);
+    if (v.t === "list" || v.t === "tuple" || /^dict_/.test(v.t)) return v.v.slice();
+    if (v.t === "dict") return dkeys(v);
+    throw new PyError("TypeError", "'" + typeName(v) + "' object is not iterable");
+  }
+  function pyRound(x, nd) {
+    /* correctly rounded on the exact binary value, ties to even (as CPython) */
+    if (!isFinite(x) || nd > 20) return x;
+    var neg = x < 0, a = Math.abs(x);
+    var long = a.toFixed(Math.min(100, nd + 40)), cut = long.indexOf(".") + nd + (nd > 0 ? 1 : 0);
+    if (nd === 0) cut = long.indexOf(".");
+    var rest = long.slice(cut + (nd === 0 ? 1 : 0)), isTie = /^50*$/.test(rest);
+    var r;
+    if (isTie) {
+      var down = Number(long.slice(0, cut)), f = Math.pow(10, nd), step = 1 / f;
+      var lastDigit = parseInt(long[cut - 1] === "." ? long[cut - 2] : long[cut - 1], 10);
+      r = (lastDigit % 2 === 0) ? down : Number((down + step).toFixed(nd));
+    } else r = Number(a.toFixed(nd));
+    return neg ? -r : r;
+  }
+  var KWOK = { print: ["sep", "end"], sorted: ["reverse", "key"], sort: ["reverse", "key"], max: ["key"], min: ["key"] };
+  var BUILTINS = {
+    print: function (args, ctx, kw) {
+      kw = kw || {}; var sep = kw.sep && kw.sep.t !== "NoneType" ? kw.sep.v : " ", end = kw.end && kw.end.t !== "NoneType" ? kw.end.v : "\n";
+      var o = ctx.root || ctx, parts = ((o.pend || "") + args.map(str).join(sep) + end).split("\n");
+      o.pend = parts.pop(); parts.forEach(function (l) { o.out.push(l); }); return NONE;
+    },
+    enumerate: function (args) { argc("enumerate", args, 1, 2); var st = args[1] ? Number(toBI(args[1])) : 0; return L(iter(args[0]).map(function (x, k) { return T([I(k + st), x]); })); },
+    len: function (args) { argc("len", args, 1, 1); return I(lenOf(args[0])); },
+    type: function (args) { argc("type", args, 1, 1); return { t: "type", v: typeName(args[0]) }; },
+    str: function (args) { return S(args.length ? str(args[0]) : ""); },
+    int: function (args) {
+      if (!args.length) return I(0); var v = args[0];
+      if (v.t === "int") return v; if (v.t === "bool") return I(v.v ? 1 : 0);
+      if (v.t === "float") { if (!isFinite(v.v)) throw new PyError("OverflowError", "cannot convert float infinity to integer"); return I(Math.trunc(v.v)); }
+      if (v.t === "str") { var t = v.v.trim().replace(/_/g, ""); if (!/^[+-]?\d+$/.test(t)) throw new PyError("ValueError", "invalid literal for int() with base 10: " + strRepr(v.v)); return I(t); }
+      throw new PyError("TypeError", "int() argument must be a string, a bytes-like object or a real number, not '" + typeName(v) + "'");
+    },
+    float: function (args) {
+      if (!args.length) return F(0); var v = args[0];
+      if (isNum(v)) return F(toF(v));
+      if (v.t === "str") { var t = v.v.trim(); if (!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(t)) throw new PyError("ValueError", "could not convert string to float: " + strRepr(v.v)); return F(parseFloat(t)); }
+      throw new PyError("TypeError", "float() argument must be a string or a real number, not '" + typeName(v) + "'");
+    },
+    bool: function (args) { return B(args.length ? truthy(args[0]) : false); },
+    abs: function (args) { argc("abs", args, 1, 1); var v = args[0]; if (v.t === "float") return F(Math.abs(v.v)); if (isNum(v)) { var x = toBI(v); return I(x < 0n ? -x : x); } throw new PyError("TypeError", "bad operand type for abs(): '" + typeName(v) + "'"); },
+    round: function (args) {
+      var v = args[0]; if (!isNum(v)) throw new PyError("TypeError", "type " + typeName(v) + " doesn't define __round__ method");
+      if (args.length === 1) { if (v.t !== "float") return I(toBI(v)); return I(pyRound(v.v, 0)); }
+      var nd = Number(toBI(args[1])); if (v.t !== "float") return v; return F(pyRound(v.v, nd));
+    },
+    max: function (args, ctx, kw) { return minmax(args, "max", kw, ctx); }, min: function (args, ctx, kw) { return minmax(args, "min", kw, ctx); },
+    sum: function (args) {
+      if (!args.length) throw new PyError("TypeError", "sum() takes at least 1 positional argument (0 given)");
+      var items = iterArg(args[0]), acc = args[1] || I(0);
+      items.forEach(function (x) { if (x.t === "str") throw new PyError("TypeError", "unsupported operand type(s) for +: '" + typeName(acc) + "' and 'str'"); acc = binop("+", acc, x); }); return acc;
+    },
+    list: function (args) { return L(args.length ? iter(args[0]) : []); },
+    tuple: function (args) { return T(args.length ? iter(args[0]) : []); },
+    sorted: function (args, ctx, kw) {
+      argc("sorted", args, 1, 1); var a = iter(args[0]), rev = kw && kw.reverse && truthy(kw.reverse);
+      var keyed = a.map(function (x, i) { return { x: x, k: kw && kw.key && kw.key.t !== "NoneType" ? callValue(kw.key, [x], {}, ctx) : x, i: i }; });
+      keyed.sort(function (p, q) { var c = lt(p.k, q.k, "<") ? -1 : lt(q.k, p.k, "<") ? 1 : 0; if (rev) c = -c; return c || p.i - q.i; });
+      return L(keyed.map(function (p) { return p.x; }));
+    },
+    dict: function (args) { var d = D(); if (args.length) { if (args[0].t === "dict") args[0].m.forEach(function (e) { dset(d, e[0], e[1]); }); else iter(args[0]).forEach(function (pr) { var kv = iter(pr); dset(d, kv[0], kv[1]); }); } return d; },
+    repr: function (args) { argc("repr", args, 1, 1); return S(repr(args[0])); },
+    id: function (args) { argc("id", args, 1, 1); return I(objId(args[0])); },
+    pow: function (args) { if (args.length === 3) { if (args[0].t !== "int" || args[1].t !== "int" || args[2].t !== "int") throw new PyError("TypeError", "pow() 3rd argument not allowed unless all arguments are integers"); return binop("%", binop("**", args[0], args[1]), args[2]); } if (args.length < 2) throw new PyError("TypeError", "pow() missing required argument '" + (args.length ? "exp' (pos 2)" : "base' (pos 1)")); if (args.length > 3) throw new PyError("TypeError", "pow() takes at most 3 arguments (" + args.length + " given)"); return binop("**", args[0], args[1]); },
+    range: function (args) {
+      var nums = args.map(function (a) { if (a.t !== "int" && a.t !== "bool") throw new PyError("TypeError", "'" + typeName(a) + "' object cannot be interpreted as an integer"); return Number(toBI(a)); });
+      var start = 0, stop, step = 1; if (nums.length === 1) stop = nums[0]; else { start = nums[0]; stop = nums[1]; if (nums.length > 2) step = nums[2]; }
+      if (step === 0) throw new PyError("ValueError", "range() arg 3 must not be zero");
+      var out = []; for (var x = start; step > 0 ? x < stop : x > stop; x += step) { out.push(I(x)); if (out.length > 10000) break; }
+      return L(out);
+    },
+    input: function () { throw new PyError("RuntimeError", "input() is not available in this lab; type the value into the code instead"); }
+  };
+  function iterArg(v) { return iter(v); }
+  function minmax(args, nm, kw, ctx) {
+    if (!args.length) throw new PyError("TypeError", nm + " expected at least 1 argument, got 0");
+    var items = args.length === 1 ? iter(args[0]) : args;
+    if (!items.length) throw new PyError("ValueError", nm + "() iterable argument is empty");
+    var kf = function (x) { return kw && kw.key && kw.key.t !== "NoneType" ? callValue(kw.key, [x], {}, ctx) : x; };
+    var best = items[0], bk = kf(best);
+    for (var i = 1; i < items.length; i++) { var x = items[i], xk = kf(x); if (nm === "max" ? lt(bk, xk, "<") : lt(xk, bk, "<")) { best = x; bk = xk; } }
+    return best;
+  }
+  function callValue(f, args, kw, ctx) {
+    kw = kw || {};
+    var fname = f.t === "builtin" ? f.name : f.t === "type" ? f.v : f.t === "boundmethod" ? f.name : "";
+    if (f.t !== "function") Object.keys(kw).forEach(function (k) { if ((KWOK[fname] || []).indexOf(k) < 0) throw new PyError("TypeError", fname.replace(/^math\./, "") + "() got an unexpected keyword argument '" + k + "'"); });
+    if (f.t === "builtin") return (f.fn || BUILTINS[f.name])(args, ctx, kw);
+    if (f.t === "boundmethod") return f.fn(args, kw);
+    if (f.t === "type") { if (BUILTINS[f.v]) return BUILTINS[f.v](args, ctx, kw); throw new PyError("TypeError", "cannot create '" + f.v + "' instances"); }
+    if (f.t === "function") return f.call(args, kw, ctx);
+    throw new PyError("TypeError", "'" + typeName(f) + "' object is not callable");
+  }
+  function stripChars(s, c, side) {
+    var set = c && c.t === "str" ? c.v : null, ws = function (ch) { return set === null ? /\s/.test(ch) : set.indexOf(ch) >= 0; }, a = 0, b = s.length;
+    if (side & 1) while (a < b && ws(s[a])) a++;
+    if (side & 2) while (b > a && ws(s[b - 1])) b--;
+    return s.slice(a, b);
+  }
+  function method(obj, name) {
+    var s = obj.v;
+    var M = null;
+    if (obj.t === "str") M = {
+      lower: function () { return S(s.toLowerCase()); }, upper: function () { return S(s.toUpperCase()); },
+      title: function () { return S(s.toLowerCase().replace(/(^|[^A-Za-z])([a-z])/g, function (m, a, b) { return a + b.toUpperCase(); })); },
+      strip: function (a) { return S(stripChars(s, a[0], 3)); }, lstrip: function (a) { return S(stripChars(s, a[0], 1)); }, rstrip: function (a) { return S(stripChars(s, a[0], 2)); },
+      join: function (a) { var it = iter(a[0]); it.forEach(function (x, k) { if (x.t !== "str") throw new PyError("TypeError", "sequence item " + k + ": expected str instance, " + typeName(x) + " found"); }); return S(it.map(function (x) { return x.v; }).join(s)); },
+      isupper: function () { return B(/[A-Z]/.test(s) && !/[a-z]/.test(s)); }, islower: function () { return B(/[a-z]/.test(s) && !/[A-Z]/.test(s)); }, capitalize: function () { return S(s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()); },
+      split: function (a) { if (a.length) { if (a[0].v === "") throw new PyError("ValueError", "empty separator"); return L(s.split(a[0].v).map(S)); } return L(s.split(/\s+/).filter(function (x) { return x; }).map(S)); },
+      count: function (a) { if (!a.length || a[0].t !== "str") throw new PyError("TypeError", "must be str, not " + (a.length ? typeName(a[0]) : "nothing")); var sub = a[0].v; if (sub === "") return I(s.length + 1); var c = 0, i = 0; while ((i = s.indexOf(sub, i)) >= 0) { c++; i += sub.length; } return I(c); },
+      replace: function (a) { return S(s.split(a[0].v).join(a[1].v)); },
+      startswith: function (a) { return B(s.indexOf(a[0].v) === 0); }, endswith: function (a) { return B(s.length >= a[0].v.length && s.slice(s.length - a[0].v.length) === a[0].v); },
+      find: function (a) { return I(s.indexOf(a[0].v)); },
+      isdigit: function () { return B(/^\d+$/.test(s)); }, isalpha: function () { return B(/^[A-Za-z]+$/.test(s)); }
+    };
+    else if (obj.t === "list") M = {
+      append: function (a) { s.push(a[0]); return NONE; }, pop: function (a) { if (!s.length) throw new PyError("IndexError", "pop from empty list"); var i = a.length ? Number(toBI(a[0])) : s.length - 1; if (i < 0) i += s.length; if (i < 0 || i >= s.length) throw new PyError("IndexError", "pop index out of range"); return s.splice(i, 1)[0]; },
+      insert: function (a) { var i = Number(toBI(a[0])); if (i < 0) i = Math.max(0, s.length + i); s.splice(Math.min(i, s.length), 0, a[1]); return NONE; },
+      remove: function (a) { for (var i = 0; i < s.length; i++) if (eq(s[i], a[0])) { s.splice(i, 1); return NONE; } throw new PyError("ValueError", "list.remove(x): x not in list"); },
+      index: function (a) { for (var i = 0; i < s.length; i++) if (eq(s[i], a[0])) return I(i); throw new PyError("ValueError", repr(a[0]) + " is not in list"); },
+      count: function (a) { return I(s.filter(function (x) { return eq(x, a[0]); }).length); },
+      sort: function (a, kw) { if (kw && kw.key) { var srt = BUILTINS.sorted([obj], null, kw); s.splice.apply(s, [0, s.length].concat(srt.v)); return NONE; } s.sort(function (x, y) { return lt(x, y, "<") ? -1 : lt(y, x, "<") ? 1 : 0; }); if (kw && kw.reverse && truthy(kw.reverse)) s.reverse(); return NONE; },
+      reverse: function () { s.reverse(); return NONE; }, copy: function () { return L(s.slice()); }
+    };
+    else if (obj.t === "dict") M = {
+      get: function (a) { if (!a.length) throw new PyError("TypeError", "get expected at least 1 argument, got 0"); var v = dget(obj, a[0]); return v === undefined ? (a.length > 1 ? a[1] : NONE) : v; },
+      keys: function () { return { t: "dict_keys", v: dkeys(obj) }; }, values: function () { return { t: "dict_values", v: dvals(obj) }; }, items: function () { return { t: "dict_items", v: ditems(obj) }; },
+      pop: function (a) { var h = hashKey(a[0]), e = obj.m.get(h); if (!e) { if (a.length > 1) return a[1]; throw new PyError("KeyError", repr(a[0])); } obj.m.delete(h); return e[1]; },
+      copy: function () { var d = D(); obj.m.forEach(function (e, h) { d.m.set(h, [e[0], e[1]]); }); return d; },
+      update: function (a) { iter(a[0]).forEach(function (k) { dset(obj, k, dget(a[0], k)); }); return NONE; }
+    };
+    if (M && M[name]) return M[name];
+    throw new PyError("AttributeError", "'" + typeName(obj) + "' object has no attribute '" + name + "'");
+  }
+
+  /* ---------- evaluation ---------- */
+  function lev(a, b) { var d = []; for (var i = 0; i <= a.length; i++) { d[i] = [i]; } for (var j = 0; j <= b.length; j++) d[0][j] = j; for (i = 1; i <= a.length; i++) for (j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; }
+  function suggest(name, env) {
+    var best = null, bd = 99;
+    Object.keys(env).forEach(function (k) { var dd = lev(name, k); if (dd < bd && dd <= Math.max(1, Math.floor(name.length / 3))) { bd = dd; best = k; } });
+    return best;
+  }
+  function index(seq, iv) {
+    if (seq.t === "dict") { var dv = dget(seq, iv); if (dv === undefined) throw new PyError("KeyError", repr(iv)); return dv; }
+    if (seq.t === "str" || seq.t === "list" || seq.t === "tuple") {
+      if (iv.t !== "int" && iv.t !== "bool") throw new PyError("TypeError", seq.t === "str" ? "string indices must be integers, not '" + typeName(iv) + "'" : seq.t + " indices must be integers or slices, not " + typeName(iv));
+      var n = seq.v.length, i = Number(toBI(iv)); if (i < 0) i += n;
+      if (i < 0 || i >= n) throw new PyError("IndexError", (seq.t === "str" ? "string" : seq.t) + " index out of range");
+      return seq.t === "str" ? S(seq.v[i]) : seq.v[i];
+    }
+    throw new PyError("TypeError", "'" + typeName(seq) + "' object is not subscriptable");
+  }
+  function sliceIdx(n, av, bv, cv) {
+    function num(v) { if (!v || v.t === "NoneType") return null; if (v.t !== "int" && v.t !== "bool") throw new PyError("TypeError", "slice indices must be integers or None or have an __index__ method"); return Number(toBI(v)); }
+    var a = num(av), b = num(bv), c = num(cv); if (c === null) c = 1;
+    if (c === 0) throw new PyError("ValueError", "slice step cannot be zero");
+    function adj(x, dflt, lo, hi) { if (x === null) return dflt; if (x < 0) { x += n; if (x < lo) x = lo; } else if (x > hi) x = hi; return x; }
+    var out = [], i;
+    if (c > 0) { a = adj(a, 0, 0, n); b = adj(b, n, 0, n); for (i = a; i < b; i += c) out.push(i); }
+    else { a = adj(a, n - 1, -1, n - 1); b = adj(b, -1, -1, n - 1); for (i = a; i > b; i += c) out.push(i); }
+    return out;
+  }
+  function ev(node, ctx) {
+    switch (node.n) {
+      case "const": return node.v;
+      case "name":
+        if (Object.prototype.hasOwnProperty.call(ctx.env, node.id)) return ctx.env[node.id];
+        if (ctx.localNames && ctx.localNames[node.id]) throw new PyError("UnboundLocalError", "cannot access local variable '" + node.id + "' where it is not associated with a value");
+        if (ctx.globals && Object.prototype.hasOwnProperty.call(ctx.globals, node.id)) return ctx.globals[node.id];
+        if (BUILTINS[node.id]) return { t: "builtin", name: node.id };
+        var known = {}; Object.keys(ctx.globals || {}).forEach(function (k) { known[k] = 1; }); Object.keys(ctx.env).forEach(function (k) { known[k] = 1; });
+        var sg = suggest(node.id, known);
+        var e = new PyError("NameError", "name '" + node.id + "' is not defined"); if (sg) e.hint = "Did you mean: '" + sg + "'?"; throw e;
+      case "list": return L(node.items.map(function (x) { return ev(x, ctx); }));
+      case "dict": var dd = D(); node.items.forEach(function (pr) { var kv = ev(pr[0], ctx); dset(dd, kv, ev(pr[1], ctx)); }); return dd;
+      case "tuple": return T(node.items.map(function (x) { return ev(x, ctx); }));
+      case "fstr":
+        return S(node.parts.map(function (p) { if (p.lit !== undefined) return p.lit; var v = ev(p.node, ctx); return p.spec === null ? str(v) : fmtNumber(v, p.spec); }).join(""));
+      case "unary":
+        var u = ev(node.e, ctx);
+        if (node.op === "-") { if (u.t === "float") return F(-u.v); if (isNum(u)) return I(-toBI(u)); throw new PyError("TypeError", "bad operand type for unary -: '" + typeName(u) + "'"); }
+        if (isNum(u)) return u.t === "bool" ? I(toBI(u)) : u; throw new PyError("TypeError", "bad operand type for unary +: '" + typeName(u) + "'");
+      case "not": return B(!truthy(ev(node.e, ctx)));
+      case "bool":
+        var l = ev(node.l, ctx);
+        if (node.op === "and") return truthy(l) ? ev(node.r, ctx) : l;
+        return truthy(l) ? l : ev(node.r, ctx);
+      case "ifexp": return truthy(ev(node.cond, ctx)) ? ev(node.a, ctx) : ev(node.b, ctx);
+      case "bin": return binop(node.op, ev(node.l, ctx), ev(node.r, ctx));
+      case "cmp":
+        var left = ev(node.first, ctx);
+        for (var i = 0; i < node.ops.length; i++) { var right = ev(node.rest[i], ctx); if (!compare(node.ops[i], left, right)) return B(false); left = right; }
+        return B(true);
+      case "index": return index(ev(node.o, ctx), ev(node.i, ctx));
+      case "slice":
+        var o = ev(node.o, ctx); if (o.t !== "str" && o.t !== "list" && o.t !== "tuple") throw new PyError("TypeError", "'" + typeName(o) + "' object is not subscriptable");
+        var seqv = o.t === "str" ? Array.from(o.v) : o.v, idx = sliceIdx(seqv.length, node.a && ev(node.a, ctx), node.b && ev(node.b, ctx), node.c && ev(node.c, ctx));
+        var sl = idx.map(function (k) { return seqv[k]; }); return o.t === "str" ? S(sl.join("")) : o.t === "list" ? L(sl) : T(sl);
+      case "attr":
+        var obj = ev(node.o, ctx);
+        if (obj.t === "module") { if (!Object.prototype.hasOwnProperty.call(obj.attrs, node.name)) throw new PyError("AttributeError", "module '" + obj.name + "' has no attribute '" + node.name + "'"); return obj.attrs[node.name]; }
+        var fn = method(obj, node.name);
+        return { t: "boundmethod", obj: obj, fn: fn, name: node.name };
+      case "call":
+        var f = ev(node.f, ctx), args = node.args.map(function (x) { return ev(x, ctx); }), kw = {};
+        (node.kws || []).forEach(function (k) { kw[k[0]] = ev(k[1], ctx); });
+        return callValue(f, args, kw, ctx);
+    }
+    throw new PyError("SyntaxError", "invalid syntax");
+  }
+
+  /* ---------- statements (one line each) ---------- */
+  function assignTargets(lhs) {
+    var p = new Parser(tokenize(lhs)); var e = p.exprList();
+    if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+    function chk(x) {
+      if (x.n === "name") return x;
+      if (x.n === "tuple") { x.items.forEach(chk); return x; }
+      if (x.n === "index") return x;
+      if (x.n === "const" || x.n === "call" || x.n === "bin") throw new PyError("SyntaxError", "cannot assign to " + (x.n === "const" ? "literal" : x.n === "call" ? "function call" : "expression") + " here. Maybe you meant '==' instead of '='?");
+      throw new PyError("SyntaxError", "cannot assign to expression");
+    }
+    return chk(e);
+  }
+  function bind(target, value, ctx) {
+    if (target.n === "name") { ctx.env[target.id] = value; ctx.changed.push(target.id); return; }
+    if (target.n === "index") {
+      var seq = ev(target.o, ctx), iv = ev(target.i, ctx);
+      if (seq.t === "dict") { dset(seq, iv, value); ctx.changed.push("*"); return; }
+      if (seq.t === "list") { if (iv.t !== "int" && iv.t !== "bool") throw new PyError("TypeError", "list indices must be integers or slices, not " + typeName(iv)); var n = seq.v.length, i = Number(toBI(iv)); if (i < 0) i += n; if (i < 0 || i >= n) throw new PyError("IndexError", "list assignment index out of range"); seq.v[i] = value; ctx.changed.push("*"); return; }
+      throw new PyError("TypeError", "'" + typeName(seq) + "' object does not support item assignment");
+    }
+    var vals = iter(value);
+    if (vals.length !== target.items.length) throw new PyError("ValueError", vals.length > target.items.length ? "too many values to unpack (expected " + target.items.length + ")" : "not enough values to unpack (expected " + target.items.length + ", got " + vals.length + ")");
+    target.items.forEach(function (t, k) { bind(t, vals[k], ctx); });
+  }
+  function splitTopLevelEq(line) {
+    var depth = 0, q = null;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (q) { if (c === "\\") { i++; continue; } if (c === q) q = null; continue; }
+      if (c === "'" || c === '"') { q = c; continue; }
+      if (c === "#") break;
+      if ("([{".indexOf(c) >= 0) depth++; else if (")]}".indexOf(c) >= 0) depth--;
+      else if (depth === 0 && c === "=") {
+        var prev = line[i - 1] || "", nx = line[i + 1] || "";
+        if (nx === "=") { i++; continue; }
+        if ("=!<>".indexOf(prev) >= 0) continue;
+        var aug = "";
+        if ("+-*/%".indexOf(prev) >= 0) { aug = prev; if ((prev === "/" || prev === "*") && line[i - 2] === prev) aug = prev + prev; }
+        return { at: i, aug: aug };
+      }
+    }
+    return null;
+  }
+  function execLine(line, ctx) {
+    ctx.changed = []; ctx.last = undefined;
+    var raw = line.replace(/\s+$/, "");
+    if (!raw.trim() || raw.trim()[0] === "#") return { kind: "blank" };
+    if (/^\s/.test(raw)) throw new PyError("IndentationError", "unexpected indent");
+    var firstWord = (/^[A-Za-z_]\w*/.exec(raw) || [""])[0];
+    if (["if", "elif", "else", "for", "while", "def", "class", "try", "with"].indexOf(firstWord) >= 0)
+      throw new PyError("NotSupported", "This lab runs one-line statements only. Blocks like '" + firstWord + "' are covered in Lecture 3.");
+    if (firstWord === "import" || firstWord === "from") throw new PyError("NotSupported", "Imports are not available in this lab.");
+    var sp = splitTopLevelEq(raw);
+    if (sp) {
+      var lhs = raw.slice(0, sp.at - sp.aug.length).trim(), rhs = raw.slice(sp.at + 1).trim();
+      if (!rhs) throw new PyError("SyntaxError", "invalid syntax");
+      var target = assignTargets(lhs);
+      var p = new Parser(tokenize(rhs)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+      if (sp.aug) {
+        if (target.n === "tuple") throw new PyError("SyntaxError", "'tuple' is an illegal expression for augmented assignment");
+        var cur = ev(target.n === "name" ? { n: "name", id: target.id } : target, ctx), rv = ev(e, ctx), v;
+        if (sp.aug === "+" && cur.t === "list") { var add = iter(rv); Array.prototype.push.apply(cur.v, add); v = cur; }
+        else if (sp.aug === "*" && cur.t === "list" && (rv.t === "int" || rv.t === "bool")) { var rep0 = cur.v.slice(), times = Number(toBI(rv)); cur.v.length = 0; for (var z = 0; z < times; z++) Array.prototype.push.apply(cur.v, rep0); v = cur; }
+        else v = binop(sp.aug, cur, rv);
+        bind(target, v, ctx);
+        return { kind: "assign", targets: target.n === "name" ? [target.id] : ["*"], value: v };
+      }
+      var val = ev(e, ctx); bind(target, val, ctx);
+      return { kind: "assign", targets: ctx.changed.slice(), value: val };
+    }
+    var pp = new Parser(tokenize(raw)); var ex = pp.exprList();
+    if (!pp.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+    var r = ev(ex, ctx);
+    return { kind: "expr", value: r };
+  }
+  function mathFn(name, lo, hi, f) { return { t: "builtin", name: "math." + name, fn: function (args) { if (args.length < lo || args.length > hi) throw new PyError("TypeError", lo === hi ? "math." + name + "() takes exactly " + (lo === 1 ? "one argument" : lo + " arguments") + " (" + args.length + " given)" : name + " expected at most " + hi + " arguments, got " + args.length); return f(args); } }; }
+  function needNum(v) { if (!isNum(v)) throw new PyError("TypeError", "must be real number, not " + typeName(v)); return toF(v); }
+  function needInt(v, fn) { if (v.t !== "int" && v.t !== "bool") throw new PyError("TypeError", "'" + typeName(v) + "' object cannot be interpreted as an integer"); return toBI(v); }
+  function bgcd(a, b) { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) { var t = a % b; a = b; b = t; } return a; }
+  var MODULES = {
+    math: function () {
+      return { t: "module", name: "math", attrs: {
+        pi: F(Math.PI), e: F(Math.E), inf: F(Infinity),
+        sqrt: mathFn("sqrt", 1, 1, function (a) { var x = needNum(a[0]); if (x < 0) throw new PyError("ValueError", "math domain error"); return F(Math.sqrt(x)); }),
+        floor: mathFn("floor", 1, 1, function (a) { return a[0].t === "float" ? I(Math.floor(a[0].v)) : I(toBI(a[0])); }),
+        ceil: mathFn("ceil", 1, 1, function (a) { return a[0].t === "float" ? I(Math.ceil(a[0].v)) : I(toBI(a[0])); }),
+        gcd: { t: "builtin", name: "math.gcd", fn: function (a) { var g = 0n; a.forEach(function (x) { g = bgcd(g, needInt(x)); }); return I(g); } },
+        lcm: { t: "builtin", name: "math.lcm", fn: function (a) { var l = 1n; a.forEach(function (x) { var y = needInt(x); if (y === 0n) { l = 0n; return; } y = y < 0n ? -y : y; l = l === 0n ? 0n : l / bgcd(l, y) * y; }); return I(l); } },
+        fabs: mathFn("fabs", 1, 1, function (a) { return F(Math.abs(needNum(a[0]))); }),
+        pow: mathFn("pow", 2, 2, function (a) { return F(Math.pow(needNum(a[0]), needNum(a[1]))); }),
+        log: mathFn("log", 1, 2, function (a) { var x = needNum(a[0]); if (x <= 0) throw new PyError("ValueError", "math domain error"); return F(a.length > 1 ? Math.log(x) / Math.log(needNum(a[1])) : Math.log(x)); }),
+        log10: mathFn("log10", 1, 1, function (a) { var x = needNum(a[0]); if (x <= 0) throw new PyError("ValueError", "math domain error"); return F(Math.log10(x)); }),
+        factorial: mathFn("factorial", 1, 1, function (a) { var n = needInt(a[0]); if (n < 0n) throw new PyError("ValueError", "factorial() not defined for negative values"); var r = 1n; for (var k = 2n; k <= n; k++) r *= k; return I(r); }),
+        isqrt: mathFn("isqrt", 1, 1, function (a) { var n = needInt(a[0]); if (n < 0n) throw new PyError("ValueError", "isqrt() argument must be nonnegative"); return I(Math.floor(Math.sqrt(Number(n)))); })
+      } };
+    }
+  };
+  function importModule(name) { if (!MODULES[name]) throw new PyError("ModuleNotFoundError", "No module named '" + name + "'"); return MODULES[name](); }
+  function compileLine(line) {
+    var raw = line.trim(); if (!raw || raw[0] === "#") return;
+    var sp = splitTopLevelEq(raw);
+    if (sp) {
+      var lhs = raw.slice(0, sp.at - sp.aug.length).trim(), rhs = raw.slice(sp.at + 1).trim();
+      if (!rhs) throw new PyError("SyntaxError", "invalid syntax");
+      assignTargets(lhs); var p = new Parser(tokenize(rhs)); p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return;
+    }
+    var pp = new Parser(tokenize(raw)); pp.exprList(); if (!pp.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+  }
+  function compileExpr(src) { var p = new Parser(tokenize(src)); p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); }
+  function assignTargetNames(lhs) { var out = []; (function walk(x) { if (x.n === "name") out.push(x.id); else if (x.n === "tuple") x.items.forEach(walk); })(assignTargets(lhs)); return out; }
+  function newCtx() { return { env: {}, out: [], changed: [], pend: "" }; }
+  function assignTo(lhs, value, ctx) { ctx.changed = []; bind(assignTargets(lhs), value, ctx); return ctx.changed.slice(); }
+  function evalIn(src, ctx) { var p = new Parser(tokenize(src)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return ev(e, ctx); }
+  function evalExpr(src, env) { var ctx = { env: env || {}, out: [], changed: [] }; var p = new Parser(tokenize(src)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return { value: ev(e, ctx), out: ctx.out }; }
+  return { PyError: PyError, repr: repr, str: str, typeName: typeName, execLine: execLine, newCtx: newCtx, evalExpr: evalExpr, evalIn: evalIn, assignTo: assignTo, iter: iter, truthy: truthy, D: D, dset: dset, dget: dget, objId: objId, importModule: importModule, compileLine: compileLine, compileExpr: compileExpr, assignTargetNames: assignTargetNames, splitTopLevelEq: splitTopLevelEq, callValue: callValue, eq: eq, I: I, F: F, S: S, B: B, L: L, NONE: NONE };
+})();
+if (typeof module !== "undefined") module.exports = MiniPy;
+
+/* Shared helpers for all labs */
+var Lab = (function () {
+  "use strict";
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var KWS = /\b(and|or|not|in|is|if|elif|else|for|while|def|return|match|case|True|False|None|break|continue|import|from|as|print)\b/g;
+  function hl(line) {
+    // split out comment and strings first, then highlight keywords and numbers in code parts
+    var out = "", i = 0, n = line.length, buf = "";
+    function flush() {
+      out += esc(buf).replace(/\b(\d+\.?\d*)\b/g, '<span class="nu">$1</span>')
+        .replace(/\b(and|or|not|in|is|if|elif|else|for|while|def|return|match|case|True|False|None|break|continue)\b/g, '<span class="kw">$1</span>')
+        .replace(/\b(print|len|type|int|float|str|round|abs|max|min|sum|range|sorted|list)\b(?=\()/g, '<span class="fn">$1</span>');
+      buf = "";
+    }
+    while (i < n) {
+      var c = line[i];
+      if (c === "#") { flush(); out += '<span class="cm">' + esc(line.slice(i)) + "</span>"; return out; }
+      if (c === "'" || c === '"') {
+        var pre = "";
+        if (/[fF]$/.test(buf) && !/\w[fF]$/.test(buf)) { pre = buf.slice(-1); buf = buf.slice(0, -1); }
+        flush();
+        var j = i + 1; while (j < n && line[j] !== c) { if (line[j] === "\\") j++; j++; }
+        out += '<span class="st">' + esc(pre + line.slice(i, j + 1)) + "</span>"; i = j + 1; continue;
+      }
+      buf += c; i++;
+    }
+    flush(); return out;
+  }
+  function renderCode(el, lines, states, annotate) {
+    el.innerHTML = lines.map(function (l, k) {
+      var st = states && states[k] ? " " + states[k] : "";
+      var note = annotate && annotate[k] ? '<span style="margin-left:auto;padding-left:16px">' + annotate[k] + "</span>" : "";
+      return '<div class="ln' + st + '"><span class="no">' + (k + 1) + "</span><span>" + (hl(l) || " ") + "</span>" + note + "</div>";
+    }).join("");
+  }
+  function tabs() {
+    var btns = $$(".tabs button");
+    function show(id) {
+      btns.forEach(function (b) { b.setAttribute("aria-selected", b.dataset.tab === id ? "true" : "false"); });
+      $$(".exp").forEach(function (s) { s.classList.toggle("on", s.id === id); });
+      try { localStorage.setItem(document.title + ":tab", id); } catch (e) { }
+      if (history.replaceState) history.replaceState(null, "", "#" + id);
+    }
+    btns.forEach(function (b) { b.addEventListener("click", function () { show(b.dataset.tab); }); });
+    var start = (location.hash || "").slice(1);
+    if (!start || !$("#" + start)) { try { start = localStorage.getItem(document.title + ":tab"); } catch (e) { start = null; } }
+    show(start && $("#" + start) ? start : btns[0].dataset.tab);
+  }
+  function tryLists() {
+    $$(".try input[type=checkbox]").forEach(function (cb, k) {
+      var key = document.title + ":try" + k;
+      try { cb.checked = localStorage.getItem(key) === "1"; } catch (e) { }
+      function upd() { cb.closest("label").classList.toggle("done", cb.checked); }
+      upd();
+      cb.addEventListener("change", function () { upd(); try { localStorage.setItem(key, cb.checked ? "1" : "0"); } catch (e) { } });
+    });
+  }
+  function chipFor(v) { var t = MiniPy.typeName(v); return '<span class="chip ' + t + '">' + t + "</span>"; }
+  function errHTML(e) {
+    if (e.type === "NotSupported") return '<span class="e">' + esc(e.msg) + "</span>";
+    return '<span class="e">' + esc(e.type + ": " + e.msg) + "</span>" + (e.hint ? '<span class="hint">. ' + esc(e.hint) + "</span>" : "");
+  }
+  function init() { tabs(); tryLists(); }
+  document.addEventListener("DOMContentLoaded", init);
+  return { $: $, $$: $$, esc: esc, hl: hl, renderCode: renderCode, chipFor: chipFor, errHTML: errHTML };
+})();
+
+/* Small SVG chart helpers shared by the ML labs: nice ticks, a framed plot area with axes and grid, and marks. */
+var Plot = (function () {
+  "use strict";
+  var esc = Lab.esc;
+  var C = { blue: "#2459C4", orange: "#E07A1F", teal: "#1F8A7A", red: "#B4432A", navy: "#15213A", muted: "#5D6573", grid: "#E6EAF1", purple: "#6B3FA0" };
+  var CLASS = ["#2459C4", "#E07A1F", "#1F8A7A"], CLASS_SOFT = ["#C9D7F2", "#F8DDC2", "#C3E3DD"];
+  function ticks(lo, hi, n) {
+    var span = hi - lo || 1, step = Math.pow(10, Math.floor(Math.log10(span / n))), err = span / n / step;
+    step *= err >= 7.5 ? 10 : err >= 3.5 ? 5 : err >= 1.5 ? 2 : 1;
+    var out = []; for (var t = Math.ceil(lo / step - 1e-9) * step; t <= hi + 1e-9; t += step) out.push(+t.toFixed(10));
+    return out;
+  }
+  function fmt(v) { var a = Math.abs(v); return a >= 1000 ? String(Math.round(v)) : String(+v.toFixed(a >= 10 ? 1 : a >= 1 ? 2 : 3)); }
+  function frame(o) {
+    var W = o.W || 560, H = o.H || 380, m = o.m || { l: 56, r: 16, t: 16, b: 46 }, x0 = o.x[0], x1 = o.x[1], y0 = o.y[0], y1 = o.y[1];
+    var X = function (v) { return m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r); }, Y = function (v) { return H - m.b - (v - y0) / (y1 - y0) * (H - m.t - m.b); };
+    var id = "clip" + Math.random().toString(36).slice(2, 8), s = '<defs><clipPath id="' + id + '"><rect x="' + m.l + '" y="' + m.t + '" width="' + (W - m.l - m.r) + '" height="' + (H - m.t - m.b) + '"/></clipPath></defs>';
+    (o.xticks || ticks(x0, x1, o.nx || 7)).forEach(function (t) { s += '<line x1="' + X(t) + '" y1="' + m.t + '" x2="' + X(t) + '" y2="' + (H - m.b) + '" stroke="' + C.grid + '"/><text x="' + X(t) + '" y="' + (H - m.b + 16) + '" text-anchor="middle" font-size="11" fill="' + C.muted + '">' + (o.xfmt ? o.xfmt(t) : fmt(t)) + "</text>"; });
+    (o.yticks || ticks(y0, y1, o.ny || 6)).forEach(function (t) { s += '<line x1="' + m.l + '" y1="' + Y(t) + '" x2="' + (W - m.r) + '" y2="' + Y(t) + '" stroke="' + C.grid + '"/><text x="' + (m.l - 6) + '" y="' + (Y(t) + 4) + '" text-anchor="end" font-size="11" fill="' + C.muted + '">' + (o.yfmt ? o.yfmt(t) : fmt(t)) + "</text>"; });
+    s += '<line x1="' + m.l + '" y1="' + (H - m.b) + '" x2="' + (W - m.r) + '" y2="' + (H - m.b) + '" stroke="' + C.navy + '"/><line x1="' + m.l + '" y1="' + m.t + '" x2="' + m.l + '" y2="' + (H - m.b) + '" stroke="' + C.navy + '"/>';
+    if (o.xlabel) s += '<text x="' + ((m.l + W - m.r) / 2) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="12" font-weight="700" fill="' + C.muted + '">' + esc(o.xlabel) + "</text>";
+    if (o.ylabel) s += '<text transform="translate(14 ' + ((m.t + H - m.b) / 2) + ') rotate(-90)" text-anchor="middle" font-size="12" font-weight="700" fill="' + C.muted + '">' + esc(o.ylabel) + "</text>";
+    return { X: X, Y: Y, W: W, H: H, m: m, axes: s, clip: 'clip-path="url(#' + id + ')"', inside: function (px, py) { return px >= m.l && px <= W - m.r && py >= m.t && py <= H - m.b; },
+      invX: function (px) { return x0 + (px - m.l) / (W - m.l - m.r) * (x1 - x0); }, invY: function (py) { return y0 + (H - m.b - py) / (H - m.t - m.b) * (y1 - y0); } };
+  }
+  function dot(x, y, r, fill, stroke, title) { return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + fill + '"' + (stroke ? ' stroke="' + stroke + '" stroke-width="1.5"' : "") + ">" + (title ? "<title>" + esc(title) + "</title>" : "") + "</circle>"; }
+  function line(x1, y1, x2, y2, stroke, w, dash, extra) { return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + stroke + '" stroke-width="' + (w || 2) + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : "") + (extra || "") + "/>"; }
+  function path(pts, stroke, w, dash, extra) { return '<path d="' + pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") + '" fill="none" stroke="' + stroke + '" stroke-width="' + (w || 2) + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : "") + (extra || "") + "/>"; }
+  function text(x, y, s, o) { o = o || {}; return '<text x="' + x + '" y="' + y + '" font-size="' + (o.size || 12) + '"' + (o.anchor ? ' text-anchor="' + o.anchor + '"' : "") + ' fill="' + (o.fill || C.navy) + '"' + (o.bold ? ' font-weight="700"' : "") + (o.mono ? ' font-family="Consolas,Courier New,monospace"' : "") + ">" + esc(s) + "</text>"; }
+  function put(svgEl, W, H, inner) { svgEl.setAttribute("viewBox", "0 0 " + W + " " + H); svgEl.innerHTML = inner; }
+  function rleDecode(s) { return s.split(",").map(function (t) { return t[0].repeat(t.length > 1 ? parseInt(t.slice(1), 16) : 1); }).join(""); }
+  return { C: C, CLASS: CLASS, CLASS_SOFT: CLASS_SOFT, ticks: ticks, fmt: fmt, frame: frame, dot: dot, line: line, path: path, text: text, put: put, rleDecode: rleDecode };
+})();
+
+var LAB_DATA = {"per": {"CSE": 0.9111111111111111, "EEE": 0.9, "Math": 0.8666666666666667}, "per_n": {"CSE": 45, "EEE": 60, "Math": 45}, "fair": [{"share": 0.02, "A": 0.844, "B": 0.66045, "all": 0.7522249999999999}, {"share": 0.05, "A": 0.84375, "B": 0.6644500000000001, "all": 0.7541}, {"share": 0.1, "A": 0.84555, "B": 0.6727000000000001, "all": 0.759125}, {"share": 0.2, "A": 0.834, "B": 0.70925, "all": 0.771625}, {"share": 0.3, "A": 0.8206, "B": 0.73515, "all": 0.7778750000000001}, {"share": 0.5, "A": 0.7817, "B": 0.7864500000000001, "all": 0.784075}], "fair_example": {"X": [-1.158, 0.29, 0.781, 0.544, -0.961, 1.071, 0.701, 0.705, 0.745, 1.104, 2.243, -0.611, 0.047, 1.754, -1.338, 0.326, -0.689, -0.02, 0.475, -1.931, -0.992, -1.405, -0.231, -0.689, 1.515, -0.603, 1.714, -0.406, 0.271, 0.04, 0.012, -1.127, 0.335, 0.384, 0.238, 0.621, -0.819, -0.298, -0.662, -1.704, 0.368, -0.635, -0.078, 2.25, 0.23, 0.107, 1.074, 1.246, 1.813, -0.521, 1.796, -0.131, -1.158, -0.929, 1.108, 0.763, 1.283, -0.922, -0.34, -1.198, -1.976, -0.018, 1.583, 1.112, -0.777, 1.167, -0.577, 0.312, 0.827, -0.408, -0.885, 0.65, -0.177, -0.552, 0.634, -0.215, 0.383, -0.966, 0.724, -0.947, -0.386, -1.872, 1.159, 0.094, 0.463, -1.703, 0.154, -0.394, 1.197, -1.571, 0.353, 1.056, -1.192, 0.109, -1.084, 0.043, 0.333, 1.317, 0.168, -0.69, 0.576, 0.003, 1.08, -0.605, 1.337, 0.169, 0.243, 1.004, -0.53, -0.511, 0.508, -0.084, 0.047, -0.405, -0.308, 0.863, 1.961, -1.38, 1.515, 0.739, 1.206, 0.179, -0.735, -0.201, -0.928, -1.672, -0.078, 0.259, -0.281, 0.19, -1.548, 1.056, -0.159, 0.041, 0.715, -0.564, 2.595, 1.249, 1.232, 0.151, -0.711, 0.5, -0.729, 0.233, 0.235, 1.235, 0.441, 0.149, 1.387, -0.116, -0.532, -0.51, 1.458, 0.032, -0.574, -1.957, -1.044, 0.313, 0.586, 1.664, -0.696, 0.498, 1.296, -2.286, 2.311, -1.136, -1.137, 0.934, 0.414, 1.216, 0.651, 0.303, -0.126, -0.775, 0.59, -1.922, -0.184, 0.781, -1.152, 0.842, 0.981, 0.077, -0.152, 0.555, 0.643, -0.249, 2.062, 1.524, 1.007, 1.401, 1.311, -1.38, 2.546, -1.444, 0.212, -1.107, 0.636, 0.444, 0.246, -2.872, 0.808, 0.255, -2.053, 1.515, -0.15, -0.758, 0.435, -0.536, 0.395, -0.362, -0.898, -1.144, 0.81, 0.104, -0.755, -0.582, -0.881, 2.161, 0.384, 0.184, 1.529, -0.647, -1.096, -0.504, 0.173, -0.204, -0.346, 0.152, -0.448, -1.108, 0.738, -0.282, -0.311, 0.5, 0.401, -1.147, -0.761, -1.428, -1.235, 0.278, -0.522, -0.978, -1.368, 1.237, -0.455, 0.198, -0.118, -0.994, 0.394, 0.085, 1.272, 0.555, -1.303, -0.176, -0.161, -0.127, -1.299, -1.737, -0.184, 0.295, -1.252, 1.814, 0.606, -0.542, 2.006, -1.579, -1.067, -1.13, 1.13, -0.794, 0.691, 0.206, -0.634, 0.085, -1.233, 0.796, -1.035, -0.923, 0.643, -0.522, 1.836, 1.35, -1.691, 0.121, -0.177, 2.122, -0.584, -0.658, -0.23, -0.246, -0.937, 0.227, -0.568, -0.883, 1.495, 0.121, -1.086, -1.419, -0.363, -1.278, -1.33, 1.076, -0.178, -0.593, 0.157, -0.594, 0.047, 1.787, -0.057, -0.634, -1.167, 0.61, -0.195, 0.382, -1.64, -0.409, 0.073, 0.505, 0.235, -0.298, 1.254, -0.048, -2.103, -1.3, -0.075, 0.203, -1.358, -1.236, 0.344, 0.238, 0.349, 0.693, 0.04, -0.809, 1.257, 1.026, 1.716, 0.469, 0.156, 0.262, 0.359, -1.786, -0.093, -0.289, 0.44, 0.383, -0.245, -0.369, -1.263, 0.351, -0.399, -0.282, 1.149, 1.12, -0.248, 1.76, 0.784, 0.107, -0.849, -0.845, 0.979, -1.932, 1.742, 0.71, -0.34, 1.635, 0.242, -1.26, -0.684, -1.112, -1.235, 1.935, 0.07, -0.219, 0.765, 0.54, -0.736, -1.056, -2.029, 0.875, -0.316, 0.842, -0.043, -1.445, -0.687, 1.438, -0.682, 0.436, -2.45, -0.86, 0.915, -1.964, 1.024, -0.541, -0.651, 1.418, -0.54, 1.093, -0.395, 0.389, 1.07, 1.12, -0.216, -2.266, 1.786, -0.52, 1.335, -0.761, -0.38, 0.158, 0.025, 2.035, -1.684, -0.491, 0.336, 0.502, 0.096, 0.258, 1.088, -0.501, -0.503, -0.058, 0.751, -1.402, 1.947, -0.315, -0.593, -0.308, -1.068, -0.904, -0.291, 0.509, 0.77, -0.365, -0.268, 0.486, -1.878, -0.148, 1.085, 1.688, -0.177, -1.363, -0.588, 1.276, 2.065, -0.145, -1.49, 0.177, 0.811, 0.93, 0.397, 2.499, 0.021, 2.903, -1.057, 1.503, 1.155, 0.854, -0.753, -0.113, -1.173, 0.069, 0.31, 0.598, -1.198, -0.711, -2.155, 0.082, -1.032, 1.069, -0.535, 0.522, -0.377, -0.024, -0.206, -1.198, 0.862, -0.882, 1.284, -2.485, -0.508, 0.827, 0.845, -1.971, 0.178, 0.16, 0.249, -0.405, -0.818, 0.162, 0.538, 0.959, -0.116, -0.862, 0.7, -1.419, -0.746, -0.68, -0.044, 0.146, 1.963, 0.614, 0.939, -0.42, -1.095, -0.382, -0.528, 2.078, 1.478, 0.866, -0.077, -1.293, -0.313, -0.618, -0.753, 0.442, 1.783, 2.085, -0.167, 0.132, 0.356, -0.632, 1.373, 0.571, 0.141, 0.607, -0.41, -0.171, 1.332, 1.057, 0.227, -1.375, 2.568, 0.54, 1.047, -0.889, 0.682, 0.7, 0.431, 1.3, 0.247, 1.775, 0.432, -0.597, -1.623, -0.127, 1.199, 0.549, -0.77, 0.136, 0.555, -0.259, 0.058, -0.105, 0.087, 0.99, -2.436, -2.671, 1.047, -0.429, 1.12, 1.478, -0.44, -0.194, 1.059, 1.085, 0.36, 0.801, -0.313, 0.426, -0.416, 0.756, -0.704, -0.007, 0.238, -2.268, 1.538, -1.614, -0.314, -0.408, -0.161, -2.047, 0.632, 0.361, 0.235, 0.444, 1.297, -0.276, -0.624, 0.922, -1.111, -0.385, -0.912, 1.125, -0.06, 0.999, 0.586, -1.031, -0.079, -1.009, -1.633, 1.337, -0.266, -0.381, 0.105, 0.554, 0.326, -0.262, 0.719, 2.989, 0.805, -0.248, 1.351, 1.024, -0.66, 1.38, -1.256, 0.612, 1.994, -1.089, -0.352, -0.704, 1.454, -0.613, -0.004, 0.492, 1.065, 0.782, -0.891, -1.965, 1.001, 0.078, 0.654, -0.597, -0.003, 1.39, -1.478, -0.2, -1.56, 1.327, 0.168, -0.962, -1.649, 0.091, 0.145, -0.171, 1.341, -0.995, 0.775, 1.521, -0.582, 0.875, 1.533, -1.36, -0.624, -1.259, 0.522, 1.889, -1.404, 0.024, 2.691, -0.612, 0.644, 0.605, -0.494, 0.922, 0.383, -0.091, -0.265, 1.306, 0.159, -0.745, -0.5, 0.313, 0.444, -1.404, 0.906, -1.205, -1.813, -0.327, 0.339, 0.974, -1.149, -0.365, 1.045, -0.043, 1.147, 0.667, -1.49, -0.8, 0.903, -2.413, 0.856, -0.149, -0.872, 2.288, -0.874, -0.635, -0.294, -0.308, 0.556, 0.423, -2.387, 1.186, 1.103, 0.951, 0.507, -1.517, 0.777, -0.444, -1.061, 0.058, 0.677, -0.994, -1.06, 0.61, 1.047, -0.542, 0.218, 0.015, 1.351, 0.29, -1.807, -0.836, 1.242, 1.369, 1.331, -0.21, -0.882, 0.724, -0.12, -0.244, -0.684, 0.347, -0.896, -0.403, 1.973, -0.079, 1.247, 0.224, 0.422, 0.187, 2.248, 0.379, 0.285, 0.179, -0.489, 1.206, -0.808, -1.528, 0.264, 0.46, -1.189, 0.281, -0.009, -1.613, -2.135, 0.349, 0.002, 0.84, -1.351, 1.183, 0.116, 0.454, 1.953, -0.022, -0.173, -0.429, -1.449, -0.088, -1.474, -1.078, -1.816, 0.78, -0.109, 1.226, -0.57, -0.391, -0.715, -0.952, 1.748, -2.822, 1.282, 1.181, -0.457, 0.144, 1.575, 0.011, -2.071, -0.701, 1.296, -0.977, 1.235, -0.435, 0.74, -0.522, -0.688, -0.32, -2.144, 0.588, -2.175, -0.066, -1.119, 0.356, 1.282, 0.02, -0.31, 0.289, 0.473, 0.887, -0.476, 1.188, -1.027, -0.151, 2.257, 0.222, 0.761, 0.433, 0.318, 1.992, 0.073, -1.536, -0.19, 0.217, -0.546, -0.572, 1.283, 0.584, 1.627, 0.28, -1.098, -0.211, -0.279, -0.325, 0.779, -1.767, -0.138, 1.601, -1.123, 0.755, 0.036, -1.657, -0.923, 1.374, -0.678, 0.086, -0.07, -1.129, 1.176, 0.952, 0.432, -0.138, -0.822, -0.943, 0.951, -2.082, 1.0, 0.355, 0.487, 0.009, -0.99, -0.852, -0.14, 0.451, 1.252, 0.291, 0.551, -0.777, 0.887, 0.527, 1.833, 1.004, 0.064, -1.088, 1.605, -0.882, 0.351, 1.053, 0.846, -1.043, -0.947, 1.185, 0.726, 3.126, -0.765, -1.618, -1.164, -0.854, -0.386, 0.324, 0.327, -0.264, -0.742, 0.317, -0.49, 0.958, -0.325, -0.589, 1.225, 1.224, 1.637, -0.916, 1.019, 1.421, 0.262, -0.895, -0.113, 0.643, 0.144, 0.133, 1.001, 1.958, 1.567, -0.868, -1.608, 1.693, 1.432, -0.055, -1.605, 1.498, -0.478, -0.787, -0.196, 0.112, -1.57, -1.255, -0.022, 0.051, -1.522, 2.307, 1.164, 0.543, 0.636, -2.073, 0.08, 0.534, 0.11, 0.339, 0.594, 1.532, 1.089, -0.522, 1.089, -0.452, 0.213, 0.334, -0.009, -0.186, 0.275, 0.34, -2.44, -0.099, -0.798, 1.53, 0.169, -0.745, 0.468, 0.14, 0.556, -2.068, -0.359, -0.987, 1.441, 0.752, -0.247, -0.104, -0.107, -0.518, -0.966, -1.309, 1.131, -1.028, 0.419, 0.829, 0.544, -0.072, 0.568, -0.61, -1.01, 0.895, 0.618, 1.127, -0.003, -1.96, -0.479, -0.698, 1.004, -0.854, 0.931, 0.24, 0.294, 0.27, 0.622, -1.072, 1.209, -1.614, -0.709, -0.73, 0.749, -0.821, 1.759, -0.96, 2.654, 0.67, 0.896, 0.392, 0.928, -0.693, -1.359, 0.908, 0.698, -0.141, -0.229, -0.13, 0.199, 0.935, -0.304, 0.359, 1.244, -0.15, 0.644, -0.567, 0.099, -0.22, 1.221, -0.32, -1.11, 0.285, -0.493, 1.384, 0.447, -0.399, -1.077, 0.054, -0.194, -0.111, 0.128, 3.427, -0.755, 0.245, 0.868, 1.244, -0.101, 0.33, -0.215, 2.087, -0.573, 0.325, -0.71, 0.769, -0.663, 1.607, -0.527, -0.082, -0.049, 0.337, -0.607, -1.762, -1.858, -0.231, 1.101, 1.102, 0.475, 1.012, 0.015, -0.117, 0.548, 1.404, 1.443, 0.476, -1.311, -0.565, -2.357, 1.085, -0.021, 1.361, 1.373, -0.14, 0.697, -0.014, -1.434, 0.47, 0.228, 0.243, 1.664, -0.901, -1.498, 0.964, 1.24, 0.668, 0.15, 0.335, 0.288, 0.176, -0.249, 1.264, -0.499, -1.263, 0.062, -0.665, -0.868, 0.605, -1.131, -0.947, -0.582, -0.86, -0.404, -0.331, -1.249, -1.341, 2.055, 0.208, -0.393, 0.524, 0.213, 0.142, -0.358, -0.258, -0.435, 1.669, -0.29, 0.453, 0.518, -1.819, 1.121, 0.238, -1.752, 1.464, 0.962, 0.293, -0.635, -0.886, -0.155, -0.449, 0.987, 0.627, 1.074, 0.201, -0.149, -0.232, -1.816, 0.013, -1.054, -0.136, -0.232, 1.495, -0.399, -0.608, -0.159, -1.116, 0.11, 0.488, -0.564, -1.254, -0.811, 0.758, -0.768, -0.09, -0.82, -0.866, 0.644, -1.828, 1.319, 0.189, 0.707, -0.633, -1.208, -2.517, -0.676, 0.577, 0.177, 0.294, -1.028, -0.693, 0.99, -1.385, -1.234, 1.552, 0.598, 0.897, -0.372, -1.063, -0.206, 0.261, 1.208, 1.64, -0.409, 0.579, -0.68, -0.487, -0.378, -1.224, -1.097, 2.32, -0.984, 1.646, -0.595, 0.427, -1.482, 1.991], "y": [0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1], "g": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], "coef": [2.735692, 0.963086], "b": -0.04100403047886601}, "people": [{"name": "Hasan Sarkar", "phone": "01508867608", "sid": "220000", "dept": "EEE", "year": 4, "gender": "female", "district": "Patuakhali", "born": 2003, "hall": "Sher-e-Bangla Hall", "mark": 62}, {"name": "Karim Das", "phone": "01846716875", "sid": "230037", "dept": "EEE", "year": 4, "gender": "male", "district": "Dhaka", "born": 2002, "hall": "Bangabandhu Hall", "mark": 66}, {"name": "Sakib Roy", "phone": "01583604876", "sid": "220074", "dept": "CSE", "year": 1, "gender": "male", "district": "Dhaka", "born": 2003, "hall": "non-resident", "mark": 54}, {"name": "Jannat Khan", "phone": "01489161389", "sid": "230111", "dept": "EEE", "year": 1, "gender": "male", "district": "Bhola", "born": 2004, "hall": "non-resident", "mark": 63}, {"name": "Farhana Hossain", "phone": "01932685082", "sid": "200148", "dept": "CSE", "year": 1, "gender": "female", "district": "Gopalganj", "born": 2002, "hall": "Bangabandhu Hall", "mark": 50}, {"name": "Fahim Roy", "phone": "01992280837", "sid": "210185", "dept": "EEE", "year": 3, "gender": "male", "district": "Dhaka", "born": 2004, "hall": "Bangabandhu Hall", "mark": 48}, {"name": "Sakib Rahman", "phone": "01480299633", "sid": "200222", "dept": "Math", "year": 1, "gender": "female", "district": "Barishal", "born": 2002, "hall": "Bangabandhu Hall", "mark": 55}, {"name": "Nusrat Sarkar", "phone": "01868602161", "sid": "230259", "dept": "Math", "year": 2, "gender": "male", "district": "Faridpur", "born": 2003, "hall": "non-resident", "mark": 64}, {"name": "Rahim Das", "phone": "01436664874", "sid": "200296", "dept": "Math", "year": 4, "gender": "male", "district": "Faridpur", "born": 2003, "hall": "Bangabandhu Hall", "mark": 49}, {"name": "Lamia Rahman", "phone": "01846591606", "sid": "220333", "dept": "EEE", "year": 4, "gender": "female", "district": "Faridpur", "born": 2004, "hall": "non-resident", "mark": 59}, {"name": "Anika Roy", "phone": "01448795457", "sid": "230370", "dept": "EEE", "year": 3, "gender": "female", "district": "Barishal", "born": 2006, "hall": "Begum Rokeya Hall", "mark": 56}, {"name": "Mitu Hossain", "phone": "01914765862", "sid": "230407", "dept": "Math", "year": 1, "gender": "female", "district": "Barguna", "born": 2002, "hall": "Shapla Hall", "mark": 51}, {"name": "Jannat Islam", "phone": "01643023805", "sid": "200444", "dept": "EEE", "year": 1, "gender": "female", "district": "Barguna", "born": 2005, "hall": "Sher-e-Bangla Hall", "mark": 57}, {"name": "Tanvir Das", "phone": "01480329615", "sid": "230481", "dept": "Math", "year": 4, "gender": "female", "district": "Bhola", "born": 2005, "hall": "Begum Rokeya Hall", "mark": 59}, {"name": "Mitu Islam", "phone": "01835977289", "sid": "210518", "dept": "CSE", "year": 2, "gender": "female", "district": "Barishal", "born": 2006, "hall": "Bangabandhu Hall", "mark": 61}, {"name": "Farhana Hossain", "phone": "01624182023", "sid": "210555", "dept": "CSE", "year": 2, "gender": "male", "district": "Barishal", "born": 2002, "hall": "Sher-e-Bangla Hall", "mark": 68}, {"name": "Lamia Rahman", "phone": "01702999344", "sid": "200592", "dept": "CSE", "year": 3, "gender": "female", "district": "Patuakhali", "born": 2005, "hall": "non-resident", "mark": 71}, {"name": "Mitu Chowdhury", "phone": "01309924763", "sid": "230629", "dept": "Math", "year": 1, "gender": "female", "district": "Bhola", "born": 2003, "hall": "Bangabandhu Hall", "mark": 52}, {"name": "Fahim Sarkar", "phone": "01316216890", "sid": "220666", "dept": "CSE", "year": 4, "gender": "female", "district": "Bhola", "born": 2004, "hall": "Shapla Hall", "mark": 62}, {"name": "Imran Rahman", "phone": "01630287912", "sid": "210703", "dept": "Math", "year": 4, "gender": "female", "district": "Barishal", "born": 2003, "hall": "Sher-e-Bangla Hall", "mark": 58}, {"name": "Farhana Khan", "phone": "01322240809", "sid": "200740", "dept": "EEE", "year": 3, "gender": "male", "district": "Faridpur", "born": 2005, "hall": "non-resident", "mark": 69}, {"name": "Sadia Islam", "phone": "01676860978", "sid": "200777", "dept": "EEE", "year": 2, "gender": "male", "district": "Jhalokati", "born": 2002, "hall": "Bangabandhu Hall", "mark": 69}, {"name": "Farhana Hossain", "phone": "01675333507", "sid": "210814", "dept": "EEE", "year": 2, "gender": "male", "district": "Barishal", "born": 2002, "hall": "Begum Rokeya Hall", "mark": 75}, {"name": "Anika Sarkar", "phone": "01987013758", "sid": "220851", "dept": "CSE", "year": 3, "gender": "male", "district": "Patuakhali", "born": 2004, "hall": "Sher-e-Bangla Hall", "mark": 64}, {"name": "Nusrat Hossain", "phone": "01587347838", "sid": "230888", "dept": "EEE", "year": 4, "gender": "female", "district": "Dhaka", "born": 2006, "hall": "Sher-e-Bangla Hall", "mark": 76}, {"name": "Mitu Mia", "phone": "01831414805", "sid": "200925", "dept": "EEE", "year": 1, "gender": "female", "district": "Dhaka", "born": 2003, "hall": "Begum Rokeya Hall", "mark": 53}, {"name": "Ritu Hossain", "phone": "01809937327", "sid": "220962", "dept": "CSE", "year": 4, "gender": "male", "district": "Faridpur", "born": 2002, "hall": "Bangabandhu Hall", "mark": 60}, {"name": "Lamia Sarkar", "phone": "01419004028", "sid": "210999", "dept": "Math", "year": 4, "gender": "female", "district": "Dhaka", "born": 2002, "hall": "Begum Rokeya Hall", "mark": 50}, {"name": "Fahim Khan", "phone": "01802820446", "sid": "211036", "dept": "Math", "year": 2, "gender": "male", "district": "Pirojpur", "born": 2006, "hall": "Bangabandhu Hall", "mark": 50}, {"name": "Anika Ahmed", "phone": "01623523304", "sid": "211073", "dept": "CSE", "year": 1, "gender": "male", "district": "Khulna", "born": 2005, "hall": "Bangabandhu Hall", "mark": 65}, {"name": "Sadia Ahmed", "phone": "01803441122", "sid": "201110", "dept": "EEE", "year": 4, "gender": "male", "district": "Pirojpur", "born": 2003, "hall": "Sher-e-Bangla Hall", "mark": 77}, {"name": "Karim Das", "phone": "01978532575", "sid": "211147", "dept": "CSE", "year": 1, "gender": "female", "district": "Gopalganj", "born": 2002, "hall": "non-resident", "mark": 37}, {"name": "Rahim Ahmed", "phone": "01778924854", "sid": "231184", "dept": "Math", "year": 3, "gender": "male", "district": "Faridpur", "born": 2002, "hall": "Sher-e-Bangla Hall", "mark": 72}, {"name": "Ritu Akter", "phone": "01641169536", "sid": "201221", "dept": "Math", "year": 2, "gender": "female", "district": "Pirojpur", "born": 2003, "hall": "Begum Rokeya Hall", "mark": 87}, {"name": "Fahim Mia", "phone": "01791912773", "sid": "201258", "dept": "EEE", "year": 3, "gender": "male", "district": "Bhola", "born": 2003, "hall": "Shapla Hall", "mark": 65}, {"name": "Imran Islam", "phone": "01999861817", "sid": "221295", "dept": "EEE", "year": 3, "gender": "female", "district": "Barishal", "born": 2005, "hall": "Sher-e-Bangla Hall", "mark": 55}, {"name": "Sakib Das", "phone": "01689645558", "sid": "211332", "dept": "Math", "year": 3, "gender": "male", "district": "Bhola", "born": 2002, "hall": "Sher-e-Bangla Hall", "mark": 71}, {"name": "Karim Roy", "phone": "01663973778", "sid": "211369", "dept": "Math", "year": 3, "gender": "female", "district": "Barishal", "born": 2002, "hall": "non-resident", "mark": 72}, {"name": "Ritu Rahman", "phone": "01469397097", "sid": "211406", "dept": "Math", "year": 2, "gender": "female", "district": "Patuakhali", "born": 2004, "hall": "Bangabandhu Hall", "mark": 77}, {"name": "Ritu Roy", "phone": "01462773845", "sid": "211443", "dept": "Math", "year": 1, "gender": "male", "district": "Bhola", "born": 2002, "hall": "Bangabandhu Hall", "mark": 67}, {"name": "Nusrat Begum", "phone": "01381752341", "sid": "231480", "dept": "CSE", "year": 3, "gender": "female", "district": "Dhaka", "born": 2004, "hall": "Shapla Hall", "mark": 70}, {"name": "Tanvir Islam", "phone": "01646221714", "sid": "221517", "dept": "EEE", "year": 4, "gender": "male", "district": "Barguna", "born": 2003, "hall": "Begum Rokeya Hall", "mark": 61}, {"name": "Imran Chowdhury", "phone": "01709941882", "sid": "201554", "dept": "Math", "year": 4, "gender": "female", "district": "Faridpur", "born": 2003, "hall": "Begum Rokeya Hall", "mark": 66}, {"name": "Lamia Islam", "phone": "01320685258", "sid": "221591", "dept": "Math", "year": 1, "gender": "female", "district": "Khulna", "born": 2004, "hall": "Bangabandhu Hall", "mark": 59}, {"name": "Fahim Roy", "phone": "01779379600", "sid": "221628", "dept": "EEE", "year": 1, "gender": "female", "district": "Khulna", "born": 2003, "hall": "non-resident", "mark": 67}, {"name": "Fahim Roy", "phone": "01965149171", "sid": "211665", "dept": "EEE", "year": 2, "gender": "male", "district": "Gopalganj", "born": 2004, "hall": "non-resident", "mark": 53}, {"name": "Hasan Ahmed", "phone": "01843809591", "sid": "221702", "dept": "EEE", "year": 2, "gender": "male", "district": "Barishal", "born": 2005, "hall": "Bangabandhu Hall", "mark": 66}, {"name": "Jannat Sarkar", "phone": "01948328445", "sid": "201739", "dept": "Math", "year": 2, "gender": "male", "district": "Faridpur", "born": 2006, "hall": "Sher-e-Bangla Hall", "mark": 66}, {"name": "Mim Begum", "phone": "01439896138", "sid": "211776", "dept": "EEE", "year": 1, "gender": "male", "district": "Barishal", "born": 2006, "hall": "non-resident", "mark": 64}, {"name": "Sadia Roy", "phone": "01453764694", "sid": "231813", "dept": "Math", "year": 2, "gender": "male", "district": "Patuakhali", "born": 2002, "hall": "Sher-e-Bangla Hall", "mark": 41}, {"name": "Arif Mia", "phone": "01768754988", "sid": "201850", "dept": "Math", "year": 4, "gender": "male", "district": "Patuakhali", "born": 2005, "hall": "non-resident", "mark": 62}, {"name": "Karim Rahman", "phone": "01300302912", "sid": "211887", "dept": "EEE", "year": 3, "gender": "female", "district": "Faridpur", "born": 2005, "hall": "Shapla Hall", "mark": 54}, {"name": "Tanvir Islam", "phone": "01704946863", "sid": "211924", "dept": "CSE", "year": 4, "gender": "female", "district": "Barishal", "born": 2002, "hall": "Begum Rokeya Hall", "mark": 49}, {"name": "Imran Khan", "phone": "01563295106", "sid": "211961", "dept": "CSE", "year": 2, "gender": "female", "district": "Pirojpur", "born": 2002, "hall": "Sher-e-Bangla Hall", "mark": 73}, {"name": "Imran Chowdhury", "phone": "01930484947", "sid": "211998", "dept": "EEE", "year": 4, "gender": "male", "district": "Gopalganj", "born": 2002, "hall": "non-resident", "mark": 80}, {"name": "Sadia Roy", "phone": "01823387405", "sid": "222035", "dept": "CSE", "year": 1, "gender": "female", "district": "Patuakhali", "born": 2002, "hall": "Shapla Hall", "mark": 64}, {"name": "Sabbir Akter", "phone": "01605839347", "sid": "202072", "dept": "EEE", "year": 4, "gender": "female", "district": "Faridpur", "born": 2002, "hall": "Begum Rokeya Hall", "mark": 71}, {"name": "Mim Khan", "phone": "01382743932", "sid": "202109", "dept": "CSE", "year": 1, "gender": "female", "district": "Bhola", "born": 2003, "hall": "Begum Rokeya Hall", "mark": 60}, {"name": "Sabbir Chowdhury", "phone": "01556989444", "sid": "212146", "dept": "CSE", "year": 3, "gender": "female", "district": "Patuakhali", "born": 2004, "hall": "Shapla Hall", "mark": 60}, {"name": "Hasan Rahman", "phone": "01349212844", "sid": "232183", "dept": "CSE", "year": 3, "gender": "male", "district": "Khulna", "born": 2005, "hall": "non-resident", "mark": 74}, {"name": "Arif Roy", "phone": "01506154092", "sid": "212220", "dept": "EEE", "year": 4, "gender": "male", "district": "Patuakhali", "born": 2003, "hall": "Shapla Hall", "mark": 65}, {"name": "Sabbir Roy", "phone": "01775855115", "sid": "212257", "dept": "CSE", "year": 4, "gender": "male", "district": "Barishal", "born": 2004, "hall": "Sher-e-Bangla Hall", "mark": 76}, {"name": "Rahim Mia", "phone": "01303095651", "sid": "222294", "dept": "Math", "year": 2, "gender": "male", "district": "Barishal", "born": 2004, "hall": "Sher-e-Bangla Hall", "mark": 58}, {"name": "Mitu Ahmed", "phone": "01893192289", "sid": "222331", "dept": "Math", "year": 1, "gender": "male", "district": "Barishal", "born": 2004, "hall": "Begum Rokeya Hall", "mark": 45}, {"name": "Sakib Chowdhury", "phone": "01799079945", "sid": "232368", "dept": "EEE", "year": 3, "gender": "male", "district": "Barishal", "born": 2006, "hall": "Bangabandhu Hall", "mark": 94}, {"name": "Lamia Rahman", "phone": "01739322525", "sid": "222405", "dept": "CSE", "year": 2, "gender": "female", "district": "Faridpur", "born": 2003, "hall": "Sher-e-Bangla Hall", "mark": 67}, {"name": "Mitu Roy", "phone": "01402989947", "sid": "222442", "dept": "CSE", "year": 1, "gender": "male", "district": "Bhola", "born": 2003, "hall": "non-resident", "mark": 69}, {"name": "Mim Ahmed", "phone": "01831353183", "sid": "212479", "dept": "Math", "year": 3, "gender": "female", "district": "Barishal", "born": 2003, "hall": "non-resident", "mark": 74}, {"name": "Sakib Hossain", "phone": "01492033851", "sid": "232516", "dept": "EEE", "year": 2, "gender": "male", "district": "Barishal", "born": 2006, "hall": "Shapla Hall", "mark": 58}, {"name": "Arif Khan", "phone": "01696223656", "sid": "232553", "dept": "CSE", "year": 2, "gender": "male", "district": "Bhola", "born": 2006, "hall": "Shapla Hall", "mark": 61}, {"name": "Lamia Hossain", "phone": "01448678594", "sid": "222590", "dept": "CSE", "year": 1, "gender": "male", "district": "Bhola", "born": 2005, "hall": "non-resident", "mark": 51}, {"name": "Fahim Ahmed", "phone": "01600261203", "sid": "232627", "dept": "EEE", "year": 1, "gender": "male", "district": "Khulna", "born": 2005, "hall": "Sher-e-Bangla Hall", "mark": 58}, {"name": "Sadia Akter", "phone": "01446867309", "sid": "202664", "dept": "EEE", "year": 1, "gender": "male", "district": "Barishal", "born": 2004, "hall": "non-resident", "mark": 55}, {"name": "Fahim Das", "phone": "01883149843", "sid": "222701", "dept": "EEE", "year": 2, "gender": "female", "district": "Barishal", "born": 2002, "hall": "non-resident", "mark": 54}, {"name": "Mitu Rahman", "phone": "01726050446", "sid": "212738", "dept": "Math", "year": 1, "gender": "male", "district": "Barishal", "born": 2002, "hall": "Shapla Hall", "mark": 51}, {"name": "Hasan Roy", "phone": "01608934075", "sid": "222775", "dept": "CSE", "year": 1, "gender": "male", "district": "Dhaka", "born": 2003, "hall": "Sher-e-Bangla Hall", "mark": 56}, {"name": "Imran Sarkar", "phone": "01989712956", "sid": "222812", "dept": "CSE", "year": 4, "gender": "female", "district": "Khulna", "born": 2006, "hall": "non-resident", "mark": 55}, {"name": "Anika Akter", "phone": "01879751451", "sid": "212849", "dept": "CSE", "year": 1, "gender": "female", "district": "Khulna", "born": 2003, "hall": "Sher-e-Bangla Hall", "mark": 36}, {"name": "Rafi Begum", "phone": "01831426758", "sid": "222886", "dept": "EEE", "year": 2, "gender": "female", "district": "Dhaka", "born": 2003, "hall": "Shapla Hall", "mark": 57}, {"name": "Ritu Mia", "phone": "01774206245", "sid": "222923", "dept": "Math", "year": 1, "gender": "female", "district": "Barishal", "born": 2004, "hall": "Sher-e-Bangla Hall", "mark": 49}, {"name": "Nusrat Begum", "phone": "01415193635", "sid": "222960", "dept": "EEE", "year": 2, "gender": "male", "district": "Patuakhali", "born": 2002, "hall": "Bangabandhu Hall", "mark": 72}, {"name": "Mitu Akter", "phone": "01392603851", "sid": "202997", "dept": "Math", "year": 4, "gender": "male", "district": "Dhaka", "born": 2006, "hall": "non-resident", "mark": 61}, {"name": "Mitu Mia", "phone": "01887741095", "sid": "223034", "dept": "EEE", "year": 1, "gender": "female", "district": "Bhola", "born": 2006, "hall": "Shapla Hall", "mark": 57}, {"name": "Nusrat Hossain", "phone": "01539520427", "sid": "223071", "dept": "Math", "year": 1, "gender": "male", "district": "Barguna", "born": 2003, "hall": "Begum Rokeya Hall", "mark": 59}, {"name": "Sabbir Akter", "phone": "01988783911", "sid": "223108", "dept": "EEE", "year": 1, "gender": "male", "district": "Khulna", "born": 2005, "hall": "non-resident", "mark": 83}, {"name": "Mitu Das", "phone": "01921959482", "sid": "213145", "dept": "Math", "year": 4, "gender": "male", "district": "Pirojpur", "born": 2006, "hall": "Sher-e-Bangla Hall", "mark": 54}, {"name": "Lamia Rahman", "phone": "01770819112", "sid": "203182", "dept": "Math", "year": 1, "gender": "female", "district": "Barguna", "born": 2004, "hall": "non-resident", "mark": 55}, {"name": "Mim Rahman", "phone": "01674333958", "sid": "233219", "dept": "CSE", "year": 1, "gender": "female", "district": "Bhola", "born": 2003, "hall": "Shapla Hall", "mark": 73}, {"name": "Mim Khan", "phone": "01628968142", "sid": "203256", "dept": "EEE", "year": 1, "gender": "male", "district": "Dhaka", "born": 2005, "hall": "non-resident", "mark": 78}, {"name": "Farhana Chowdhury", "phone": "01518020751", "sid": "203293", "dept": "Math", "year": 2, "gender": "female", "district": "Barguna", "born": 2005, "hall": "Shapla Hall", "mark": 66}, {"name": "Ritu Chowdhury", "phone": "01541476929", "sid": "223330", "dept": "CSE", "year": 1, "gender": "female", "district": "Barguna", "born": 2004, "hall": "Bangabandhu Hall", "mark": 53}, {"name": "Tanvir Khan", "phone": "01819150225", "sid": "223367", "dept": "Math", "year": 4, "gender": "female", "district": "Khulna", "born": 2003, "hall": "Sher-e-Bangla Hall", "mark": 55}, {"name": "Sabbir Sarkar", "phone": "01317281875", "sid": "233404", "dept": "Math", "year": 4, "gender": "male", "district": "Patuakhali", "born": 2005, "hall": "Begum Rokeya Hall", "mark": 29}, {"name": "Nusrat Rahman", "phone": "01632169656", "sid": "213441", "dept": "CSE", "year": 2, "gender": "male", "district": "Barishal", "born": 2006, "hall": "non-resident", "mark": 52}, {"name": "Sakib Chowdhury", "phone": "01341071623", "sid": "233478", "dept": "CSE", "year": 1, "gender": "female", "district": "Barguna", "born": 2005, "hall": "Shapla Hall", "mark": 70}, {"name": "Imran Rahman", "phone": "01612338360", "sid": "203515", "dept": "Math", "year": 1, "gender": "male", "district": "Barishal", "born": 2003, "hall": "Bangabandhu Hall", "mark": 53}, {"name": "Mim Sarkar", "phone": "01559160751", "sid": "233552", "dept": "Math", "year": 4, "gender": "male", "district": "Faridpur", "born": 2004, "hall": "Bangabandhu Hall", "mark": 45}, {"name": "Nusrat Mia", "phone": "01445489634", "sid": "233589", "dept": "Math", "year": 3, "gender": "female", "district": "Barguna", "born": 2002, "hall": "non-resident", "mark": 42}, {"name": "Sabbir Chowdhury", "phone": "01650999118", "sid": "213626", "dept": "EEE", "year": 4, "gender": "male", "district": "Khulna", "born": 2003, "hall": "Sher-e-Bangla Hall", "mark": 58}, {"name": "Tania Das", "phone": "01450458106", "sid": "213663", "dept": "Math", "year": 4, "gender": "male", "district": "Barguna", "born": 2006, "hall": "Begum Rokeya Hall", "mark": 63}, {"name": "Ritu Islam", "phone": "01979583796", "sid": "223700", "dept": "Math", "year": 3, "gender": "female", "district": "Bhola", "born": 2002, "hall": "Begum Rokeya Hall", "mark": 54}, {"name": "Jannat Mia", "phone": "01786897219", "sid": "223737", "dept": "Math", "year": 2, "gender": "male", "district": "Gopalganj", "born": 2002, "hall": "Shapla Hall", "mark": 70}, {"name": "Farhana Khan", "phone": "01748174770", "sid": "203774", "dept": "CSE", "year": 2, "gender": "female", "district": "Barishal", "born": 2006, "hall": "non-resident", "mark": 69}, {"name": "Tania Khan", "phone": "01689403561", "sid": "203811", "dept": "EEE", "year": 1, "gender": "female", "district": "Barishal", "born": 2003, "hall": "non-resident", "mark": 78}, {"name": "Sadia Hossain", "phone": "01545447412", "sid": "223848", "dept": "CSE", "year": 4, "gender": "male", "district": "Patuakhali", "born": 2004, "hall": "Begum Rokeya Hall", "mark": 81}, {"name": "Sakib Begum", "phone": "01470746112", "sid": "203885", "dept": "CSE", "year": 3, "gender": "female", "district": "Dhaka", "born": 2006, "hall": "Shapla Hall", "mark": 50}, {"name": "Imran Das", "phone": "01864604675", "sid": "233922", "dept": "CSE", "year": 3, "gender": "male", "district": "Barishal", "born": 2002, "hall": "Bangabandhu Hall", "mark": 88}, {"name": "Rahim Khan", "phone": "01941262654", "sid": "233959", "dept": "Math", "year": 4, "gender": "male", "district": "Dhaka", "born": 2004, "hall": "non-resident", "mark": 47}, {"name": "Fahim Khan", "phone": "01599929092", "sid": "233996", "dept": "Math", "year": 4, "gender": "male", "district": "Pirojpur", "born": 2005, "hall": "Bangabandhu Hall", "mark": 79}, {"name": "Ritu Akter", "phone": "01705418797", "sid": "204033", "dept": "EEE", "year": 3, "gender": "female", "district": "Barishal", "born": 2005, "hall": "Bangabandhu Hall", "mark": 49}, {"name": "Fahim Islam", "phone": "01878699128", "sid": "214070", "dept": "EEE", "year": 4, "gender": "male", "district": "Barishal", "born": 2003, "hall": "Begum Rokeya Hall", "mark": 59}, {"name": "Sakib Mia", "phone": "01688225337", "sid": "224107", "dept": "CSE", "year": 2, "gender": "female", "district": "Patuakhali", "born": 2003, "hall": "non-resident", "mark": 59}, {"name": "Mim Islam", "phone": "01762596248", "sid": "214144", "dept": "Math", "year": 3, "gender": "female", "district": "Barishal", "born": 2005, "hall": "Begum Rokeya Hall", "mark": 74}, {"name": "Sadia Begum", "phone": "01870404866", "sid": "214181", "dept": "CSE", "year": 2, "gender": "male", "district": "Barishal", "born": 2002, "hall": "Begum Rokeya Hall", "mark": 73}, {"name": "Rahim Roy", "phone": "01675638889", "sid": "224218", "dept": "CSE", "year": 4, "gender": "male", "district": "Barishal", "born": 2002, "hall": "Sher-e-Bangla Hall", "mark": 76}, {"name": "Farhana Rahman", "phone": "01336181242", "sid": "214255", "dept": "Math", "year": 3, "gender": "male", "district": "Gopalganj", "born": 2006, "hall": "Begum Rokeya Hall", "mark": 44}, {"name": "Sadia Hossain", "phone": "01521072841", "sid": "204292", "dept": "CSE", "year": 3, "gender": "female", "district": "Barishal", "born": 2003, "hall": "Shapla Hall", "mark": 47}, {"name": "Karim Hossain", "phone": "01806071723", "sid": "204329", "dept": "EEE", "year": 2, "gender": "female", "district": "Pirojpur", "born": 2003, "hall": "non-resident", "mark": 62}, {"name": "Karim Rahman", "phone": "01949188372", "sid": "214366", "dept": "EEE", "year": 3, "gender": "male", "district": "Patuakhali", "born": 2004, "hall": "Begum Rokeya Hall", "mark": 80}, {"name": "Tania Ahmed", "phone": "01413442267", "sid": "204403", "dept": "EEE", "year": 2, "gender": "male", "district": "Patuakhali", "born": 2004, "hall": "Sher-e-Bangla Hall", "mark": 59}, {"name": "Mitu Hossain", "phone": "01451611147", "sid": "204440", "dept": "EEE", "year": 2, "gender": "male", "district": "Patuakhali", "born": 2002, "hall": "Sher-e-Bangla Hall", "mark": 40}, {"name": "Sadia Das", "phone": "01979140631", "sid": "234477", "dept": "CSE", "year": 2, "gender": "female", "district": "Barishal", "born": 2006, "hall": "non-resident", "mark": 67}, {"name": "Rahim Akter", "phone": "01898972434", "sid": "214514", "dept": "Math", "year": 4, "gender": "male", "district": "Gopalganj", "born": 2006, "hall": "Bangabandhu Hall", "mark": 78}, {"name": "Anika Sarkar", "phone": "01627857550", "sid": "214551", "dept": "Math", "year": 3, "gender": "female", "district": "Barishal", "born": 2003, "hall": "Begum Rokeya Hall", "mark": 49}, {"name": "Arif Roy", "phone": "01529630862", "sid": "234588", "dept": "Math", "year": 4, "gender": "female", "district": "Barishal", "born": 2003, "hall": "Sher-e-Bangla Hall", "mark": 53}, {"name": "Farhana Ahmed", "phone": "01953513597", "sid": "204625", "dept": "CSE", "year": 1, "gender": "male", "district": "Barishal", "born": 2002, "hall": "Shapla Hall", "mark": 47}, {"name": "Nusrat Chowdhury", "phone": "01783661284", "sid": "204662", "dept": "CSE", "year": 4, "gender": "female", "district": "Pirojpur", "born": 2005, "hall": "Sher-e-Bangla Hall", "mark": 54}, {"name": "Imran Khan", "phone": "01784151063", "sid": "234699", "dept": "Math", "year": 2, "gender": "female", "district": "Patuakhali", "born": 2003, "hall": "Shapla Hall", "mark": 63}, {"name": "Lamia Sarkar", "phone": "01967007498", "sid": "214736", "dept": "EEE", "year": 2, "gender": "male", "district": "Bhola", "born": 2006, "hall": "non-resident", "mark": 44}, {"name": "Karim Rahman", "phone": "01980398080", "sid": "224773", "dept": "CSE", "year": 2, "gender": "male", "district": "Patuakhali", "born": 2002, "hall": "Shapla Hall", "mark": 68}, {"name": "Karim Rahman", "phone": "01503989905", "sid": "234810", "dept": "Math", "year": 1, "gender": "female", "district": "Jhalokati", "born": 2006, "hall": "Bangabandhu Hall", "mark": 65}, {"name": "Tania Ahmed", "phone": "01770985977", "sid": "234847", "dept": "EEE", "year": 2, "gender": "male", "district": "Gopalganj", "born": 2002, "hall": "Shapla Hall", "mark": 42}, {"name": "Tania Chowdhury", "phone": "01593807756", "sid": "214884", "dept": "EEE", "year": 2, "gender": "female", "district": "Bhola", "born": 2005, "hall": "non-resident", "mark": 78}, {"name": "Farhana Rahman", "phone": "01701082863", "sid": "234921", "dept": "EEE", "year": 4, "gender": "male", "district": "Barguna", "born": 2003, "hall": "Sher-e-Bangla Hall", "mark": 48}, {"name": "Arif Ahmed", "phone": "01979802136", "sid": "234958", "dept": "CSE", "year": 1, "gender": "female", "district": "Dhaka", "born": 2006, "hall": "Begum Rokeya Hall", "mark": 56}, {"name": "Sadia Ahmed", "phone": "01920334843", "sid": "214995", "dept": "Math", "year": 4, "gender": "male", "district": "Patuakhali", "born": 2005, "hall": "Bangabandhu Hall", "mark": 51}, {"name": "Farhana Rahman", "phone": "01527935627", "sid": "225032", "dept": "EEE", "year": 2, "gender": "female", "district": "Gopalganj", "born": 2003, "hall": "non-resident", "mark": 52}, {"name": "Farhana Begum", "phone": "01405452479", "sid": "225069", "dept": "CSE", "year": 3, "gender": "male", "district": "Barguna", "born": 2006, "hall": "non-resident", "mark": 58}, {"name": "Arif Chowdhury", "phone": "01796605723", "sid": "215106", "dept": "Math", "year": 4, "gender": "female", "district": "Jhalokati", "born": 2003, "hall": "Bangabandhu Hall", "mark": 72}, {"name": "Anika Chowdhury", "phone": "01958075908", "sid": "215143", "dept": "CSE", "year": 3, "gender": "male", "district": "Jhalokati", "born": 2004, "hall": "Sher-e-Bangla Hall", "mark": 69}, {"name": "Imran Chowdhury", "phone": "01488631317", "sid": "205180", "dept": "CSE", "year": 3, "gender": "male", "district": "Faridpur", "born": 2003, "hall": "Sher-e-Bangla Hall", "mark": 48}, {"name": "Jannat Ahmed", "phone": "01880522216", "sid": "215217", "dept": "EEE", "year": 1, "gender": "male", "district": "Barguna", "born": 2003, "hall": "Bangabandhu Hall", "mark": 68}, {"name": "Hasan Mia", "phone": "01312078608", "sid": "235254", "dept": "EEE", "year": 2, "gender": "female", "district": "Faridpur", "born": 2003, "hall": "non-resident", "mark": 58}, {"name": "Fahim Chowdhury", "phone": "01454495279", "sid": "215291", "dept": "EEE", "year": 2, "gender": "female", "district": "Patuakhali", "born": 2004, "hall": "non-resident", "mark": 64}, {"name": "Fahim Sarkar", "phone": "01554961636", "sid": "215328", "dept": "CSE", "year": 3, "gender": "male", "district": "Jhalokati", "born": 2004, "hall": "non-resident", "mark": 72}, {"name": "Sakib Islam", "phone": "01661150778", "sid": "215365", "dept": "CSE", "year": 1, "gender": "male", "district": "Barishal", "born": 2005, "hall": "non-resident", "mark": 55}, {"name": "Imran Hossain", "phone": "01410133865", "sid": "235402", "dept": "Math", "year": 2, "gender": "female", "district": "Barishal", "born": 2005, "hall": "Bangabandhu Hall", "mark": 72}, {"name": "Lamia Roy", "phone": "01774549189", "sid": "215439", "dept": "Math", "year": 2, "gender": "male", "district": "Barishal", "born": 2005, "hall": "Sher-e-Bangla Hall", "mark": 78}, {"name": "Ritu Mia", "phone": "01921958000", "sid": "205476", "dept": "EEE", "year": 2, "gender": "female", "district": "Bhola", "born": 2005, "hall": "non-resident", "mark": 57}, {"name": "Jannat Begum", "phone": "01354760601", "sid": "205513", "dept": "CSE", "year": 3, "gender": "male", "district": "Barishal", "born": 2004, "hall": "Bangabandhu Hall", "mark": 54}], "students": {"h": [null, null, 9.3, 2.7, 3.6, 10.5, 0.1, 9.9, 9.6, 5.6, 3.6, 3.3, 3.1, 5.3, 6.1, 6.6, 11.9, 9.5, 7.5, 11.9, 2.6, 1.9, 7.4, 0.5, 0.4, 6.2, 5.6, 11.0, 7.6, 6.2, 6.0, 3.0, 0.1, 2.3, 8.3, 2.4, 4.4, 0.0, 10.0, 1.9, 3.2, 10.6, 6.1, 10.2, 7.7, 8.9, 1.1, 6.5, 6.1, 10.5, 4.3, 7.2, 0.7, 4.7, 3.9, 1.8, 9.8, 4.6, 11.7, 7.1, 7.3, 7.7, 8.1, 1.8, null, 2.9, 4.8, 1.2, 11.6, 2.6, 8.1, 3.6, null, 7.9, 1.6, 10.1, 11.3, 10.8, null, 1.7, 2.3, 11.1, 6.6, 2.2, 10.6, 7.7, 6.8, 4.5, 4.9, 2.9, 0.5, 10.5, 5.6, 6.6, 3.9, 9.0, 0.3, 4.5, 0.4, 1.5, 11.6, 7.9, 5.1, 6.3, 10.5, 4.1, 7.1, 8.2, 4.3, 6.2, 9.2, 10.9, 1.8, 11.2, 0.1, 9.0, 9.7, 1.6, 5.0, 9.8, 0.2, 7.5, 9.5, 6.2, null, 2.7, null, 4.4, 2.2, 4.2, 11.4, 6.9, 4.1, 3.3, 11.4, 5.3, 11.8, null, 6.3, 10.8, 8.9, 7.0, 5.1, 10.5, 4.9, 11.1, 0.8, 5.2, 6.2, 11.4], "a": [55, 88, 81, 83, 78, 98, 60, 64, 52, 43, 53, 95, 90, 47, 76, 69, 76, 80, 58, 98, 68, 78, 78, 51, 44, 65, 86, 89, 84, 47, 95, 88, 93, 71, 95, 43, 42, 41, 55, 55, 51, 74, 42, 75, 50, 81, 41, 59, 96, 72, 89, 79, 77, 51, 74, 42, 88, 98, 91, 43, 60, 59, 47, 78, 88, 59, 92, 88, 48, 86, 93, 52, 74, 78, 77, 46, 80, 78, 89, 88, 60, 83, 92, 94, 50, 42, 79, 53, 74, 97, 63, 55, 67, 79, 46, 63, 48, 80, 90, 63, 62, 72, 53, 55, 60, 67, 45, 85, 75, 58, 45, 86, 48, 48, 48, 45, 94, 56, 58, 90, 77, 51, 66, 93, 63, 83, 46, 84, 87, 90, 80, 62, 44, 71, 85, 51, 56, 72, 85, 94, 48, 51, 88, 79, 83, 100, 96, 91, 87, 64], "g": [3.28, 2.37, 3.52, 3.52, 3.44, 2.89, 2.76, 2.84, 2.07, 3.69, 3.08, 2.78, 3.1, 3.44, 2.76, 3.66, 3.84, 2.77, 2.28, 3.52, 3.99, 2.3, 3.43, 3.65, 3.84, 2.25, 2.18, 3.98, 2.23, 2.35, 3.15, 2.89, 3.5, 2.38, 3.83, 2.43, 3.54, 2.14, null, 2.07, 2.63, 2.62, null, 2.91, 2.11, 3.99, 3.78, 3.83, 2.49, 2.79, 2.45, 2.25, 2.07, 3.01, 2.25, 2.35, 3.72, 2.97, 2.37, 3.34, 2.53, 3.05, 2.57, null, 3.26, 3.07, 2.79, 3.58, 3.75, null, 2.27, 2.23, 3.96, 3.88, 2.46, 3.94, 2.42, 3.01, 2.99, 3.83, 2.08, 2.63, 3.2, 2.13, 2.47, 2.93, 3.76, 3.52, 3.66, 3.52, 3.42, 3.7, 3.36, 3.47, 2.6, 2.34, 3.51, 2.33, 3.84, 3.19, 2.66, 3.87, 2.31, 3.03, 2.18, 3.93, 3.15, 3.61, 2.56, 3.6, 3.41, 3.29, 3.9, 2.87, 2.83, 3.38, 3.67, 2.67, 3.34, null, 3.1, 3.54, 2.13, 3.46, 2.03, 3.92, 2.94, 2.82, 3.44, 3.05, 3.46, 2.17, 3.13, 3.12, 3.86, 2.08, 2.91, 3.26, 3.1, 2.15, 3.19, 2.44, 2.39, 3.76, 2.4, 2.91, null, 3.41, 3.11, 3.61], "p": [1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1]}, "nets": {"moons|1": {"snaps": {"1": {"map": "12a30", "acc": 0.5}, "5": {"map": "12a30", "acc": 0.5}, "10": {"map": "12a30", "acc": 0.5}, "25": {"map": "02a,14e,02a,14e,02a,14e,02a,14e,02a,14e,02b,14d,02b,14d,02b,14d,02b,14d,02b,14d,02c,14c,02c,14c,02c,14c,02c,14c,02c,14c,02c,14c,02d,14b,02d,14b,02d,14b,02d,14b,02d,14b,02e,14a,02e,14a,02e,14a,02e,14a,02e,14a,02f,149,02f,149,02f,149,02f,149,02f,149,030,148,030,148,030,148,030,148,030,148,030,148,031,147,031,147,031,147,031,147,031,147,032,146,032,146,032,146,032,146,032,146,033,145,033,145,033,145,033,145,033,145,034,144,034,144,034,144,034,144,034,144,034,144,035,143,035,143,035,143,035,143,035,143,036,142,036,142,036,142,036,142,036,142,037,141,037,141,037,141,037,141,037,141,037,141,038,140,038,140,038,140,038,140,038,140,039,13f,039,13f,039,13f,039,13f,039,13f,03a,13e,03a,13e,03a,13e,03a,13e,03a,13e,03b,13d", "acc": 0.685}, "50": {"map": "026,152,026,152,027,151,028,150,028,150,029,14f,02a,14e,02b,14d,02b,14d,02c,14c,02d,14b,02d,14b,02e,14a,02f,149,02f,149,030,148,031,147,032,146,032,146,033,145,034,144,034,144,035,143,036,142,036,142,037,141,038,140,039,13f,039,13f,03a,13e,03b,13d,03b,13d,03c,13c,03d,13b,03e,13a,03e,13a,03f,139,040,138,040,138,041,137,042,136,042,136,043,135,044,134,045,133,045,133,046,132,047,131,047,131,048,130,049,12f,049,12f,04a,12e,04b,12d,04c,12c,04c,12c,04d,12b,04e,12a,04e,12a,04f,129,050,128,051,127,051,127,052,126,053,125,053,125,054,124,055,123,055,123,056,122,057,121,058,120,058,120,059,11f,05a,11e,05a,11e,05b,11d,05c,11c,05c,11c,05d,11b,05e,11a,05f,119,05f,119,060,118,061,117,061,117,062,116,063,115,063,115,064,114", "acc": 0.785}, "100": {"map": "1d20,02,176,06,172,09,16f,0d,16b,011,167,014,164,018,160,01c,15c,01f,159,023,155,027,151,02a,14e,02e,14a,032,146,035,143,039,13f,03d,13b,040,138,044,134,048,130,04b,12d,04f,129,053,125,056,122,05a,11e,05e,11a,061,117,065,113,069,1f,06c,1c,070,18,074,14,077,1,0d98", "acc": 0.855}, "200": {"map": "1d98,02,176,06,172,0a,16e,0e,16a,012,166,016,162,019,15f,01d,15b,021,157,025,153,029,14f,02d,14b,031,147,034,144,038,140,03c,13c,040,138,044,134,048,130,04c,12c,050,128,053,125,057,121,05b,11d,05f,119,063,115,067,111,06b,1d,06e,1a,072,16,076,12,0e10", "acc": 0.85}, "400": {"map": "1d98,02,176,05,173,09,16f,0d,16b,011,167,015,163,019,15f,01d,15b,020,158,024,154,028,150,02c,14c,030,148,034,144,037,141,03b,13d,03f,139,043,135,047,131,04b,12d,04e,12a,052,126,056,122,05a,11e,05e,11a,062,116,065,113,069,1f,06d,1b,071,17,075,13,0e10", "acc": 0.845}}, "loss": [0.9077, 0.897, 0.8857, 0.8737, 0.8613, 0.8484, 0.8351, 0.8216, 0.8079, 0.794, 0.7801, 0.7663, 0.7526, 0.7392, 0.726, 0.7131, 0.7006, 0.6885, 0.6768, 0.6655, 0.6547, 0.6442, 0.6341, 0.6244, 0.615, 0.6059, 0.5971, 0.5887, 0.5806, 0.5728, 0.5654, 0.5583, 0.5517, 0.5454, 0.5395, 0.5339, 0.5287, 0.5237, 0.519, 0.5145, 0.5101, 0.5059, 0.5017, 0.4977, 0.4938, 0.4899, 0.486, 0.4822, 0.4785, 0.4747, 0.471, 0.4673, 0.4636, 0.4599, 0.4561, 0.4523, 0.4485, 0.4447, 0.4408, 0.4369, 0.4329, 0.4288, 0.4247, 0.4206, 0.4164, 0.4122, 0.408, 0.4038, 0.3996, 0.3954, 0.3913, 0.3872, 0.3832, 0.3793, 0.3756, 0.3721, 0.3687, 0.3656, 0.3627, 0.36, 0.3576, 0.3554, 0.3535, 0.3517, 0.3502, 0.3487, 0.3474, 0.3461, 0.3449, 0.3437, 0.3426, 0.3414, 0.3402, 0.339, 0.3378, 0.3367, 0.3356, 0.3346, 0.3336, 0.3327, 0.3319, 0.3311, 0.3304, 0.3298, 0.3292, 0.3287, 0.3282, 0.3278, 0.3274, 0.327, 0.3266, 0.3262, 0.3259, 0.3255, 0.3252, 0.3249, 0.3246, 0.3243, 0.324, 0.3237, 0.3235, 0.3233, 0.323, 0.3228, 0.3226, 0.3225, 0.3223, 0.3221, 0.3219, 0.3218, 0.3216, 0.3215, 0.3213, 0.3212, 0.321, 0.3209, 0.3207, 0.3206, 0.3204, 0.3203, 0.3202, 0.3201, 0.3199, 0.3198, 0.3197, 0.3196, 0.3194, 0.3193, 0.3192, 0.3191, 0.319, 0.3189, 0.3187, 0.3186, 0.3185, 0.3184, 0.3183, 0.3182, 0.3181, 0.318, 0.3179, 0.3178, 0.3176, 0.3175, 0.3174, 0.3173, 0.3172, 0.3171, 0.317, 0.3169, 0.3168, 0.3167, 0.3166, 0.3165, 0.3164, 0.3163, 0.3162, 0.3161, 0.316, 0.3159, 0.3158, 0.3157, 0.3156, 0.3156, 0.3155, 0.3154, 0.3153, 0.3152, 0.3151, 0.315, 0.3149, 0.3148, 0.3147, 0.3147, 0.3146, 0.3145, 0.3144, 0.3143, 0.3142, 0.3142, 0.3141, 0.314, 0.3139, 0.3138, 0.3137, 0.3137, 0.3136, 0.3135, 0.3134, 0.3134, 0.3133, 0.3132, 0.3131, 0.3131, 0.313, 0.3129, 0.3128, 0.3128, 0.3127, 0.3126, 0.3126, 0.3125, 0.3124, 0.3124, 0.3123, 0.3122, 0.3122, 0.3121, 0.312, 0.312, 0.3119, 0.3118, 0.3118, 0.3117, 0.3116, 0.3116, 0.3115, 0.3115, 0.3114, 0.3113, 0.3113, 0.3112, 0.3111, 0.3111, 0.311, 0.311, 0.3109, 0.3109, 0.3108, 0.3107, 0.3107, 0.3106, 0.3106, 0.3105, 0.3105, 0.3104, 0.3104, 0.3103, 0.3103, 0.3102, 0.3102, 0.3101, 0.3101, 0.31, 0.31, 0.3099, 0.3099, 0.3098, 0.3098, 0.3097, 0.3097, 0.3096, 0.3096, 0.3095, 0.3095, 0.3094, 0.3094, 0.3093, 0.3093, 0.3092, 0.3092, 0.3092, 0.3091, 0.3091, 0.309, 0.309, 0.3089, 0.3089, 0.3088, 0.3088, 0.3088, 0.3087, 0.3087, 0.3086, 0.3086, 0.3086, 0.3085, 0.3085, 0.3084, 0.3084, 0.3084, 0.3083, 0.3083, 0.3082, 0.3082, 0.3082, 0.3081, 0.3081, 0.3081, 0.308, 0.308, 0.3079, 0.3079, 0.3079, 0.3078, 0.3078, 0.3078, 0.3077, 0.3077, 0.3077, 0.3076, 0.3076, 0.3076, 0.3075, 0.3075, 0.3075, 0.3074, 0.3074, 0.3074, 0.3073, 0.3073, 0.3073, 0.3072, 0.3072, 0.3072, 0.3071, 0.3071, 0.3071, 0.307, 0.307, 0.307, 0.3069, 0.3069, 0.3069, 0.3069, 0.3068, 0.3068, 0.3068, 0.3067, 0.3067, 0.3067, 0.3066, 0.3066, 0.3066, 0.3066, 0.3065, 0.3065, 0.3065, 0.3065, 0.3064, 0.3064, 0.3064, 0.3063, 0.3063, 0.3063, 0.3063, 0.3062, 0.3062, 0.3062, 0.3062, 0.3061, 0.3061, 0.3061, 0.3061, 0.306, 0.306, 0.306, 0.306, 0.3059, 0.3059, 0.3059, 0.3059, 0.3058, 0.3058, 0.3058, 0.3058, 0.3057, 0.3057, 0.3057, 0.3057, 0.3056, 0.3056, 0.3056, 0.3056, 0.3055, 0.3055, 0.3055, 0.3055, 0.3055, 0.3054]}, "moons|2": {"snaps": {"1": {"map": "02a30", "acc": 0.5}, "5": {"map": "02a30", "acc": 0.5}, "10": {"map": "02a30", "acc": 0.5}, "25": {"map": "053,125,054,124,055,123,055,123,056,122,057,121,058,120,058,120,059,11f,05a,11e,05b,11d,05c,11c,05d,11b,05d,11b,05e,11a,05f,119,060,118,061,117,062,116,063,115,064,114,065,113,066,112,067,111,068,110,069,1f,06a,1e,06b,1d,06d,1b,06e,1a,06f,19,070,18,071,17,073,15,074,14,075,13,077,1,018d8", "acc": 0.5}, "50": {"map": "0,177,02,176,03,175,05,173,06,172,07,171,08,170,0a,16e,0b,16d,0c,16c,0d,16b,0f,169,010,168,011,167,012,166,014,164,015,163,016,162,017,161,019,15f,01a,15e,01b,15d,01d,15b,01e,15a,01f,159,020,158,022,156,023,155,024,154,026,152,027,151,028,150,02a,14e,02b,14d,02c,14c,02e,14a,02f,149,030,148,031,147,033,145,034,144,035,143,037,141,038,140,039,13f,03b,13d,03c,13c,03d,13b,03f,139,040,138,041,137,043,135,044,134,045,133,047,131,048,130,049,12f,04b,12d,04c,12c,04d,12b,04f,129,050,128,051,127,053,125,054,124,055,123,057,121,058,120,059,11f,05b,11d,05c,11c,05d,11b,05f,119,060,118,061,117,063,115,064,114,065,113,067,111,068,110,069,1f,06b,1d,06c,1c,06d,1b,06f,19,070,18,071,17,073,15,074,14,075,13", "acc": 0.835}, "100": {"map": "1ca8,03,175,07,171,0a,16e,0d,16b,011,167,014,164,017,161,01b,15d,01e,15a,021,157,025,153,028,150,02c,14c,02f,149,032,146,036,142,039,13f,03c,13c,040,138,043,135,046,132,04a,12e,04d,12b,051,127,054,124,057,121,05b,11d,05e,11a,062,116,065,113,068,110,06c,1c,06f,19,072,16,076,12,0d20", "acc": 0.855}, "200": {"map": "1d98,0,177,04,174,08,170,0c,16c,010,168,014,164,018,160,01c,15c,020,158,023,155,027,151,02b,14d,02f,149,033,145,037,141,03b,13d,03f,139,043,135,046,132,04a,12e,04e,12a,052,126,056,122,05a,11e,05e,11a,062,116,066,112,069,1f,06d,1b,071,17,075,13,0e10", "acc": 0.85}, "400": {"map": "1d98,0,177,05,173,09,16f,0d,16b,010,168,014,164,018,160,01c,15c,020,158,024,154,028,150,02c,14c,02f,149,033,145,037,141,03b,13d,03f,139,043,135,047,131,04b,12d,04f,129,053,125,057,121,05b,11d,05f,119,063,115,067,111,06b,1d,06f,19,074,14,0e88", "acc": 0.85}}, "loss": [1.4939, 1.4445, 1.395, 1.3454, 1.2958, 1.2463, 1.1972, 1.1486, 1.1008, 1.054, 1.0086, 0.965, 0.9235, 0.8844, 0.8481, 0.8147, 0.7844, 0.7573, 0.7331, 0.7117, 0.693, 0.6766, 0.6622, 0.6494, 0.638, 0.6276, 0.6181, 0.6091, 0.6005, 0.5922, 0.5841, 0.5761, 0.5682, 0.5603, 0.5524, 0.5445, 0.5367, 0.5289, 0.5212, 0.5135, 0.506, 0.4986, 0.4913, 0.4841, 0.4771, 0.4703, 0.4636, 0.4572, 0.4509, 0.4448, 0.4388, 0.4331, 0.4275, 0.4222, 0.417, 0.4121, 0.4073, 0.4027, 0.3983, 0.3941, 0.39, 0.3862, 0.3825, 0.379, 0.3756, 0.3724, 0.3694, 0.3665, 0.3638, 0.3612, 0.3588, 0.3565, 0.3543, 0.3522, 0.3502, 0.3484, 0.3466, 0.3449, 0.3434, 0.3419, 0.3405, 0.3391, 0.3379, 0.3367, 0.3356, 0.3345, 0.3335, 0.3325, 0.3316, 0.3308, 0.33, 0.3293, 0.3285, 0.3279, 0.3272, 0.3266, 0.3261, 0.3256, 0.3251, 0.3246, 0.3242, 0.3238, 0.3234, 0.323, 0.3227, 0.3224, 0.3221, 0.3218, 0.3216, 0.3213, 0.3211, 0.3209, 0.3207, 0.3205, 0.3203, 0.3201, 0.32, 0.3198, 0.3197, 0.3195, 0.3194, 0.3193, 0.3191, 0.319, 0.3189, 0.3187, 0.3186, 0.3185, 0.3184, 0.3183, 0.3182, 0.318, 0.3179, 0.3178, 0.3177, 0.3176, 0.3175, 0.3174, 0.3173, 0.3172, 0.3171, 0.317, 0.3169, 0.3168, 0.3166, 0.3165, 0.3164, 0.3163, 0.3162, 0.3161, 0.316, 0.3159, 0.3158, 0.3157, 0.3156, 0.3155, 0.3154, 0.3153, 0.3152, 0.3151, 0.315, 0.3149, 0.3148, 0.3147, 0.3146, 0.3145, 0.3144, 0.3143, 0.3142, 0.3142, 0.3141, 0.314, 0.3139, 0.3138, 0.3137, 0.3136, 0.3135, 0.3134, 0.3133, 0.3132, 0.3131, 0.3131, 0.313, 0.3129, 0.3128, 0.3127, 0.3126, 0.3125, 0.3124, 0.3124, 0.3123, 0.3122, 0.3121, 0.312, 0.3119, 0.3119, 0.3118, 0.3117, 0.3116, 0.3115, 0.3115, 0.3114, 0.3113, 0.3112, 0.3111, 0.3111, 0.311, 0.3109, 0.3108, 0.3108, 0.3107, 0.3106, 0.3105, 0.3105, 0.3104, 0.3103, 0.3102, 0.3102, 0.3101, 0.31, 0.31, 0.3099, 0.3098, 0.3097, 0.3097, 0.3096, 0.3095, 0.3095, 0.3094, 0.3093, 0.3093, 0.3092, 0.3091, 0.3091, 0.309, 0.3089, 0.3089, 0.3088, 0.3087, 0.3087, 0.3086, 0.3085, 0.3085, 0.3084, 0.3083, 0.3083, 0.3082, 0.3081, 0.3081, 0.308, 0.3079, 0.3079, 0.3078, 0.3077, 0.3077, 0.3076, 0.3075, 0.3075, 0.3074, 0.3074, 0.3073, 0.3072, 0.3072, 0.3071, 0.307, 0.307, 0.3069, 0.3069, 0.3068, 0.3067, 0.3067, 0.3066, 0.3065, 0.3065, 0.3064, 0.3063, 0.3063, 0.3062, 0.3062, 0.3061, 0.306, 0.306, 0.3059, 0.3058, 0.3058, 0.3057, 0.3057, 0.3056, 0.3055, 0.3055, 0.3054, 0.3053, 0.3053, 0.3052, 0.3052, 0.3051, 0.305, 0.305, 0.3049, 0.3048, 0.3048, 0.3047, 0.3047, 0.3046, 0.3045, 0.3045, 0.3044, 0.3043, 0.3043, 0.3042, 0.3041, 0.3041, 0.304, 0.304, 0.3039, 0.3038, 0.3038, 0.3037, 0.3036, 0.3036, 0.3035, 0.3034, 0.3034, 0.3033, 0.3032, 0.3032, 0.3031, 0.303, 0.303, 0.3029, 0.3028, 0.3028, 0.3027, 0.3026, 0.3026, 0.3025, 0.3024, 0.3024, 0.3023, 0.3022, 0.3022, 0.3021, 0.302, 0.302, 0.3019, 0.3018, 0.3017, 0.3017, 0.3016, 0.3015, 0.3015, 0.3014, 0.3013, 0.3013, 0.3012, 0.3011, 0.301, 0.301, 0.3009, 0.3008, 0.3007, 0.3007, 0.3006, 0.3005, 0.3005, 0.3004, 0.3003, 0.3002, 0.3002, 0.3001, 0.3, 0.2999, 0.2999, 0.2998, 0.2997, 0.2996, 0.2996, 0.2995, 0.2994, 0.2993, 0.2993, 0.2992, 0.2991, 0.299, 0.299, 0.2989, 0.2988, 0.2987, 0.2986, 0.2986, 0.2985, 0.2984, 0.2983, 0.2983, 0.2982, 0.2981, 0.298, 0.2979, 0.2979, 0.2978]}, "moons|4": {"snaps": {"1": {"map": "02a30", "acc": 0.5}, "5": {"map": "02a30", "acc": 0.5}, "10": {"map": "12d0,02,176,06,172,0b,16d,010,168,015,163,01a,15e,020,158,026,152,02e,14a,036,142,03f,139,04c,12c,060,118,02148", "acc": 0.515}, "25": {"map": "1d98,0,177,04,174,06,172,09,16f,0c,16c,0f,169,012,166,015,163,017,161,01a,15e,01d,15b,020,158,023,155,026,152,029,14f,02d,14b,030,148,033,145,036,142,039,13f,03d,13b,040,138,043,135,046,132,04a,12e,04d,12b,051,127,054,124,057,121,05b,11d,05e,11a,062,116,065,113,068,110,06c,1c,06f,19,073,15,076,12,0ac8", "acc": 0.86}, "50": {"map": "1d20,02,176,05,173,09,16f,0c,16c,0f,169,013,165,017,161,01a,15e,01e,15a,021,157,025,153,029,14f,02c,14c,030,148,034,144,037,141,03b,13d,03f,139,042,136,046,132,04a,12e,04e,12a,051,127,055,123,058,120,05c,11c,060,118,063,115,067,111,06a,1e,06e,1a,072,16,075,13,0d98", "acc": 0.85}, "100": {"map": "1e10,04,174,07,171,0a,16e,0e,16a,011,167,015,163,019,15f,01c,15c,020,158,024,154,028,150,02c,14c,030,148,035,143,039,13f,03e,13a,042,136,046,132,04a,12e,04e,12a,052,126,056,122,05a,11e,05e,11a,061,117,065,113,068,110,06c,1c,06f,19,072,16,076,12,0d98", "acc": 0.855}, "200": {"map": "1618,02,176,03,175,04,174,05,173,07,171,08,170,09,16f,0a,16e,0c,16c,0d,16b,0e,16a,0f,169,011,167,012,166,013,165,014,164,016,162,017,161,018,160,019,15f,01b,15d,01c,15c,01d,15b,01e,15a,020,158,021,157,022,156,023,155,025,153,026,11d,07,12e,027,118,0e,12b,029,114,012,129,02a,110,017,127,02c,1b,01c,125,030,13,022,123,057,121,059,11f,05a,11e,05c,11c,05e,11a,060,118,061,117,063,115,065,113,066,112,068,110,06a,1e,06c,1c,06d,1b,06f,19,071,17,072,16,074,14,076,12,0ac8", "acc": 0.91}, "400": {"map": "0c,16c,0d,16b,0d,16b,0e,16a,0f,169,0f,169,010,168,010,168,011,167,011,167,012,166,012,166,013,165,014,164,014,164,015,163,015,163,016,162,016,162,017,161,017,161,018,160,019,15f,019,15f,01a,15e,01a,15e,01b,15d,01b,15d,01c,15c,01c,15c,01d,15b,01e,15a,01e,15a,01f,159,01f,159,020,128,07,129,020,127,09,128,021,124,0d,126,021,123,0f,125,022,121,010,125,023,11f,012,124,023,11e,014,123,024,11c,016,122,024,11b,018,121,025,119,01a,120,025,118,01c,11f,026,116,01d,11f,026,115,01f,11e,027,113,021,11d,028,111,023,11c,028,110,025,11b,029,1e,027,11a,029,1d,029,119,02a,1b,02a,119,02b,19,02c,118,02c,16,02f,117,062,116,063,115,064,114,064,114,065,113,066,112,067,111,068,110,069,1f,069,1f,06a,1e,06b,1d,06c,1c,06d,1b,06e,1a,06e,1a,06f,19,070,18,071,17,072,16,073,15,073,15,074,14,075,13,076,12,077,1,03c0", "acc": 0.97}}, "loss": [0.9983, 0.9479, 0.8999, 0.8544, 0.8114, 0.7703, 0.7313, 0.6946, 0.6604, 0.629, 0.6004, 0.5746, 0.5515, 0.5309, 0.5126, 0.4963, 0.4818, 0.4687, 0.4569, 0.4461, 0.4361, 0.4267, 0.4179, 0.4095, 0.4016, 0.3939, 0.3866, 0.3796, 0.373, 0.3667, 0.3609, 0.3554, 0.3504, 0.3459, 0.3418, 0.3382, 0.3349, 0.3321, 0.3297, 0.3276, 0.3258, 0.3243, 0.3231, 0.3221, 0.3212, 0.3205, 0.3199, 0.3194, 0.3189, 0.3186, 0.3182, 0.3179, 0.3176, 0.3173, 0.317, 0.3167, 0.3164, 0.3161, 0.3158, 0.3156, 0.3153, 0.315, 0.3148, 0.3146, 0.3144, 0.3141, 0.3139, 0.3137, 0.3135, 0.3133, 0.3131, 0.3129, 0.3127, 0.3124, 0.3122, 0.312, 0.3117, 0.3115, 0.3112, 0.3109, 0.3107, 0.3104, 0.3101, 0.3099, 0.3096, 0.3093, 0.3091, 0.3088, 0.3085, 0.3082, 0.3079, 0.3076, 0.3073, 0.307, 0.3067, 0.3064, 0.3061, 0.3058, 0.3055, 0.3051, 0.3048, 0.3045, 0.3042, 0.3038, 0.3035, 0.3031, 0.3028, 0.3024, 0.302, 0.3017, 0.3013, 0.3009, 0.3005, 0.3001, 0.2997, 0.2993, 0.2988, 0.2984, 0.2979, 0.2974, 0.297, 0.2965, 0.2959, 0.2954, 0.2949, 0.2943, 0.2938, 0.2932, 0.2926, 0.292, 0.2913, 0.2907, 0.29, 0.2894, 0.2887, 0.2879, 0.2872, 0.2865, 0.2857, 0.2849, 0.2841, 0.2833, 0.2824, 0.2815, 0.2807, 0.2798, 0.2788, 0.2779, 0.277, 0.276, 0.275, 0.274, 0.2729, 0.2719, 0.2708, 0.2698, 0.2687, 0.2676, 0.2664, 0.2653, 0.2642, 0.263, 0.2618, 0.2606, 0.2594, 0.2582, 0.257, 0.2557, 0.2545, 0.2532, 0.2519, 0.2507, 0.2494, 0.2481, 0.2467, 0.2454, 0.2441, 0.2428, 0.2414, 0.2401, 0.2387, 0.2373, 0.2359, 0.2346, 0.2332, 0.2318, 0.2304, 0.229, 0.2276, 0.2261, 0.2247, 0.2233, 0.2218, 0.2204, 0.219, 0.2175, 0.2161, 0.2146, 0.2132, 0.2117, 0.2103, 0.2088, 0.2074, 0.2059, 0.2045, 0.203, 0.2016, 0.2001, 0.1987, 0.1973, 0.1958, 0.1944, 0.193, 0.1916, 0.1902, 0.1888, 0.1874, 0.186, 0.1846, 0.1832, 0.1819, 0.1805, 0.1792, 0.1779, 0.1765, 0.1752, 0.1739, 0.1727, 0.1714, 0.1701, 0.1689, 0.1676, 0.1664, 0.1652, 0.164, 0.1628, 0.1616, 0.1604, 0.1593, 0.1581, 0.157, 0.1559, 0.1548, 0.1537, 0.1526, 0.1515, 0.1505, 0.1494, 0.1484, 0.1474, 0.1464, 0.1454, 0.1444, 0.1434, 0.1425, 0.1415, 0.1406, 0.1397, 0.1388, 0.1379, 0.137, 0.1361, 0.1352, 0.1344, 0.1335, 0.1327, 0.1319, 0.1311, 0.1303, 0.1295, 0.1287, 0.128, 0.1272, 0.1265, 0.1258, 0.125, 0.1243, 0.1236, 0.123, 0.1223, 0.1216, 0.121, 0.1203, 0.1197, 0.1191, 0.1185, 0.1178, 0.1173, 0.1167, 0.1161, 0.1155, 0.115, 0.1144, 0.1139, 0.1134, 0.1128, 0.1123, 0.1118, 0.1113, 0.1108, 0.1104, 0.1099, 0.1094, 0.109, 0.1085, 0.1081, 0.1076, 0.1072, 0.1068, 0.1064, 0.106, 0.1056, 0.1052, 0.1048, 0.1044, 0.104, 0.1037, 0.1033, 0.1029, 0.1026, 0.1022, 0.1019, 0.1016, 0.1012, 0.1009, 0.1006, 0.1003, 0.1, 0.0997, 0.0994, 0.0991, 0.0988, 0.0985, 0.0982, 0.0979, 0.0976, 0.0974, 0.0971, 0.0968, 0.0966, 0.0963, 0.0961, 0.0958, 0.0956, 0.0953, 0.0951, 0.0948, 0.0946, 0.0944, 0.0941, 0.0939, 0.0937, 0.0935, 0.0933, 0.093, 0.0928, 0.0926, 0.0924, 0.0922, 0.092, 0.0918, 0.0916, 0.0914, 0.0912, 0.091, 0.0908, 0.0906, 0.0905, 0.0903, 0.0901, 0.0899, 0.0897, 0.0896, 0.0894, 0.0892, 0.089, 0.0889, 0.0887, 0.0885, 0.0884, 0.0882, 0.0881, 0.0879, 0.0877, 0.0876, 0.0874, 0.0873, 0.0871, 0.087, 0.0868, 0.0867, 0.0865, 0.0864, 0.0863, 0.0861, 0.086, 0.0858, 0.0857, 0.0856, 0.0854]}, "moons|16": {"snaps": {"1": {"map": "11f,059,11f,059,11f,059,120,058,120,058,120,058,121,057,121,057,121,057,121,057,122,056,122,056,122,056,122,056,122,056,123,055,123,055,123,055,123,055,123,055,124,054,124,054,124,054,124,054,124,054,124,054,125,053,125,053,125,053,125,053,125,053,125,053,126,052,126,052,126,052,126,052,126,052,126,052,127,051,127,051,127,051,127,051,127,051,128,050,128,050,128,050,128,050,128,050,128,050,129,04f,129,04f,129,04f,129,04f,12a,04e,12a,04e,12a,04e,12a,04e,12b,04d,12b,04d,12b,04d,12b,04d,12c,04c,12c,04c,12c,04c,12c,04c,12d,04b,12d,04b,12d,04b,12e,04a,12e,04a,12e,04a,12f,049,12f,049,12f,049,130,048,130,048,130,048,131,047,131,047,132,046,132,046,132,046,133,045,133,045,134,044,134,044,135,043,135,043,136,042,136,042", "acc": 0.26}, "5": {"map": "1f0,0,177,02,176,02,176,03,175,04,174,05,173,06,172,06,172,07,171,08,170,09,16f,0a,16e,0a,16e,0b,16d,0c,16c,0d,16b,0e,16a,0f,169,010,168,011,167,012,166,012,166,013,165,014,164,015,163,016,162,017,161,018,160,019,15f,01a,15e,01b,15d,01c,15c,01d,15b,01e,15a,01f,159,020,158,021,157,022,156,023,155,024,154,025,153,026,152,027,151,028,150,029,14f,02a,14e,02b,14d,02b,14d,02c,14c,02d,14b,02e,14a,02f,149,030,148,031,147,032,146,033,145,034,144,035,143,036,142,037,141,037,141,038,140,039,13f,03a,13e,03b,13d,03c,13c,03c,13c,03d,13b,03e,13a,03f,139,03f,139,040,138,041,137,042,136,042,136,043,135,044,134,044,134,045,133,046,132,046,132,047,131,047,131,048,130,049,12f,049,12f,04a,12e,04a,12e", "acc": 0.785}, "10": {"map": "010,168,010,168,011,167,012,166,013,165,014,164,015,163,016,162,016,162,017,161,018,160,019,15f,01a,15e,01b,15d,01c,15c,01d,15b,01e,15a,01f,159,01f,159,020,158,021,157,022,156,023,155,024,154,025,153,026,152,027,151,028,150,029,14f,02a,14e,02b,14d,02c,14c,02d,14b,02e,14a,02f,149,030,148,031,147,032,146,033,145,034,144,035,143,036,142,037,141,038,140,039,13f,03a,13e,03b,13d,03c,13c,03d,13b,03e,13a,03f,139,040,138,041,137,042,136,043,135,044,134,045,133,046,132,047,131,048,130,049,12f,04a,12e,04b,12d,04c,12c,04d,12b,04d,12b,04e,12a,04f,129,050,128,051,127,052,126,053,125,054,124,055,123,056,122,057,121,058,120,059,11f,059,11f,05a,11e,05b,11d,05c,11c,05d,11b,05e,11a,05f,119,05f,119,060,118,061,117,062,116,063,115", "acc": 0.815}, "25": {"map": "17f8,0,177,03,175,05,173,07,171,09,16f,0b,16d,0d,16b,0f,169,011,167,014,164,016,162,018,160,01a,15e,01c,15c,01e,15a,020,158,022,156,024,154,026,152,029,14f,02b,14d,02d,14b,02f,149,031,147,033,145,035,143,038,140,03a,13e,03c,13c,03e,13a,040,138,043,135,045,133,047,131,049,12f,04c,12c,04e,12a,050,128,053,125,055,123,058,120,05a,11e,05c,11c,05f,119,061,117,064,114,066,112,069,1f,06b,1d,06d,1b,070,18,073,15,075,13,0960", "acc": 0.86}, "50": {"map": "1d98,03,175,07,171,0a,16e,0e,16a,011,167,015,163,019,15f,01c,15c,020,158,023,155,027,151,02b,14d,02f,149,032,146,036,142,03a,13e,03e,13a,042,136,046,132,04a,12e,04f,129,053,125,057,121,05b,11d,060,118,064,114,069,1f,06d,1b,072,16,076,12,0e88", "acc": 0.85}, "100": {"map": "1bb8,02,176,04,174,07,171,09,16f,0c,16c,0e,16a,011,167,013,165,016,162,018,160,01b,15d,01d,15b,020,158,023,155,026,152,029,14f,02c,14c,030,148,034,144,038,140,03c,13c,041,137,046,132,04a,12e,04f,129,054,124,059,11f,05e,11a,063,115,068,110,06c,1c,071,17,076,12,0f00", "acc": 0.865}, "200": {"map": "07,171,09,16f,0b,16d,0d,16b,0e,16a,010,168,011,167,012,166,013,165,014,164,015,163,016,162,017,161,017,161,018,160,018,160,019,15f,019,15f,01a,15e,01a,15e,01a,15e,01b,15d,01b,15d,01b,15d,01c,15c,01c,15c,01c,15c,01c,15c,01d,15b,01d,15b,01d,15b,01e,15a,01e,15a,01e,15a,01e,15a,01f,159,01f,129,05,12b,01f,127,0a,128,01f,125,0d,127,020,123,0f,126,020,121,013,124,020,120,015,123,021,11e,017,122,021,11d,019,121,021,11b,01b,121,022,119,01d,120,022,118,01f,11f,023,116,021,11e,023,115,023,11d,024,112,026,11c,025,110,028,11b,026,1d,02a,11b,027,1a,02d,11a,029,16,030,119,060,118,061,117,062,116,063,115,063,115,064,114,065,113,066,112,067,111,068,110,069,1f,06a,1e,06b,1d,06c,1c,06d,1b,06e,1a,06f,19,070,18,071,17,072,16,073,15,075,13,076,12,077,1,05a0", "acc": 0.97}, "400": {"map": "0e,16a,010,168,011,167,013,165,014,164,016,162,017,161,018,160,019,15f,01a,15e,01b,15d,01b,15d,01c,15c,01c,15c,01d,15b,01d,15b,01d,15b,01d,15b,01e,15a,01e,15a,01e,15a,01e,15a,01e,15a,01e,15a,01e,15a,01e,15a,01e,15a,01e,15a,01e,15a,01e,15a,01f,159,01f,159,01f,159,01f,159,01f,12b,04,12a,01f,129,09,127,01f,128,0b,126,01f,126,0e,125,01f,125,010,124,01f,124,012,123,01f,123,014,122,01f,123,015,121,01f,122,017,120,01f,121,019,11f,01f,120,01b,11e,020,11e,01d,11d,020,11d,01f,11c,020,11c,021,11b,021,11a,023,11a,021,119,024,11a,022,117,026,119,023,114,029,118,024,112,02b,117,027,1d,02e,116,02b,16,032,115,063,115,064,114,065,113,066,112,067,111,068,110,068,110,069,1f,06a,1e,06b,1d,06c,1c,06d,1b,06d,1b,06e,1a,06f,19,070,18,071,17,072,16,072,16,073,15,074,14,075,13,076,12,077,1,0528", "acc": 0.975}}, "loss": [0.8634, 0.7751, 0.7048, 0.65, 0.6052, 0.5662, 0.5311, 0.4997, 0.4723, 0.449, 0.4297, 0.4142, 0.4018, 0.3917, 0.3833, 0.376, 0.3693, 0.3631, 0.3571, 0.3512, 0.3454, 0.3395, 0.3338, 0.3282, 0.3228, 0.3178, 0.3133, 0.3096, 0.3066, 0.3046, 0.3034, 0.3029, 0.303, 0.3034, 0.3039, 0.3045, 0.3049, 0.3052, 0.3053, 0.3051, 0.3048, 0.3044, 0.3039, 0.3035, 0.3031, 0.3028, 0.3026, 0.3025, 0.3024, 0.3023, 0.3022, 0.302, 0.3018, 0.3015, 0.3012, 0.3009, 0.3005, 0.3002, 0.2999, 0.2997, 0.2995, 0.2993, 0.2992, 0.2991, 0.299, 0.2989, 0.2989, 0.2988, 0.2986, 0.2985, 0.2983, 0.2981, 0.298, 0.2978, 0.2976, 0.2974, 0.2973, 0.2971, 0.2969, 0.2967, 0.2965, 0.2963, 0.2961, 0.2958, 0.2956, 0.2953, 0.2951, 0.2948, 0.2945, 0.2942, 0.2939, 0.2936, 0.2933, 0.2929, 0.2925, 0.2921, 0.2917, 0.2913, 0.2908, 0.2903, 0.2897, 0.2891, 0.2885, 0.2879, 0.2872, 0.2865, 0.2858, 0.285, 0.2841, 0.2833, 0.2823, 0.2814, 0.2804, 0.2793, 0.2782, 0.2771, 0.2759, 0.2747, 0.2734, 0.2721, 0.2707, 0.2693, 0.2679, 0.2664, 0.2648, 0.2632, 0.2615, 0.2598, 0.258, 0.2561, 0.2542, 0.2522, 0.2501, 0.248, 0.2458, 0.2436, 0.2413, 0.2389, 0.2364, 0.2339, 0.2313, 0.2287, 0.226, 0.2232, 0.2203, 0.2175, 0.2145, 0.2115, 0.2085, 0.2054, 0.2023, 0.1992, 0.196, 0.1929, 0.1897, 0.1865, 0.1833, 0.1801, 0.177, 0.1738, 0.1707, 0.1676, 0.1645, 0.1614, 0.1585, 0.1555, 0.1526, 0.1498, 0.147, 0.1443, 0.1417, 0.1391, 0.1367, 0.1342, 0.1319, 0.1296, 0.1275, 0.1253, 0.1233, 0.1214, 0.1195, 0.1177, 0.1159, 0.1143, 0.1127, 0.1112, 0.1097, 0.1083, 0.107, 0.1057, 0.1044, 0.1033, 0.1022, 0.1011, 0.1, 0.0991, 0.0981, 0.0972, 0.0963, 0.0955, 0.0947, 0.0939, 0.0932, 0.0925, 0.0918, 0.0912, 0.0905, 0.0899, 0.0893, 0.0888, 0.0882, 0.0877, 0.0872, 0.0867, 0.0863, 0.0858, 0.0854, 0.0849, 0.0845, 0.0841, 0.0837, 0.0833, 0.083, 0.0826, 0.0823, 0.0819, 0.0816, 0.0813, 0.081, 0.0806, 0.0803, 0.0801, 0.0798, 0.0795, 0.0792, 0.079, 0.0787, 0.0784, 0.0782, 0.0779, 0.0777, 0.0775, 0.0772, 0.077, 0.0768, 0.0766, 0.0764, 0.0761, 0.0759, 0.0757, 0.0755, 0.0753, 0.0751, 0.0749, 0.0748, 0.0746, 0.0744, 0.0742, 0.074, 0.0739, 0.0737, 0.0735, 0.0734, 0.0732, 0.073, 0.0729, 0.0727, 0.0726, 0.0724, 0.0722, 0.0721, 0.0719, 0.0718, 0.0717, 0.0715, 0.0714, 0.0712, 0.0711, 0.071, 0.0708, 0.0707, 0.0706, 0.0704, 0.0703, 0.0702, 0.0701, 0.0699, 0.0698, 0.0697, 0.0696, 0.0694, 0.0693, 0.0692, 0.0691, 0.069, 0.0689, 0.0688, 0.0687, 0.0685, 0.0684, 0.0683, 0.0682, 0.0681, 0.068, 0.0679, 0.0678, 0.0677, 0.0676, 0.0675, 0.0674, 0.0673, 0.0672, 0.0671, 0.067, 0.067, 0.0669, 0.0668, 0.0667, 0.0666, 0.0665, 0.0664, 0.0663, 0.0663, 0.0662, 0.0661, 0.066, 0.0659, 0.0658, 0.0658, 0.0657, 0.0656, 0.0655, 0.0654, 0.0654, 0.0653, 0.0652, 0.0651, 0.0651, 0.065, 0.0649, 0.0649, 0.0648, 0.0647, 0.0646, 0.0646, 0.0645, 0.0644, 0.0644, 0.0643, 0.0642, 0.0642, 0.0641, 0.064, 0.064, 0.0639, 0.0639, 0.0638, 0.0637, 0.0637, 0.0636, 0.0636, 0.0635, 0.0634, 0.0634, 0.0633, 0.0633, 0.0632, 0.0631, 0.0631, 0.063, 0.063, 0.0629, 0.0629, 0.0628, 0.0628, 0.0627, 0.0627, 0.0626, 0.0625, 0.0625, 0.0624, 0.0624, 0.0623, 0.0623, 0.0622, 0.0622, 0.0621, 0.0621, 0.062, 0.062, 0.062, 0.0619, 0.0619, 0.0618, 0.0618, 0.0617, 0.0617, 0.0616, 0.0616, 0.0615]}, "circles|1": {"snaps": {"1": {"map": "12a30", "acc": 0.5}, "5": {"map": "12a30", "acc": 0.5}, "10": {"map": "12a30", "acc": 0.5}, "25": {"map": "12a30", "acc": 0.5}, "50": {"map": "02a30", "acc": 0.5}, "100": {"map": "01dff,1,076,12,075,13,073,15,072,16,071,17,06f,19,06e,1a,06d,1b,06b,1d,06a,1e,069,1f,067,111,066,112,065,113,063,115,062,116,061,117,05f,119,05e,11a,05d,11b,05b,11d,05a,11e,059,11f,057,121,056,122,054,124", "acc": 0.5}, "200": {"map": "06c,1c,06b,1d,06a,1e,069,1f,068,110,067,111,065,113,064,114,063,115,062,116,061,117,060,118,05f,119,05e,11a,05d,11b,05c,11c,05b,11d,059,11f,058,120,057,121,056,122,055,123,054,124,053,125,052,126,051,127,050,128,04f,129,04d,12b,04c,12c,04b,12d,04a,12e,049,12f,048,130,047,131,046,132,045,133,044,134,043,135,041,137,040,138,03f,139,03e,13a,03d,13b,03c,13c,03b,13d,03a,13e,039,13f,038,140,037,141,035,143,034,144,033,145,032,146,031,147,030,148,02f,149,02e,14a,02d,14b,02c,14c,02b,14d,029,14f,028,150,027,151,026,152,025,153,024,154,023,155,022,156,021,157,020,158,01e,15a,01d,15b,01c,15c,01b,15d,01a,15e,019,15f,018,160,017,161,016,162,015,163,014,164,012,166,011,167,010,168,0f,169,0e,16a,0d,16b,0c,16c,0b,16d", "acc": 0.48}, "400": {"map": "06d,1b,06c,1c,06b,1d,069,1f,068,110,067,111,066,112,065,113,064,114,063,115,062,116,061,117,060,118,05e,11a,05d,11b,05c,11c,05b,11d,05a,11e,059,11f,058,120,057,121,056,122,055,123,054,124,052,126,051,127,050,128,04f,129,04e,12a,04d,12b,04c,12c,04b,12d,04a,12e,049,12f,048,130,046,132,045,133,044,134,043,135,042,136,041,137,040,138,03f,139,03e,13a,03d,13b,03c,13c,03a,13e,039,13f,038,140,037,141,036,142,035,143,034,144,033,145,032,146,031,147,030,148,02e,14a,02d,14b,02c,14c,02b,14d,02a,14e,029,14f,028,150,027,151,026,152,025,153,024,154,022,156,021,157,020,158,01f,159,01e,15a,01d,15b,01c,15c,01b,15d,01a,15e,019,15f,018,160,016,162,015,163,014,164,013,165,012,166,011,167,010,168,0f,169,0e,16a,0d,16b,0c,16c", "acc": 0.48}}, "loss": [0.9038, 0.8907, 0.8775, 0.8642, 0.8511, 0.8381, 0.8252, 0.8127, 0.8005, 0.7886, 0.7773, 0.7665, 0.7564, 0.747, 0.7383, 0.7304, 0.7233, 0.717, 0.7116, 0.707, 0.7031, 0.7, 0.6976, 0.6958, 0.6945, 0.6938, 0.6934, 0.6933, 0.6935, 0.6939, 0.6944, 0.6949, 0.6954, 0.6959, 0.6963, 0.6967, 0.6969, 0.697, 0.697, 0.6969, 0.6968, 0.6965, 0.6962, 0.6959, 0.6955, 0.6952, 0.6948, 0.6945, 0.6942, 0.6939, 0.6937, 0.6935, 0.6934, 0.6933, 0.6932, 0.6932, 0.6932, 0.6932, 0.6932, 0.6932, 0.6933, 0.6933, 0.6933, 0.6933, 0.6934, 0.6934, 0.6934, 0.6934, 0.6934, 0.6933, 0.6933, 0.6933, 0.6933, 0.6932, 0.6932, 0.6932, 0.6932, 0.6932, 0.6932, 0.6932, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6932, 0.6932, 0.6932, 0.6932, 0.6932, 0.6932, 0.6932, 0.6932, 0.6932, 0.6932, 0.6932, 0.6932, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931, 0.6931]}, "circles|2": {"snaps": {"1": {"map": "02a30", "acc": 0.5}, "5": {"map": "02a30", "acc": 0.5}, "10": {"map": "02a30", "acc": 0.5}, "25": {"map": "02a30", "acc": 0.5}, "50": {"map": "01517,1,076,12,075,13,074,14,073,15,072,16,071,17,070,18,06f,19,06e,1a,06d,1b,06c,1c,06b,1d,06a,1e,069,1f,068,110,067,111,066,112,065,113,064,114,063,115,063,115,062,116,061,117,060,118,05f,119,05e,11a,05d,11b,05c,11c,05b,11d,05a,11e,059,11f,058,120,057,121,056,122,055,123,054,124,054,124,053,125,052,126,051,127,050,128,04f,129,04e,12a,04d,12b,04c,12c", "acc": 0.5}, "100": {"map": "05f,119,05e,11a,05d,11b,05c,11c,05c,11c,05b,11d,05a,11e,059,11f,058,120,057,121,056,122,055,123,054,124,053,125,052,126,051,127,051,127,050,128,04f,129,04e,12a,04d,12b,04c,12c,04b,12d,04a,12e,049,12f,048,130,047,131,046,132,045,133,044,134,044,134,043,135,042,136,041,137,040,138,03f,139,03e,13a,03d,13b,03c,13c,03b,13d,03a,13e,039,13f,038,140,037,141,036,142,036,142,035,143,034,144,033,145,032,146,031,147,030,148,02f,149,02e,14a,02d,14b,02c,14c,02b,14d,02a,14e,029,14f,029,14f,028,150,027,151,026,152,025,153,024,154,023,155,022,156,021,157,020,158,01f,159,01f,159,01e,15a,01d,15b,01c,15c,01b,15d,01a,15e,019,15f,018,160,017,161,016,162,016,162,015,163,014,164,013,165,012,166,011,167,010,168,0f,169,0f,169,0e,16a", "acc": 0.53}, "200": {"map": "0167,1,076,12,074,14,073,15,071,17,06f,19,06e,1a,06c,1c,06a,1e,068,110,066,112,064,114,061,117,05f,119,05d,11b,05b,11d,059,11f,056,122,054,124,052,126,04f,129,04d,12b,04b,12d,049,12f,046,132,044,134,042,136,040,138,03e,13a,03c,13c,03b,13d,039,13f,037,141,035,143,034,144,033,145,031,147,030,148,02f,149,02d,14b,02c,14c,02b,14d,02a,14e,029,14f,028,150,027,151,027,151,026,152,025,153,024,154,023,155,023,155,022,156,021,157,021,157,020,158,01f,159,01f,159,01e,15a,01d,15b,01d,15b,01c,15c,01b,15d,01b,15d,01a,15e,01a,15e,019,15f,018,160,018,160,017,161,016,162,016,162,015,163,015,163,014,164,013,165,013,165,012,166,012,166,011,167,010,168,010,168,0f,169,0e,16a,0e,16a,0d,16b,0d,16b,0c,16c", "acc": 0.635}, "400": {"map": "0569,15,072,17,06f,1a,06d,1c,06b,1d,06a,1f,068,110,068,110,067,112,065,113,064,114,063,116,061,117,060,118,060,119,05e,11a,05d,11b,05c,11d,05a,11e,05a,11e,059,120,057,121,056,122,055,123,054,125,053,125,052,126,051,128,04f,129,04e,12a,04d,12c,04c,12c,04b,12d,04a,12e,049,130,047,131,047,131,046,133,044,134,043,135,042,137,040,138,040,138,03f,139,03e,13b,03c,13c,03b,13d,03b,13e,039,13f,038,140,037,142,035,143,034,144,034,144,033,146,031,147,030,148,02f,14a,02e,14a,02d,14b,02c,14d,02a,14e,029,14f,028,150,028,151,026,152,025,153,024,155,022,156,022,156,021,157,020,159,01e,15a,01d,15b,01c,15d,01b,15d,01a,15e,019,160,018,160,018", "acc": 0.79}}, "loss": [1.4019, 1.3587, 1.3165, 1.2754, 1.2356, 1.197, 1.1599, 1.1243, 1.0903, 1.058, 1.0274, 0.9985, 0.9714, 0.946, 0.9223, 0.9003, 0.88, 0.8613, 0.8441, 0.8284, 0.8141, 0.8011, 0.7893, 0.7787, 0.7692, 0.7606, 0.7529, 0.7461, 0.7399, 0.7345, 0.7296, 0.7253, 0.7215, 0.7181, 0.7151, 0.7124, 0.7101, 0.708, 0.7061, 0.7045, 0.7031, 0.7018, 0.7006, 0.6996, 0.6988, 0.698, 0.6973, 0.6967, 0.6961, 0.6956, 0.6952, 0.6948, 0.6945, 0.6942, 0.694, 0.6937, 0.6935, 0.6934, 0.6932, 0.6931, 0.693, 0.6928, 0.6928, 0.6927, 0.6926, 0.6925, 0.6925, 0.6924, 0.6924, 0.6923, 0.6923, 0.6922, 0.6922, 0.6922, 0.6921, 0.6921, 0.6921, 0.692, 0.692, 0.6919, 0.6919, 0.6919, 0.6918, 0.6918, 0.6917, 0.6917, 0.6917, 0.6916, 0.6916, 0.6915, 0.6915, 0.6914, 0.6913, 0.6913, 0.6912, 0.6912, 0.6911, 0.691, 0.691, 0.6909, 0.6909, 0.6908, 0.6907, 0.6906, 0.6906, 0.6905, 0.6904, 0.6903, 0.6903, 0.6902, 0.6901, 0.69, 0.6899, 0.6898, 0.6897, 0.6896, 0.6896, 0.6895, 0.6894, 0.6892, 0.6891, 0.689, 0.6889, 0.6888, 0.6887, 0.6886, 0.6884, 0.6883, 0.6882, 0.6881, 0.6879, 0.6878, 0.6876, 0.6875, 0.6873, 0.6872, 0.687, 0.6868, 0.6867, 0.6865, 0.6863, 0.6861, 0.686, 0.6858, 0.6856, 0.6854, 0.6852, 0.6849, 0.6847, 0.6845, 0.6843, 0.684, 0.6838, 0.6835, 0.6833, 0.683, 0.6828, 0.6825, 0.6822, 0.6819, 0.6816, 0.6813, 0.681, 0.6807, 0.6804, 0.6801, 0.6797, 0.6794, 0.6791, 0.6787, 0.6783, 0.678, 0.6776, 0.6772, 0.6768, 0.6764, 0.6759, 0.6755, 0.6751, 0.6746, 0.6741, 0.6737, 0.6732, 0.6727, 0.6721, 0.6716, 0.671, 0.6704, 0.6698, 0.6692, 0.6685, 0.6678, 0.6671, 0.6664, 0.6656, 0.6648, 0.6639, 0.663, 0.6621, 0.6611, 0.66, 0.659, 0.6579, 0.6567, 0.6555, 0.6542, 0.6529, 0.6515, 0.6501, 0.6486, 0.6471, 0.6455, 0.6438, 0.642, 0.6402, 0.6383, 0.6364, 0.6344, 0.6323, 0.6303, 0.6282, 0.6261, 0.624, 0.6219, 0.6199, 0.6178, 0.6158, 0.6138, 0.6119, 0.61, 0.6081, 0.6063, 0.6045, 0.6027, 0.601, 0.5993, 0.5976, 0.5959, 0.5943, 0.5927, 0.591, 0.5894, 0.5878, 0.5862, 0.5846, 0.5831, 0.5815, 0.5799, 0.5784, 0.5768, 0.5753, 0.5738, 0.5723, 0.5708, 0.5694, 0.5679, 0.5665, 0.565, 0.5636, 0.5622, 0.5609, 0.5595, 0.5581, 0.5568, 0.5555, 0.5542, 0.5529, 0.5516, 0.5503, 0.5491, 0.5478, 0.5466, 0.5453, 0.5441, 0.5429, 0.5418, 0.5406, 0.5394, 0.5383, 0.5372, 0.536, 0.5349, 0.5339, 0.5328, 0.5318, 0.5307, 0.5297, 0.5287, 0.5277, 0.5267, 0.5258, 0.5248, 0.5239, 0.523, 0.5221, 0.5212, 0.5203, 0.5195, 0.5186, 0.5178, 0.517, 0.5161, 0.5153, 0.5145, 0.5138, 0.513, 0.5122, 0.5115, 0.5107, 0.51, 0.5092, 0.5085, 0.5078, 0.5071, 0.5064, 0.5057, 0.505, 0.5044, 0.5037, 0.5031, 0.5024, 0.5018, 0.5012, 0.5005, 0.4999, 0.4993, 0.4987, 0.4981, 0.4975, 0.497, 0.4964, 0.4958, 0.4953, 0.4947, 0.4942, 0.4936, 0.4931, 0.4926, 0.4921, 0.4915, 0.491, 0.4905, 0.49, 0.4896, 0.4891, 0.4886, 0.4881, 0.4877, 0.4872, 0.4867, 0.4863, 0.4858, 0.4854, 0.485, 0.4845, 0.4841, 0.4837, 0.4833, 0.4828, 0.4824, 0.482, 0.4816, 0.4812, 0.4808, 0.4805, 0.4801, 0.4797, 0.4793, 0.479, 0.4786, 0.4782, 0.4779, 0.4775, 0.4772, 0.4768, 0.4765, 0.4761, 0.4758, 0.4754, 0.4751, 0.4748, 0.4745, 0.4741, 0.4738, 0.4735, 0.4732, 0.4729, 0.4726, 0.4723, 0.472, 0.4717, 0.4714, 0.4711, 0.4708, 0.4705, 0.4702, 0.4699, 0.4697, 0.4694, 0.4691]}, "circles|4": {"snaps": {"1": {"map": "02a30", "acc": 0.5}, "5": {"map": "02a30", "acc": 0.5}, "10": {"map": "02a30", "acc": 0.5}, "25": {"map": "11680,0,177,04,174,07,171,09,16f,0c,16c,0f,169,012,166,016,162,01a,15e,01e,15a,022,156,027,151,02d,14b,033,145,038,140,03e,13a,043,135,048,130,04d,12b,051,127,055,123,058,120,05c,11c,05f,119,062,116,064,114,067,111,06a,1e,06c,1c,06f,19,071,17,074,14,076,12,0438", "acc": 0.65}, "50": {"map": "04a,12e,048,130,047,131,045,133,043,135,041,137,03f,139,03d,13b,03a,13e,037,141,033,145,029,14f,01a,15e,019,15f,019,15f,018,160,018,160,019,15f,019,15f,019,15f,01a,15e,01a,15e,01a,15e,01b,15d,01b,15d,01c,15c,01c,15c,01d,15b,01d,15b,01e,15a,01e,15a,01e,15a,01f,159,01f,159,020,158,020,158,021,157,021,157,021,157,022,156,022,156,023,155,023,155,024,154,024,154,024,154,025,153,025,153,026,152,026,152,027,151,027,151,028,150,028,150,029,14f,02a,14e,02a,14e,02b,14d,02c,14c,02d,14b,02e,14a,02f,149,031,147,032,146,034,144,037,141,03a,13e,03e,13a,042,136,046,132,049,12f,04c,12c,04f,129,051,127,053,125,055,123,057,121,058,120,05a,11e,05c,11c,05d,11b,05f,119,060,118,061,117,063,115,064,114,066,112,067,111,068,110,06a,1e", "acc": 0.7}, "100": {"map": "114,064,114,064,115,063,116,062,117,061,118,060,118,060,119,05f,11a,05e,11b,05d,11b,05d,11c,05f,11a,060,119,061,118,063,116,064,115,065,114,066,113,068,112,068,112,02c,1a,031,113,026,1f,032,115,01e,113,033,119,015,118,034,144,034,144,035,143,036,141,037,141,038,140,038,140,038,13f,039,13f,039,13f,039,13e,03a,13e,03b,13d,03b,13c,03b,13d,03b,13d,03b,13c,03c,13c,03c,13c,03c,13c,03c,13c,03c,13c,03b,13d,03b,13d,03b,13d,03a,13e,03a,13e,039,13f,039,13f,038,141,037,141,036,142,035,143,034,144,032,146,031,147,030,148,02e,149,02e,149,02d,149,02d,13d,039,139,03d,137,040,136,040,135,041,136,040,136,041,136,042,135,043,134,044,133,045,132,046,131,047,130,048,12f,049,12e,04a,12e,04a,12d,04b,12c,04c,12b,04d,12b,04d,12a,04e,129,04f,129,04f,128,050,127,051", "acc": 0.88}, "200": {"map": "0a19,1b,069,111,064,116,060,119,05d,11b,05b,11e,058,120,057,122,054,124,052,126,050,128,04f,12a,04c,12c,04a,12e,049,12f,047,131,046,133,043,135,042,136,041,137,040,139,03e,13a,03d,13b,03d,13b,03c,13c,03c,13d,03b,13d,03b,13d,03b,13d,03b,13e,03a,13e,03b,13d,03c,13c,03d,13b,03e,13a,040,138,043,135,045,133,048,130,04b,12d,04f,128,053,124,057,120,05c,119,062,113,06a,1a,0af5", "acc": 0.99}, "400": {"map": "0835,17,06f,1b,06b,1e,069,110,066,113,064,115,062,117,060,119,05e,11a,05d,11c,05b,11d,05a,11f,058,121,056,122,055,124,053,125,052,127,050,129,04e,12a,04d,12c,04b,12d,04a,12f,048,131,046,132,045,134,043,135,042,137,040,138,03f,13a,03d,13b,03d,13c,03b,13d,03a,13f,039,13f,038,141,037,141,037,142,035,143,036,142,036,142,036,142,037,141,038,13f,03b,13d,03e,139,046,130,056,121,066,1e,0bdd", "acc": 0.985}}, "loss": [0.9656, 0.9315, 0.8997, 0.8701, 0.8429, 0.8181, 0.7956, 0.7754, 0.7574, 0.7417, 0.7282, 0.7169, 0.7078, 0.7007, 0.6955, 0.6921, 0.6901, 0.6894, 0.6896, 0.6903, 0.6912, 0.6921, 0.6926, 0.6927, 0.6921, 0.691, 0.6894, 0.6874, 0.6851, 0.6826, 0.6801, 0.6775, 0.675, 0.6725, 0.6701, 0.6677, 0.6652, 0.6627, 0.6602, 0.6575, 0.6546, 0.6516, 0.6484, 0.6451, 0.6415, 0.6377, 0.6337, 0.6296, 0.6253, 0.6209, 0.6163, 0.6117, 0.607, 0.6023, 0.5976, 0.5929, 0.5882, 0.5835, 0.5787, 0.574, 0.5693, 0.5645, 0.5597, 0.5549, 0.5502, 0.5454, 0.5408, 0.5361, 0.5316, 0.5271, 0.5226, 0.5183, 0.5139, 0.5097, 0.5055, 0.5013, 0.4972, 0.4931, 0.4891, 0.4851, 0.4811, 0.4771, 0.4732, 0.4693, 0.4655, 0.4617, 0.4579, 0.4541, 0.4504, 0.4467, 0.443, 0.4393, 0.4356, 0.432, 0.4284, 0.4248, 0.4213, 0.4178, 0.4143, 0.4108, 0.4073, 0.4039, 0.4005, 0.3972, 0.3939, 0.3906, 0.3873, 0.3841, 0.381, 0.3778, 0.3747, 0.3716, 0.3686, 0.3656, 0.3626, 0.3597, 0.3568, 0.3539, 0.3511, 0.3483, 0.3456, 0.3428, 0.3401, 0.3375, 0.3349, 0.3323, 0.3297, 0.3272, 0.3247, 0.3222, 0.3198, 0.3174, 0.315, 0.3126, 0.3103, 0.308, 0.3057, 0.3035, 0.3013, 0.2991, 0.297, 0.2948, 0.2927, 0.2906, 0.2886, 0.2865, 0.2845, 0.2826, 0.2806, 0.2787, 0.2767, 0.2749, 0.273, 0.2711, 0.2693, 0.2675, 0.2657, 0.264, 0.2622, 0.2605, 0.2588, 0.2571, 0.2555, 0.2538, 0.2522, 0.2506, 0.249, 0.2475, 0.2459, 0.2444, 0.2429, 0.2414, 0.2399, 0.2385, 0.237, 0.2356, 0.2342, 0.2328, 0.2314, 0.23, 0.2287, 0.2274, 0.226, 0.2247, 0.2234, 0.2222, 0.2209, 0.2197, 0.2184, 0.2172, 0.216, 0.2148, 0.2136, 0.2125, 0.2113, 0.2102, 0.209, 0.2079, 0.2068, 0.2057, 0.2047, 0.2036, 0.2025, 0.2015, 0.2005, 0.1994, 0.1984, 0.1974, 0.1964, 0.1954, 0.1945, 0.1935, 0.1926, 0.1916, 0.1907, 0.1898, 0.1889, 0.188, 0.1871, 0.1862, 0.1853, 0.1845, 0.1836, 0.1827, 0.1819, 0.1811, 0.1803, 0.1794, 0.1786, 0.1778, 0.1771, 0.1763, 0.1755, 0.1747, 0.174, 0.1732, 0.1725, 0.1717, 0.171, 0.1703, 0.1696, 0.1689, 0.1682, 0.1675, 0.1668, 0.1661, 0.1654, 0.1647, 0.1641, 0.1634, 0.1628, 0.1621, 0.1615, 0.1608, 0.1602, 0.1596, 0.159, 0.1583, 0.1577, 0.1571, 0.1565, 0.1559, 0.1554, 0.1548, 0.1542, 0.1536, 0.1531, 0.1525, 0.1519, 0.1514, 0.1508, 0.1503, 0.1497, 0.1492, 0.1487, 0.1481, 0.1476, 0.1471, 0.1466, 0.1461, 0.1456, 0.1451, 0.1446, 0.1441, 0.1436, 0.1431, 0.1426, 0.1421, 0.1416, 0.1412, 0.1407, 0.1402, 0.1398, 0.1393, 0.1388, 0.1384, 0.1379, 0.1375, 0.137, 0.1366, 0.1362, 0.1357, 0.1353, 0.1349, 0.1344, 0.134, 0.1336, 0.1332, 0.1328, 0.1324, 0.132, 0.1315, 0.1311, 0.1307, 0.1303, 0.13, 0.1296, 0.1292, 0.1288, 0.1284, 0.128, 0.1276, 0.1273, 0.1269, 0.1265, 0.1261, 0.1258, 0.1254, 0.125, 0.1247, 0.1243, 0.124, 0.1236, 0.1233, 0.1229, 0.1226, 0.1222, 0.1219, 0.1215, 0.1212, 0.1209, 0.1205, 0.1202, 0.1199, 0.1195, 0.1192, 0.1189, 0.1185, 0.1182, 0.1179, 0.1176, 0.1173, 0.1169, 0.1166, 0.1163, 0.116, 0.1157, 0.1154, 0.1151, 0.1148, 0.1145, 0.1142, 0.1139, 0.1136, 0.1133, 0.113, 0.1127, 0.1124, 0.1121, 0.1118, 0.1115, 0.1112, 0.111, 0.1107, 0.1104, 0.1101, 0.1098, 0.1096, 0.1093, 0.109, 0.1087, 0.1085, 0.1082, 0.1079, 0.1076, 0.1074, 0.1071, 0.1068, 0.1066, 0.1063, 0.1061, 0.1058, 0.1055, 0.1053, 0.105, 0.1048, 0.1045, 0.1043, 0.104, 0.1038]}, "circles|16": {"snaps": {"1": {"map": "115,063,116,062,117,061,119,05f,11a,05e,11b,05d,11c,05c,11d,05b,11e,05a,11f,059,120,058,121,057,122,056,123,055,124,054,125,053,126,052,127,051,128,050,129,04f,12a,04e,12b,04d,12c,04c,12c,04c,12d,04b,12e,04a,12f,049,130,048,131,047,131,047,132,046,133,045,134,044,134,044,135,043,136,042,137,041,137,041,138,040,139,03f,13a,03e,13a,03e,13b,03d,13c,03c,13c,03c,13d,03b,13e,03a,13f,039,13f,039,140,038,141,037,142,036,142,036,143,035,144,034,145,033,145,033,146,032,147,031,148,030,149,02f,149,02f,14a,02e,14b,02d,14c,02c,14d,02b,14e,02a,14e,02a,14f,029,150,028,151,027,152,026,153,025,154,024,155,023,156,022,157,021,158,020,159,01f,15b,01d,15c,01c,15d,01b,15e,01a,15f,019,161,017,162,016,163,015,165,013,166,012,168,010", "acc": 0.505}, "5": {"map": "02f,149,02e,14a,02e,14a,02d,14b,02d,14b,02c,14c,02c,14c,02b,14d,02b,14d,02a,14e,02a,14e,029,14f,029,14f,028,150,027,151,027,151,026,152,026,152,026,152,025,153,025,153,024,154,024,154,023,155,023,155,022,156,022,156,022,156,021,157,021,157,021,157,020,158,020,158,020,158,01f,159,01f,159,01f,159,01f,159,01e,15a,01e,15a,01e,15a,01e,15a,01e,15a,01d,15b,01d,15b,01d,15b,01d,15b,01d,15b,01d,15b,01d,15b,01d,15b,01c,15c,01c,15c,01c,15c,01c,15c,01c,15c,01c,15c,01c,15c,01c,15c,01c,15c,01c,15c,01c,15c,01c,15c,01c,15c,01c,15c,01c,15c,01c,15c,01c,15c,01d,15b,01d,15b,01d,15b,01d,15b,01d,15b,01d,15b,01d,15b,01d,15b,01d,15b,01d,15b,01d,15b,01e,15a,01e,15a,01e,15a,01e,15a,01e,15a,01e,15a,01e,15a,01f,159,01f,159,01f,159,01f,159", "acc": 0.64}, "10": {"map": "05a,11e,059,11f,058,120,057,121,056,122,055,123,054,124,053,125,053,125,052,126,051,127,050,128,04f,129,04e,12a,04d,12b,04c,12c,04b,12d,04a,12e,049,12f,048,130,047,131,046,132,045,133,044,134,044,134,043,135,042,136,041,137,041,137,040,138,03f,139,03f,139,03e,13a,03e,13a,03d,13b,03d,13b,03c,13c,03c,13c,03c,13c,03c,13c,03b,13d,03b,13d,03b,13d,03b,13d,03b,13d,03b,13d,03b,13d,03b,13d,03b,13d,03b,13d,03b,13d,03c,13c,03c,13c,03c,13c,03c,13c,03d,13b,03d,13b,03e,13a,03e,13a,03f,139,03f,139,040,138,041,137,041,137,042,136,043,135,043,135,044,134,045,133,046,132,047,131,048,130,049,12f,04a,12e,04b,12d,04c,12c,04d,12b,04e,12a,04f,129,050,128,051,127,052,126,053,125,054,124,055,123,057,121,058,120,059,11f,05a,11e,05b,11d", "acc": 0.55}, "25": {"map": "0b0e,111,05a,123,04d,12e,045,135,03f,13a,03b,13e,038,141,036,142,034,145,032,146,031,148,030,148,02f,149,02f,149,02e,14a,02e,14b,02d,14b,02d,14b,02c,14c,02c,14c,02c,14c,02c,14c,02c,14c,02c,14b,02e,14a,02e,14a,02e,14a,02e,14a,02f,148,030,148,031,147,032,145,033,144,036,142,037,140,03a,13d,03d,13a,040,137,045,131,04b,12b,053,122,05e,115,0bdd", "acc": 0.92}, "50": {"map": "0b80,1d,060,11f,054,127,04d,12c,04a,12f,047,132,044,135,042,136,041,138,03f,139,03e,13a,03e,13a,03d,13b,03c,13c,03c,13c,03c,13c,03b,13d,03b,13d,03b,13d,03b,13d,03a,13e,03a,13e,03a,13d,03b,13d,03b,13d,03b,13c,03c,13c,03c,13b,03d,13b,03d,13a,03e,139,03f,138,040,137,041,136,043,134,045,132,047,12f,04a,12c,04e,128,054,122,05c,118,06b,15,0b7a", "acc": 1.0}, "100": {"map": "0afc,111,064,118,05d,11e,058,122,055,125,051,129,04e,12b,04b,12f,048,130,047,132,045,134,044,135,042,136,041,138,03f,139,03f,13a,03d,13b,03d,13b,03d,13c,03b,13d,03b,13d,03b,13d,03b,13e,03a,13e,03a,13d,03b,13d,03c,13c,03c,13c,03c,13b,03e,13a,03e,139,040,137,041,136,043,134,045,132,047,12f,04a,12d,04c,12a,050,126,053,124,056,120,05a,11c,05e,117,065,110,06e,14,0a8b", "acc": 1.0}, "200": {"map": "0a0f,17,06d,1f,067,114,062,119,05d,11e,059,121,056,124,053,127,04f,12b,04c,12d,04a,12f,048,131,046,133,044,135,042,136,042,137,040,138,03f,13a,03e,13a,03d,13b,03d,13c,03c,13c,03c,13c,03b,13d,03b,13d,03b,13d,03c,13c,03c,13c,03c,13c,03c,13c,03c,13b,03e,13a,03e,139,040,137,041,136,043,134,045,132,047,130,048,12e,04b,12c,04e,128,051,125,055,121,059,11d,05e,117,067,1c,0aff", "acc": 1.0}, "400": {"map": "0a86,1d,068,113,063,118,05e,11c,05a,120,056,124,053,127,050,129,04d,12d,04a,12f,048,131,046,133,044,135,042,137,040,138,03f,13a,03e,13a,03d,13c,03c,13c,03c,13c,03c,13c,03c,13c,03c,13c,03c,13c,03c,13c,03c,13c,03c,13c,03c,13c,03c,13b,03d,13b,03e,139,03f,138,040,138,041,136,043,134,044,133,046,131,048,12f,04a,12d,04c,12b,04f,127,053,123,057,11f,05c,119,066,1e,0afc", "acc": 1.0}}, "loss": [0.7118, 0.697, 0.6941, 0.6935, 0.6915, 0.689, 0.6871, 0.6858, 0.6845, 0.6827, 0.6801, 0.6768, 0.6731, 0.6692, 0.6653, 0.6613, 0.657, 0.6519, 0.6461, 0.6395, 0.632, 0.6237, 0.6146, 0.6048, 0.5943, 0.5831, 0.5711, 0.5584, 0.545, 0.5309, 0.516, 0.5006, 0.4847, 0.4684, 0.4519, 0.4353, 0.4186, 0.4019, 0.3853, 0.369, 0.3531, 0.3375, 0.3225, 0.3079, 0.2938, 0.2802, 0.2672, 0.2547, 0.2428, 0.2314, 0.2205, 0.2101, 0.2001, 0.1906, 0.1816, 0.173, 0.1648, 0.1571, 0.1497, 0.1428, 0.1363, 0.1301, 0.1243, 0.1189, 0.1138, 0.109, 0.1045, 0.1003, 0.0963, 0.0926, 0.089, 0.0857, 0.0826, 0.0796, 0.0768, 0.0741, 0.0716, 0.0692, 0.0669, 0.0648, 0.0627, 0.0608, 0.059, 0.0572, 0.0556, 0.054, 0.0525, 0.0511, 0.0497, 0.0484, 0.0471, 0.0459, 0.0447, 0.0436, 0.0426, 0.0415, 0.0406, 0.0396, 0.0387, 0.0378, 0.037, 0.0362, 0.0354, 0.0347, 0.034, 0.0333, 0.0326, 0.032, 0.0314, 0.0308, 0.0303, 0.0297, 0.0292, 0.0287, 0.0282, 0.0278, 0.0273, 0.0269, 0.0265, 0.0261, 0.0257, 0.0253, 0.0249, 0.0246, 0.0243, 0.0239, 0.0236, 0.0233, 0.023, 0.0227, 0.0224, 0.0222, 0.0219, 0.0216, 0.0214, 0.0211, 0.0209, 0.0206, 0.0204, 0.0202, 0.02, 0.0198, 0.0196, 0.0193, 0.0191, 0.019, 0.0188, 0.0186, 0.0184, 0.0182, 0.018, 0.0179, 0.0177, 0.0175, 0.0174, 0.0172, 0.0171, 0.0169, 0.0168, 0.0166, 0.0165, 0.0163, 0.0162, 0.016, 0.0159, 0.0158, 0.0156, 0.0155, 0.0154, 0.0152, 0.0151, 0.015, 0.0149, 0.0148, 0.0146, 0.0145, 0.0144, 0.0143, 0.0142, 0.0141, 0.014, 0.0139, 0.0138, 0.0137, 0.0136, 0.0135, 0.0134, 0.0133, 0.0132, 0.0131, 0.013, 0.0129, 0.0128, 0.0127, 0.0126, 0.0125, 0.0125, 0.0124, 0.0123, 0.0122, 0.0121, 0.012, 0.012, 0.0119, 0.0118, 0.0117, 0.0116, 0.0116, 0.0115, 0.0114, 0.0113, 0.0113, 0.0112, 0.0111, 0.011, 0.011, 0.0109, 0.0108, 0.0108, 0.0107, 0.0106, 0.0106, 0.0105, 0.0104, 0.0104, 0.0103, 0.0102, 0.0102, 0.0101, 0.0101, 0.01, 0.0099, 0.0099, 0.0098, 0.0098, 0.0097, 0.0096, 0.0096, 0.0095, 0.0095, 0.0094, 0.0094, 0.0093, 0.0092, 0.0092, 0.0091, 0.0091, 0.009, 0.009, 0.0089, 0.0089, 0.0088, 0.0088, 0.0087, 0.0087, 0.0086, 0.0086, 0.0085, 0.0085, 0.0084, 0.0084, 0.0083, 0.0083, 0.0082, 0.0082, 0.0081, 0.0081, 0.008, 0.008, 0.008, 0.0079, 0.0079, 0.0078, 0.0078, 0.0077, 0.0077, 0.0076, 0.0076, 0.0076, 0.0075, 0.0075, 0.0074, 0.0074, 0.0074, 0.0073, 0.0073, 0.0072, 0.0072, 0.0072, 0.0071, 0.0071, 0.007, 0.007, 0.007, 0.0069, 0.0069, 0.0069, 0.0068, 0.0068, 0.0067, 0.0067, 0.0067, 0.0066, 0.0066, 0.0066, 0.0065, 0.0065, 0.0065, 0.0064, 0.0064, 0.0064, 0.0063, 0.0063, 0.0063, 0.0062, 0.0062, 0.0062, 0.0061, 0.0061, 0.0061, 0.0061, 0.006, 0.006, 0.006, 0.0059, 0.0059, 0.0059, 0.0058, 0.0058, 0.0058, 0.0058, 0.0057, 0.0057, 0.0057, 0.0057, 0.0056, 0.0056, 0.0056, 0.0055, 0.0055, 0.0055, 0.0055, 0.0054, 0.0054, 0.0054, 0.0054, 0.0053, 0.0053, 0.0053, 0.0053, 0.0053, 0.0052, 0.0052, 0.0052, 0.0052, 0.0051, 0.0051, 0.0051, 0.0051, 0.005, 0.005, 0.005, 0.005, 0.005, 0.0049, 0.0049, 0.0049, 0.0049, 0.0049, 0.0048, 0.0048, 0.0048, 0.0048, 0.0048, 0.0047, 0.0047, 0.0047, 0.0047, 0.0047, 0.0046, 0.0046, 0.0046, 0.0046, 0.0046, 0.0045, 0.0045, 0.0045, 0.0045, 0.0045, 0.0045, 0.0044, 0.0044, 0.0044, 0.0044, 0.0044, 0.0044, 0.0043, 0.0043, 0.0043, 0.0043]}}, "ds": {"moons": {"X": [-0.3141, 0.3944, 0.4861, -0.1281, 1.7333, 2.085, -1.0826, 1.469, 0.5408, 2.0462, 1.2675, 0.8477, 1.1212, -0.7867, 0.009, 0.4416, 1.4316, 0.4253, 0.4764, -0.2187, -0.08, 0.8955, 0.2202, -0.8687, 0.72, 1.1378, 0.8518, 0.786, 1.9446, 0.571, -0.0875, 1.3635, 2.0118, 1.7482, 2.0258, -1.0147, 1.6603, -0.9594, -0.6989, 1.6915, 0.1387, -0.0875, 2.3036, 0.8906, -0.1899, 0.8793, -0.189, 0.6284, 1.986, 0.4282, -0.7659, -0.1766, -0.165, 0.0906, 0.5822, 1.5995, 1.468, 0.0772, 2.0556, 0.4595, 0.1443, -0.4629, -0.7577, 0.3109, 0.4419, 0.9516, 0.4401, 0.0877, -0.1901, -0.9194, -0.0482, -0.7791, 1.8288, 1.2433, 1.8539, -0.0494, 0.8754, -0.1277, -0.9743, -0.0455, 1.3003, -1.1448, -1.0004, 0.5323, 2.1876, 1.1806, -0.6065, 0.2898, 2.0756, 0.3672, -0.708, 0.5027, 1.6549, 1.8435, 1.3016, 0.2247, 1.9424, 2.0311, 0.8224, 1.855, -0.8594, 0.4892, -1.0962, 1.0943, 0.9242, -0.5908, -0.7898, 0.9548, 0.9095, -0.1169, 1.2348, 1.3802, -0.5754, -0.222, -0.3727, 1.5131, -1.0574, 0.3572, -0.1287, -0.1055, -0.535, -0.9161, 0.925, 1.2527, 0.9508, -0.8423, 1.531, 0.7854, 1.5988, 0.9996, 0.6446, -1.0699, 2.0021, -0.4061, 0.3347, 0.6521, 0.0341, 0.9646, 1.6416, -0.0204, 0.9108, 0.5198, -0.0849, 2.0167, -0.1935, 1.0052, 0.3528, 1.3181, 0.1803, -0.109, -0.025, 0.7464, -0.7047, 0.1886, 0.7747, 1.124, 1.8693, -0.0479, 0.9603, 0.3988, 1.7365, 0.448, 0.5398, -0.1005, 1.7333, 1.1917, -0.0516, 0.2673, 1.0468, -0.237, 0.808, -0.0887, -0.7399, 1.3546, 2.1842, 0.8574, -0.7231, -0.7318, -0.7905, -0.1667, 0.9454, 1.0998, 1.1253, 0.6154, 0.9545, -0.1412, 0.8519, 1.4197, 0.6545, 0.5706, -0.8453, 0.331, 0.6107, 1.8121, -0.5501, 0.5922, 0.7594, -0.9765, 0.9869, 0.3017, 0.8957, 1.3027, 0.9761, 0.2808, 0.1663, 0.4831, 0.2474, 0.1018, 0.8579, -0.3958, -0.1393, 0.5799, -0.0849, 0.5489, 0.1658, -0.324, -0.6094, 0.862, -0.302, 1.3973, 1.0571, 0.4463, 1.0159, -0.1121, 0.8552, -0.1025, 0.8677, 0.7942, 0.4594, 0.7567, 0.921, -0.1647, 0.4727, 0.0374, -0.1232, -0.3042, -0.2043, 1.1305, 1.0122, -0.071, 0.1318, 0.3078, 0.0304, 0.4775, 1.0465, 0.8119, 0.2411, 1.0497, 0.1869, -0.1075, -0.2108, -0.3465, -0.3761, 0.6921, 0.8539, 0.0285, -0.2153, 0.357, 0.638, -0.6045, 0.2462, 1.118, 0.9656, 1.2675, 0.423, 0.0314, -0.3527, 0.4916, 1.0476, 0.7763, 0.7101, 0.4087, 0.0897, -0.4932, -0.3667, -0.0553, 0.5931, 0.1045, -0.0013, -0.1087, -0.0526, 0.3621, 0.6847, -0.1226, 0.2719, 0.5976, 0.6062, -0.1732, -0.1419, 0.8725, -0.0556, 0.9173, 0.0854, -0.0843, -0.5641, 0.6271, 0.1077, 0.4421, -0.6514, -0.4024, 0.6769, 0.6269, 0.4401, -0.573, 0.2765, 1.1284, 0.4399, -0.1347, 0.1489, 0.0939, 0.1037, -0.3321, 0.5559, 0.8264, 1.0554, -0.498, 0.6273, 0.011, 0.4487, 0.8983, 0.6725, 0.0329, -0.5501, -0.5265, -0.4318, 0.4204, -0.1831, -0.4258, -0.5103, -0.0312, 0.7967, 0.0922, -0.0096, 0.5515, 0.0095, 1.0425, -0.0589, 0.2492, -0.6883, 0.5347, -0.7673, -0.4198, -0.0553, -0.0758, 0.8275, 0.2768, 0.662, -0.4428, -0.0128, 0.4637, 0.7475, 0.7481, 0.8371, 0.8333, 0.6767, 0.2011, -0.0873, 0.9968, -0.9415, 0.0145, 0.192, 0.5855, -0.0876, 0.0214, -0.5861, 0.3951, 0.962, 0.0999, 0.1678, 0.9318, 0.6884, 1.1645, 1.0224, 0.354, 0.3267, -0.6166, 0.2526, 0.0331, 0.7115, 1.2105, -0.299, -0.6043, -0.5457, -0.4599, -0.6394, 0.3383, 0.685, -0.0172, 0.9556, -0.2934, 0.7635, -0.5695, -0.5433, 0.4, 0.7373, -0.6303, -0.1599, 0.9085, -0.5298, 0.674], "y": [0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0], "x": [-1.6, 2.6], "yr": [-1.2, 1.7]}, "circles": {"X": [0.3791, -0.2344, 0.2786, 0.4131, 0.4851, 0.5403, 1.0052, -0.9709, 0.3543, -0.4189, 0.65, 0.7976, 0.6395, 0.0877, -0.0389, 0.9744, -0.8942, 0.7712, 0.3263, 0.7646, 0.2369, 0.0395, 0.8921, -0.1883, -0.1215, 0.0674, -0.8612, -0.6587, -1.0106, 0.0417, 0.1986, -0.4904, 0.9089, -0.7519, 0.1582, -0.1998, -0.0269, 0.1524, -0.2885, -1.012, -0.3629, -0.3804, 0.4921, 0.0211, 0.4539, -0.5084, -0.9425, -0.0364, -0.3131, 1.0068, -0.4064, 0.3692, 0.7988, 0.0691, 0.0532, 0.6733, -0.6218, 0.9389, -0.1449, 0.0667, 0.0691, -0.3208, 0.8416, -0.9064, -0.1388, 0.3921, 0.312, 0.3315, 0.1892, -0.3673, 0.2717, -0.4891, -0.3606, 0.3184, 1.0361, 0.2257, 0.52, -0.4343, -0.3198, 0.4474, -0.371, -0.638, -0.001, 0.127, -0.6525, 0.9714, -0.1614, -0.4296, 1.0212, 0.0928, 0.1938, -0.5776, -0.2412, -0.2824, 0.0484, -0.1615, -0.3099, 0.5301, -0.8763, 0.2743, 0.2855, -0.198, -0.1237, 0.4211, 0.8646, -0.4644, 0.1166, -0.9751, 0.4685, -0.4976, 0.7473, 1.1211, 0.2418, 0.6694, -0.0947, 0.4258, -0.3835, -0.5197, 0.4092, 0.5163, 0.7843, 0.554, 0.4413, 1.2228, 0.3931, -0.0754, -0.3218, -0.3918, -0.8006, 0.4575, -0.3608, -0.1499, -0.9785, 0.2014, 0.5859, -0.234, -0.9576, -0.3951, -0.8493, -0.4259, 0.1748, -0.2786, -0.1113, -0.6512, 0.6056, 0.8297, 0.4161, 0.2504, 0.5939, -0.0296, 0.148, -0.4681, -0.5327, -0.3627, 0.6218, -0.4007, -0.8049, -1.1889, 0.2629, -0.2729, -0.9007, -0.9856, 0.3153, 0.211, 0.2207, 0.4332, -1.1065, 0.9219, -0.4805, -0.3768, 0.1799, -0.7693, -0.4331, -0.8464, 0.4725, -1.1708, 0.4381, -0.1173, 0.9785, 0.371, -0.2089, -0.8031, -0.0118, -0.0179, -0.3998, -0.5187, -0.6499, -1.0049, 0.446, 1.0856, -0.0522, -0.3379, 0.8599, 0.2918, 0.0629, -1.0343, 0.2363, -0.1737, 0.6949, -0.0895, 0.3861, 0.9167, -0.4666, -0.0248, -0.2124, -0.8141, 0.4386, -0.2313, 0.331, 0.7987, 0.7984, -0.4229, 0.7901, 0.5669, -0.4261, 0.2968, 0.3317, 0.2448, 0.2664, 0.8341, 0.9739, 0.9899, 0.5109, 0.1724, -0.3989, -0.3389, 0.1239, -0.8223, 0.0982, 0.5123, -0.5195, -0.8226, 0.4953, -0.5884, -1.0136, -0.9764, 0.3676, -0.5809, 0.481, -0.0257, 0.2554, -0.1784, 0.2166, 0.3094, 0.287, 0.1009, 0.3645, 0.4329, 0.1892, 0.2621, -0.3195, 0.2458, 0.6294, -0.2484, 0.935, -0.7158, -0.7784, 0.3833, -0.4845, -0.5562, 0.8924, 0.3706, -0.4101, 0.5984, -0.4362, -1.0984, -0.4773, 0.1547, 0.2316, 0.2509, -0.4998, -0.3642, 0.0521, -0.905, -0.0554, 0.3954, -0.3497, 0.0171, -0.2221, -0.2418, 0.1286, 0.8143, -0.5687, -0.4795, -0.4581, 0.0538, 1.2195, 0.0117, -0.1782, 0.4886, 1.0051, -0.0749, -0.1739, 0.2043, -1.094, 0.969, -0.0463, 0.9726, -0.5771, -0.4551, 0.2924, 0.5234, 0.1138, -0.2162, -0.4581, -0.2215, 0.984, -0.3525, 0.8291, -0.0423, -0.5996, -0.2014, 0.4826, -0.1627, -1.0298, -0.248, -0.3913, 0.1716, -0.0821, -0.8444, -0.6079, -0.8221, 0.7432, -0.123, 0.2335, 0.6213, -0.3573, 0.5123, -0.6993, -0.9909, -0.9232, 0.3669, -0.1963, 0.9362, -0.6775, -1.0879, -0.8262, 0.8462, 0.5009, 0.4361, -0.9338, -0.1853, 0.8348, 0.9885, -0.1017, -0.3241, -0.9153, 0.2947, 0.33, -1.044, 0.483, -0.0363, 0.1332, -0.2085, 0.17, 0.2225, 0.7765, 0.2525, -0.3017, 0.2727, -0.0926, -0.1663, -0.957, -0.3138, 0.4329, -0.3936, 0.2058, -0.8864, -0.9415, -1.0022, -0.2421, -0.4873, 0.7468, 0.7657, -0.173, 0.0797, 0.1337, -0.2197, 0.3271, -0.0081, -0.3467, 0.616, 0.1748, 0.5305, 0.1002, 1.0313, -0.6752, 0.1207, -0.0793, 0.11, -0.4795, -0.3556, 0.3966, 0.0956, -1.088, 0.4193, 0.955, -0.9396, 0.6981, -0.3028], "y": [1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1], "x": [-1.45, 1.45], "yr": [-1.45, 1.45]}}, "grid": [120, 90], "epochs": [1, 5, 10, 25, 50, 100, 200, 400], "digits": {"kNN k=1": 0.9666666666666667, "neural net": 0.9733333333333334}};
+(function () {
+  "use strict";
+  var $ = Lab.$, esc = Lab.esc, P = MiniPy, D = LAB_DATA, C = Plot.C, CL = Plot.CLASS;
+  function pyRound(v, d) { return P.repr(P.evalExpr("round(v, " + d + ")", { v: P.F(v) }).value); }
+  function pct(v) { return (v * 100).toFixed(1) + "%"; }
+
+  /* ================= 1. Groups ================= */
+  Lab.renderCode($("#g-code"), ['model = make_pipeline(prep, KNeighborsClassifier())', 'X = st[num + ["dept"]]', 'st["pred"] = cross_val_predict(model, X, st["passed"], cv=5)', 'st["correct"] = st["pred"] == st["passed"]', 'print(st.groupby("dept")["correct"].mean().round(3))']);
+  var DEPTS = Object.keys(D.per).sort();
+  function seriesOut() { return "dept\n" + DEPTS.map(function (d) { return (d + "        ").slice(0, 8) + D.per[d].toFixed(3); }).join("\n") + "\nName: correct, dtype: float64"; }
+  $("#g-out").textContent = seriesOut();
+  (function () { var v = DEPTS.map(function (d) { return D.per[d]; }), gap = Math.max.apply(null, v) - Math.min.apply(null, v), lo = DEPTS[v.indexOf(Math.min.apply(null, v))], n = D.per_n[lo];
+    var st = $("#g-status"); st.className = "status"; st.innerHTML = "Largest gap: <b>" + (gap * 100).toFixed(1) + " percentage points</b> (" + lo + " lowest). With only " + n + " " + lo + " students, one student is " + pct(1 / n) + ", so a gap this size could be chance. A real check needs more data, and a reason for any gap before the model is used."; })();
+  var F_ = D.fair;
+  function fDraw() {
+    var i = +$("#f-s").value, f = F_[i]; $("#f-s-v").textContent = Math.round(f.share * 100) + "%";
+    var F = Plot.frame({ W: 560, H: 260, x: [0, 0.52], y: [0.6, 0.9], xlabel: "share of group B in the training data", ylabel: "test accuracy", xfmt: function (v) { return Math.round(v * 100) + "%"; }, yfmt: function (v) { return Math.round(v * 100) + "%"; } }), g = "";
+    g += Plot.path(F_.map(function (q) { return [F.X(q.share), F.Y(q.A)]; }), CL[0], 2.5) + Plot.path(F_.map(function (q) { return [F.X(q.share), F.Y(q.B)]; }), CL[1], 2.5);
+    F_.forEach(function (q, k) { g += Plot.dot(F.X(q.share), F.Y(q.A), k === i ? 7 : 4, CL[0], "#fff") + Plot.dot(F.X(q.share), F.Y(q.B), k === i ? 7 : 4, CL[1], "#fff"); });
+    g += Plot.line(F.X(f.share), F.Y(f.A), F.X(f.share), F.Y(f.B), C.red, 2, "4 3") + Plot.text(F.X(0.52) - 4, F.Y(F_[F_.length - 1].A) - 10, "group A", { anchor: "end", size: 12, bold: true, fill: CL[0] }) + Plot.text(F.X(0.01), F.Y(F_[0].B) + 18, "group B", { size: 12, bold: true, fill: CL[1] });
+    Plot.put($("#f-svg"), F.W, F.H, F.axes + g);
+    $("#f-a").textContent = pct(f.A); $("#f-b").textContent = pct(f.B); $("#f-gap").textContent = ((f.A - f.B) * 100).toFixed(1) + " pts";
+    var st = $("#f-status"), gap = f.A - f.B; st.className = "status " + (gap > 0.05 ? "bad" : "good");
+    st.innerHTML = "Logistic regression, 600 invented training rows, averaged over 10 data sets; tested on 4000 new rows, half from each group. " + (gap > 0.05 ? "The model mostly learned group A's pattern; group B pays for being rare." : "With equal shares the two groups are treated about the same, though group A loses a little: one model has to fit both patterns.");
+  }
+  $("#f-s").addEventListener("input", fDraw);
+  var CK = [["Baseline", "Does it clearly beat a simple guess?"], ["Honest test", "Was the test set used only once, at the end?"], ["Right metric", "Which mistake is costly, and is that metric reported?"], ["Groups", "Does it work similarly for different groups?"], ["Data match", "Does new data look like the training data (time, place, language)?"], ["Privacy", "Was the data collected with permission and anonymised?"]];
+  $("#ck").innerHTML = '<table class="t"><tr><th style="width:40px"></th><th>Check</th><th>Question to ask about your project</th></tr>' + CK.map(function (c) { return '<tr><td><input type="checkbox"></td><td><b>' + c[0] + "</b></td><td>" + c[1] + "</td></tr>"; }).join("") + "</table>";
+
+  /* ================= 2. Privacy ================= */
+  var PCOLS = [["name", "name"], ["phone", "phone"], ["sid", "student ID"], ["dept", "dept"], ["year", "year"], ["gender", "gender"], ["district", "home district"], ["born", "birth year"], ["hall", "hall"], ["mark", "exam mark"]];
+  var BARISHAL = ["Barishal", "Patuakhali", "Bhola", "Pirojpur", "Jhalokati", "Barguna"];
+  $("#p-cols").innerHTML = PCOLS.map(function (c) { return '<label class="small"><input type="checkbox" data-c="' + c[0] + '" checked> ' + c[1] + "</label>"; }).join("");
+  function shown() { return PCOLS.filter(function (c) { return document.querySelector('#p-cols [data-c="' + c[0] + '"]').checked; }).map(function (c) { return c[0]; }); }
+  function val(p, c) { if (c === "born" && $("#p-g-born").checked) return p.born <= 2004 ? "2004 or earlier" : "2005 or later"; if (c === "district" && $("#p-g-dist").checked) return BARISHAL.indexOf(p.district) >= 0 ? "Barishal division" : "other"; return p[c]; }
+  function groupSizes(cols) { var key = cols.filter(function (c) { return c !== "mark"; }), cnt = {}; D.people.forEach(function (p) { var k = key.map(function (c) { return val(p, c); }).join("|"); cnt[k] = (cnt[k] || 0) + 1; });
+    return D.people.map(function (p) { return cnt[key.map(function (c) { return val(p, c); }).join("|")]; }); }
+  function pDraw() {
+    var cols = shown(), gs = groupSizes(cols), uniq = gs.filter(function (s) { return s === 1; }).length, kmin = Math.min.apply(null, gs);
+    $("#p-table").innerHTML = "<tr>" + cols.map(function (c) { return "<th>" + PCOLS.filter(function (q) { return q[0] === c; })[0][1] + "</th>"; }).join("") + "</tr>" + D.people.slice(0, 6).map(function (p) { return "<tr>" + cols.map(function (c) { return '<td class="m" style="white-space:nowrap">' + esc(val(p, c)) + "</td>"; }).join("") + "</tr>"; }).join("");
+    $("#p-u").textContent = uniq + " / " + D.people.length; $("#p-k").textContent = cols.filter(function (c) { return c !== "mark"; }).length ? kmin : "150";
+    var bins = [0, 0, 0, 0, 0]; gs.forEach(function (s) { bins[Math.min(4, s - 1)]++; });
+    var F = Plot.frame({ W: 560, H: 260, x: [0.4, 5.6], y: [0, 150], xticks: [1, 2, 3, 4, 5], xfmt: function (v) { return v === 5 ? "5 or more" : String(v); }, xlabel: "people with exactly the same values (including the person)", ylabel: "people" }), g = "";
+    bins.forEach(function (b, i) { var x0 = F.X(i + 1 - 0.32), w = F.X(0.64) - F.X(0); g += '<rect x="' + x0 + '" y="' + F.Y(b) + '" width="' + w + '" height="' + (F.Y(0) - F.Y(b)) + '" fill="' + (i === 0 ? C.red : i < 2 ? C.orange : C.teal) + '" opacity=".85"/>' + Plot.text(x0 + w / 2, F.Y(b) - 5, String(b), { anchor: "middle", size: 12, bold: true }); });
+    Plot.put($("#p-svg"), F.W, F.H, F.axes + g);
+    var direct = cols.filter(function (c) { return ["name", "phone", "sid"].indexOf(c) >= 0; }), st = $("#p-status");
+    st.className = "status " + (uniq > 0 ? "bad" : "good");
+    st.innerHTML = direct.length ? "<b>Direct identifiers shared</b> (" + direct.map(function (c) { return PCOLS.filter(function (q) { return q[0] === c; })[0][1]; }).join(", ") + "): every row points to a named person. Remove them first." :
+      uniq ? "<b>" + uniq + " people are still unique</b> without any name. Someone who knows a classmate's " + cols.filter(function (c) { return c !== "mark"; }).map(function (c) { return PCOLS.filter(function (q) { return q[0] === c; })[0][1]; }).join(", ") + " can find that classmate's row" + (cols.indexOf("mark") >= 0 ? ", and so the exam mark." : ".") :
+      "Nobody is unique: every person shares their values with at least " + (kmin - 1) + " other" + (kmin > 2 ? "s" : "") + ". The exam mark can no longer be linked to one person this way.";
+  }
+  $("#p-cols").addEventListener("change", pDraw); $("#p-g-born").addEventListener("change", pDraw); $("#p-g-dist").addEventListener("change", pDraw);
+
+  /* ================= 3. One neuron ================= */
+  var NIN = [["hours", 0, 12, 0.1, 6], ["attendance", 0, 1, 0.01, 0.9], ["GPA", 0, 4, 0.01, 3.2]], NW = [["w hours", -3, 3, 0.1, 0.5], ["w attendance", -3, 3, 0.1, 2.0], ["w GPA", -3, 3, 0.1, 1.0], ["bias", -10, 5, 0.1, -5]];
+  function sliders(host, list, pre) { $(host).innerHTML = list.map(function (q, i) { return '<div class="row" style="margin:4px 0"><label class="lab" style="width:150px" for="' + pre + i + '">' + q[0] + ' = <b class="mono" id="' + pre + i + '-v"></b></label><input type="range" id="' + pre + i + '" min="' + q[1] + '" max="' + q[2] + '" step="' + q[3] + '" value="' + q[4] + '" style="flex:1"></div>'; }).join(""); }
+  sliders("#n-in", NIN, "ni"); sliders("#n-w", NW, "nw");
+  function num(id) { return +$("#" + id).value; }
+  function fmt(v) { return pyRound(v, 2); }
+  var ST = D.students, med = function (a) { var s = a.filter(function (v) { return v !== null; }).sort(function (x, y) { return x - y; }), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }, mh = med(ST.h), mg = med(ST.g);
+  function neuron(x, w, b) { return x[0] * w[0] + x[1] * w[1] + x[2] * w[2] + b; }
+  function nDraw() {
+    var x = [0, 1, 2].map(function (i) { return num("ni" + i); }), w = [0, 1, 2].map(function (i) { return num("nw" + i); }), b = num("nw3"), act = $("#n-act").value;
+    NIN.forEach(function (q, i) { $("#ni" + i + "-v").textContent = fmt(x[i]); }); NW.forEach(function (q, i) { $("#nw" + i + "-v").textContent = fmt(i < 3 ? w[i] : b); });
+    var prod = x.map(function (v, i) { return v * w[i]; }), tot = prod[0] + prod[1] + prod[2] + b, out = act === "step" ? (tot > 0 ? 1 : 0) : 1 / (1 + Math.exp(-tot));
+    var W = 560, H = 300, g = "", ys = [60, 150, 240], nx = 360, ny = 150;
+    ys.forEach(function (y, i) { var c = prod[i] >= 0 ? C.blue : C.red, sw = Math.min(10, 1.5 + Math.abs(prod[i]) * 1.6);
+      g += Plot.line(110, y, nx - 46, ny, c, sw, null, ' opacity=".75"') + '<circle cx="70" cy="' + y + '" r="34" fill="#EEF2F9" stroke="' + C.navy + '" stroke-width="1.5"/>' + Plot.text(70, y - 6, NIN[i][0], { anchor: "middle", size: 9.5, fill: C.muted }) + Plot.text(70, y + 12, fmt(x[i]), { anchor: "middle", size: 15, bold: true, mono: true });
+      var mx = (110 + nx - 46) / 2, my = (y + ny) / 2; g += '<rect x="' + (mx - 34) + '" y="' + (my - 22) + '" width="68" height="20" rx="4" fill="#fff" stroke="' + c + '"/>' + Plot.text(mx, my - 7, "×" + fmt(w[i]), { anchor: "middle", size: 12, bold: true, mono: true, fill: c }); });
+    g += '<circle cx="' + nx + '" cy="' + ny + '" r="46" fill="' + C.navy + '"/>' + Plot.text(nx, ny - 14, "Σ + bias", { anchor: "middle", size: 12, fill: "#C9D7F2" }) + Plot.text(nx, ny + 4, fmt(tot), { anchor: "middle", size: 18, bold: true, mono: true, fill: "#fff" }) + Plot.text(nx, ny + 22, "bias " + fmt(b), { anchor: "middle", size: 11, fill: "#C9D7F2" });
+    g += Plot.line(nx + 46, ny, 470, ny, C.navy, 3) + '<rect x="470" y="' + (ny - 30) + '" width="74" height="60" rx="10" fill="' + (out >= 0.5 ? "#C3E3DD" : "#F6D9D2") + '" stroke="' + C.navy + '"/>' + Plot.text(507, ny - 8, "output", { anchor: "middle", size: 11, fill: C.muted }) + Plot.text(507, ny + 16, act === "step" ? String(out) : pyRound(out, 3), { anchor: "middle", size: 20, bold: true, mono: true });
+    Plot.put($("#n-svg"), W, H, g);
+    $("#n-table").innerHTML = "<tr><th>input</th><th>value</th><th>weight</th><th>value × weight</th></tr>" + NIN.map(function (q, i) { return '<tr><td>' + q[0] + '</td><td class="m">' + fmt(x[i]) + '</td><td class="m">' + fmt(w[i]) + '</td><td class="m">' + fmt(prod[i]) + "</td></tr>"; }).join("") +
+      '<tr><td>bias</td><td></td><td></td><td class="m">' + fmt(b) + '</td></tr><tr class="hi"><td><b>total</b></td><td></td><td></td><td class="m"><b>' + fmt(tot) + '</b></td></tr><tr><td><b>output</b></td><td></td><td></td><td class="m"><b>' + (act === "step" ? out : pyRound(out, 3)) + "</b></td></tr>";
+    var st = $("#n-status"); st.className = "status " + (out >= 0.5 ? "good" : "bad");
+    st.innerHTML = act === "step" ? "Total " + fmt(tot) + (tot > 0 ? " > 0, so the output is <b>1</b> (predict: passes)." : " ≤ 0, so the output is <b>0</b> (predict: does not pass).") : "sigmoid(" + fmt(tot) + ") = " + pyRound(out, 3) + ": read it as a " + Math.round(out * 100) + "% chance of passing. Logistic regression is exactly one such neuron.";
+    var agree = 0; ST.p.forEach(function (p, i) { var t = neuron([ST.h[i] === null ? mh : ST.h[i], ST.a[i] / 100, ST.g[i] === null ? mg : ST.g[i]], w, b); if ((t > 0 ? 1 : 0) === p) agree++; });
+    $("#n-cls").textContent = "With these weights and bias, the neuron agrees with the real result for " + agree + " of the 150 invented students in students.csv (attendance as a fraction, missing values filled with the median).";
+  }
+  $("#n-in").addEventListener("input", nDraw); $("#n-w").addEventListener("input", nDraw); $("#n-act").addEventListener("change", nDraw);
+  $("#n-slide").addEventListener("click", function () { NIN.forEach(function (q, i) { $("#ni" + i).value = q[4]; }); NW.forEach(function (q, i) { $("#nw" + i).value = q[4]; }); $("#n-act").value = "step"; nDraw(); });
+
+  /* ================= 4. Small network ================= */
+  var EP = D.epochs, RGB = [[201, 215, 242], [248, 221, 194]];
+  function mDraw() {
+    var d = $("#m-d").value, hn = $("#m-h").value, e = EP[+$("#m-e").value], N = D.nets[d + "|" + hn], S = N.snaps[e], DS = D.ds[d], GW = D.grid[0], GH = D.grid[1];
+    $("#m-e-v").textContent = e;
+    if (!S.dec) S.dec = Plot.rleDecode(S.map);
+    var cv = document.createElement("canvas"); cv.width = GW; cv.height = GH; var cx = cv.getContext("2d"), img = cx.createImageData(GW, GH);
+    for (var r = 0; r < GH; r++) for (var c = 0; c < GW; c++) { var k = +S.dec[r * GW + c], o = ((GH - 1 - r) * GW + c) * 4; img.data[o] = RGB[k][0]; img.data[o + 1] = RGB[k][1]; img.data[o + 2] = RGB[k][2]; img.data[o + 3] = 255; }
+    cx.putImageData(img, 0, 0);
+    var F = Plot.frame({ W: 560, H: 420, x: DS.x, y: DS.yr, xlabel: "feature 1", ylabel: "feature 2" }), dx = (DS.x[1] - DS.x[0]) / (GW - 1) / 2, dy = (DS.yr[1] - DS.yr[0]) / (GH - 1) / 2;
+    var g = '<image href="' + cv.toDataURL() + '" x="' + F.X(DS.x[0] - dx) + '" y="' + F.Y(DS.yr[1] + dy) + '" width="' + (F.X(DS.x[1] + dx) - F.X(DS.x[0] - dx)) + '" height="' + (F.Y(DS.yr[0] - dy) - F.Y(DS.yr[1] + dy)) + '" preserveAspectRatio="none" style="image-rendering:pixelated" ' + F.clip + "/>";
+    var n = DS.y.length; for (var i = 0; i < n; i++) g += Plot.dot(F.X(DS.X[i]), F.Y(DS.X[n + i]), 4.5, CL[DS.y[i]], "#fff");
+    Plot.put($("#m-svg"), F.W, F.H, F.axes + g);
+    var L = N.loss, top = Math.max.apply(null, L) * 1.05, G = Plot.frame({ W: 560, H: 220, x: [0, 400], y: [0, top], xlabel: "epoch", ylabel: "loss" }), s = Plot.path(L.map(function (v, i) { return [G.X(i + 1), G.Y(v)]; }), C.purple, 2.2);
+    s += Plot.line(G.X(e), G.Y(0), G.X(e), G.Y(top), C.orange, 1.5, "4 3") + Plot.dot(G.X(e), G.Y(L[e - 1]), 6, C.orange, "#fff");
+    Plot.put($("#m-loss-svg"), G.W, G.H, G.axes + s);
+    $("#m-acc").textContent = pct(S.acc); $("#m-loss").textContent = pyRound(L[e - 1], 3);
+    var st = $("#m-status"), fin = N.snaps[EP[EP.length - 1]].acc;
+    st.className = "status" + (S.acc >= 0.95 ? " good" : S.acc <= 0.6 ? " bad" : "");
+    st.innerHTML = S.acc <= 0.6 ? "Barely better than guessing" + (e < 50 ? ": training has only just started." : ". With " + hn + " hidden neuron" + (hn === "1" ? "" : "s") + " the border cannot take the shape it needs.") : S.acc >= 0.95 ? "The border now follows the shape of the data: " + pct(S.acc) + " of the training points correct." : "Learning: " + pct(S.acc) + " correct. After 400 epochs this network reaches " + pct(fin) + ".";
+  }
+  ["#m-d", "#m-h"].forEach(function (id) { $(id).addEventListener("change", mDraw); }); $("#m-e").addEventListener("input", mDraw);
+  $("#m-dig").textContent = "kNN k=1 " + pyRound(D.digits["kNN k=1"], 3) + "\nneural net " + pyRound(D.digits["neural net"], 3);
+
+  window.L14TEST = { vals: function () {
+    var priv = {}; [["dept", "year", "gender", "district", "born"], ["dept", "year", "gender"], ["dept", "gender", "hall", "district"]].forEach(function (cols) { priv[cols.join(",")] = groupSizes(cols).filter(function (s) { return s === 1; }).length; });
+    var w = [0.5, 2.0, 1.0], b = -5, agree = 0; ST.p.forEach(function (p, i) { if ((neuron([ST.h[i] === null ? mh : ST.h[i], ST.a[i] / 100, ST.g[i] === null ? mg : ST.g[i]], w, b) > 0 ? 1 : 0) === p) agree++; });
+    return { slide5: seriesOut(), digits: $("#m-dig").textContent, priv: priv, slide9: pyRound(neuron([6, 0.9, 3.2], w, b), 2), agree: agree };
+  } };
+  document.addEventListener("DOMContentLoaded", function () { fDraw(); pDraw(); nDraw(); mDraw(); });
+})();
+</script></body></html>

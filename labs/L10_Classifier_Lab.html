@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Classifier Lab · Lecture 10</title>
+<style>:root{
+  --navy:#15213A; --navy2:#1E2D4D; --blue:#2459C4; --bsoft:#E3EAF8; --orange:#E07A1F; --oink:#A4520C; --osoft:#FBE3CC;
+  --teal:#1F8A7A; --tink:#17695D; --tsoft:#E3F2EF; --red:#B4432A; --rsoft:#F8E1DB; --ink:#15213A; --muted:#5D6573;
+  --panel:#F3F5F9; --line:#D5DBE6; --bg:#EEF1F6; --card:#FFFFFF; --code:#1B2742; --codefg:#E8ECF4; --hl:#FFE3B8;
+  --sans:"Segoe UI",Calibri,Carlito,"Helvetica Neue",Arial,sans-serif; --mono:Consolas,"Courier New","Liberation Mono",monospace;
+  box-sizing:border-box;
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+code,.mono{font-family:var(--mono)}
+.top{background:var(--navy);color:#fff;padding:18px 28px 16px;display:flex;gap:24px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.top .kicker{color:var(--orange);font-weight:700;letter-spacing:.12em;font-size:13px;text-transform:uppercase}
+.top h1{margin:2px 0 2px;font-size:30px;line-height:1.15;font-family:Arial,"Helvetica Neue",sans-serif}
+.top p{margin:0;color:#D9DEE8;font-size:16px}
+.top .meta{text-align:right;color:#B9C1D0;font-size:13px;line-height:1.5}
+.tabs{display:flex;gap:6px;padding:10px 28px 0;background:var(--navy);flex-wrap:wrap}
+.tabs button{background:#22335A;color:#D9DEE8;border:0;border-radius:10px 10px 0 0;padding:10px 16px;cursor:pointer;font-weight:600;font-size:15px}
+.tabs button .n{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#33477A;color:#fff;align-items:center;justify-content:center;font-size:12px;margin-right:8px}
+.tabs button[aria-selected="true"]{background:var(--bg);color:var(--ink)}
+.tabs button[aria-selected="true"] .n{background:var(--orange)}
+.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+main{max-width:1320px;margin:0 auto;padding:20px 28px 40px}
+.exp{display:none}.exp.on{display:block}
+.exp-head h2{margin:0 0 4px;font-size:24px;font-family:Arial,"Helvetica Neue",sans-serif}
+.exp-head p{margin:0 0 16px;color:var(--muted);max-width:90ch}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:18px;align-items:start}
+.grid.even{grid-template-columns:1fr 1fr}
+.grid.wide-right{grid-template-columns:minmax(0,4fr) minmax(0,7fr)}
+@media (max-width:900px){.grid,.grid.even,.grid.wide-right{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.panel h3{margin:0 0 10px;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:0;border-radius:9px;padding:9px 16px;cursor:pointer;font-weight:700;background:var(--navy);color:#fff}
+.btn.alt{background:var(--bsoft);color:var(--ink)}.btn.warm{background:var(--orange);color:var(--navy)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:6px 12px;font-size:14px}
+select,input[type=text],input[type=number],textarea{border:2px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff}
+input[type=number]{width:92px}
+input[type=range]{width:100%;accent-color:var(--orange)}
+label.lab{font-weight:700;font-size:14px;color:var(--muted)}
+.code{background:var(--code);color:var(--codefg);border-radius:12px;padding:12px 0;font-family:var(--mono);font-size:17px;overflow:auto}
+.code .ln{display:flex;padding:1px 14px 1px 0;white-space:pre;min-height:1.5em;border-left:5px solid transparent}
+.code .ln .no{width:38px;text-align:right;padding-right:12px;color:#7F8BA6;flex:none;user-select:none}
+.code .ln.cur{background:rgba(224,122,31,.28);border-left-color:var(--orange)}
+.code .ln.done{color:#B9C3D8}
+.code .ln.skip{color:#6E7891;text-decoration:line-through;text-decoration-color:#6E7891}
+.code .ln.err{background:rgba(180,67,42,.45);border-left-color:#F08A70}
+.code .kw{color:#F5AD69}.code .st{color:#A8D8A8}.code .nu{color:#9FC1E6}.code .cm{color:#7F8BA6;font-style:italic}.code .fn{color:#E8C27A}
+textarea.editor{width:100%;min-height:210px;font-family:var(--mono);font-size:17px;line-height:1.5;background:var(--code);color:var(--codefg);border:2px solid var(--code);border-radius:12px;padding:12px 14px;resize:vertical;tab-size:4}
+.out{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-family:var(--mono);font-size:16px;min-height:52px;white-space:pre-wrap;word-break:break-word}
+.out .e{color:var(--red);font-weight:700}.out .hint{color:var(--oink)}
+.out .label{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--muted);display:block;margin-bottom:2px}
+.status{border-left:6px solid var(--blue);background:var(--bsoft);padding:9px 14px;border-radius:0 10px 10px 0;margin:12px 0;min-height:46px}
+.status.bad{border-left-color:var(--red);background:var(--rsoft)}.status.good{border-left-color:var(--teal);background:var(--tsoft)}
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+@media (max-width:900px){.notes{grid-template-columns:1fr}}
+.notice{background:var(--osoft);border-radius:14px;padding:14px 18px}
+.notice h4,.try h4{margin:0 0 6px;font-size:16px}
+.notice ul{margin:0;padding-left:20px}
+.try{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.try label{display:flex;gap:10px;align-items:flex-start;margin:6px 0;cursor:pointer}
+.try input{margin-top:5px;accent-color:var(--teal);width:18px;height:18px;flex:none}
+.try label.done span{color:var(--muted);text-decoration:line-through}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 11px;font-size:13px;font-weight:700;background:var(--panel);border:1px solid var(--line);white-space:nowrap}
+.chip.t{background:var(--tsoft);color:var(--tink);border-color:#B9DCD5}.chip.f{background:var(--rsoft);color:var(--red);border-color:#EBC2B8}.chip.n{color:var(--muted)}
+.chip.int{background:var(--bsoft);color:var(--blue);border-color:#C3D2EF}.chip.float{background:#EDE3F7;color:#6B3FA0;border-color:#D7C5EC}.chip.str{background:var(--tsoft);color:var(--tink);border-color:#B9DCD5}.chip.bool{background:var(--osoft);color:var(--oink);border-color:#F1CDA9}.chip.list,.chip.tuple,.chip.NoneType{background:var(--panel);color:var(--muted)}
+table.t{border-collapse:collapse;width:100%;font-size:16px}
+table.t th{background:var(--navy);color:#fff;text-align:left;padding:7px 10px;font-size:14px}
+table.t td{border-bottom:1px solid var(--line);padding:7px 10px;vertical-align:middle}
+table.t tr.hi td{background:var(--hl)}
+table.t td.m{font-family:var(--mono)}
+.muted{color:var(--muted)}.small{font-size:14px}
+.big{font-size:34px;font-weight:700;font-family:Arial,sans-serif}
+.foot{max-width:1320px;margin:0 auto;padding:0 28px 30px;color:var(--muted);font-size:13px}
+@keyframes flash{0%{background:var(--hl)}100%{background:transparent}}
+.flash{animation:flash 1.2s ease-out}
+@media (prefers-reduced-motion:reduce){.flash{animation:none}*{transition:none!important}}
+[hidden]{display:none!important}
+</style></head><body>
+<header class="top"><div><div class="kicker">Lecture 10 · Interactive lab</div><h1>Classifier Lab</h1><p>Vote with k nearest neighbours, see decision boundaries, and follow a decision tree&#x27;s questions</p></div>
+<div class="meta">Introduction to Data Science and Machine Learning<br>Md Mahbub E Noor · University of Barishal<br><a href="START_HERE.html" style="color:#F5AD69">All labs</a></div></header>
+<nav class="tabs" role="tablist"><button role="tab" data-tab="t1"><span class="n">1</span>k-NN by hand</button><button role="tab" data-tab="t2"><span class="n">2</span>Decision boundaries</button><button role="tab" data-tab="t3"><span class="n">3</span>Read the tree</button><button role="tab" data-tab="t4"><span class="n">4</span>Compare the models</button></nav>
+<main><section class="exp" id="t1">
+  <div class="exp-head"><h2>k-NN by hand: let the nearest neighbours vote</h2>
+  <p>Click anywhere on the plane to move the new point <b>?</b>. The circle grows until it holds k neighbours; they vote, and the majority wins.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <div class="row"><label class="lab" style="width:90px" for="k-k">k = <b id="k-k-v"></b></label><input type="range" id="k-k" min="1" max="6" value="3" style="flex:1"></div>
+      <div class="row" style="margin-top:8px"><span class="lab">Clicking the plane</span>
+        <label class="small"><input type="radio" name="k-mode" value="move" checked> moves ?</label>
+        <label class="small"><input type="radio" name="k-mode" value="A"> adds an A point</label>
+        <label class="small"><input type="radio" name="k-mode" value="B"> adds a B point</label></div>
+      <div class="row" style="margin-top:8px"><button class="btn alt sm" id="k-slide">Slide 4: (3, 5.5)</button><button class="btn alt sm" id="k-hw">Homework 10.1: (4, 4)</button><button class="btn alt sm" id="k-reset">Reset the six points</button></div>
+      <table class="t" id="k-table" style="margin-top:12px"></table>
+      <div class="status" id="k-status"></div>
+    </div>
+    <div class="panel"><svg id="k-svg" width="100%" style="cursor:crosshair" role="img" aria-label="Labelled points, the new point and the k nearest neighbours"></svg></div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>Distance = √((x₁ − x₂)² + (y₁ − y₂)²): straight-line distance on the plane.</li>
+      <li>Same data, different k, different answer: k = 1 says B, k = 3 says A.</li>
+      <li>With an even k the vote can tie. scikit-learn then picks the class that comes first (A).</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Homework 10.1: predict (4, 4) with k = 1, 3 and 5 by hand, then check here.</span></label>
+      <label><input type="checkbox"><span>Find a spot where k = 1, 3 and 5 all give different answers… or prove it cannot happen with two classes.</span></label>
+      <label><input type="checkbox"><span>Add one B point so that the slide's answer for k = 3 changes.</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t2">
+  <div class="exp-head"><h2>Decision boundaries: where the model's answer changes</h2>
+  <p>Every pixel is coloured by the class the model would predict there. Models are trained on the lecture's training split of the iris data (70%), using only two measurements so we can draw them.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <div class="row"><label class="lab" for="b-pair">Measurements</label><select id="b-pair"><option value="sepal">sepal length and width (overlap)</option><option value="petal">petal length and width (clear)</option></select></div>
+      <div class="row" style="margin-top:10px"><label class="lab" for="b-model">Model</label><select id="b-model"><option value="knn">k-nearest neighbours</option><option value="tree">decision tree</option></select></div>
+      <div class="row" style="margin-top:10px"><label class="lab" style="width:130px" for="b-p"><span id="b-p-name">k</span> = <b id="b-p-v"></b></label><input type="range" id="b-p" min="0" max="9" value="0" style="flex:1"></div>
+      <label class="small" style="display:block;margin-top:8px"><input type="checkbox" id="b-test" checked> show test flowers (hollow circles)</label>
+      <div class="code" id="b-code" style="margin-top:10px;font-size:14px"></div>
+      <div class="row" style="margin-top:12px;gap:22px">
+        <div><div class="small muted">training accuracy</div><div class="big" id="b-tr"></div></div>
+        <div><div class="small muted">test accuracy</div><div class="big" id="b-te"></div></div>
+      </div>
+      <div class="status" id="b-status"></div>
+    </div>
+    <div class="panel"><svg id="b-svg" width="100%" role="img" aria-label="Decision regions with the iris flowers"></svg>
+      <div class="row small" style="gap:16px;margin-top:6px"><span><span class="chip" style="background:#C9D7F2;border-color:#2459C4">setosa</span></span><span><span class="chip" style="background:#F8DDC2;border-color:#E07A1F">versicolor</span></span><span><span class="chip" style="background:#C3E3DD;border-color:#1F8A7A">virginica</span></span><span class="muted">filled = training flower, hollow = test flower</span></div></div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>k = 1 draws jagged islands around single flowers: almost 100% on training data, worse on test data. (Not quite 100% with sepals: some flowers have identical measurements but different species.)</li>
+      <li>Large k smooths the regions; very large k ignores real detail.</li>
+      <li>A tree cuts the plane with straight horizontal and vertical lines, one question at a time.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>On the sepal measurements, find the k with the best test accuracy.</span></label>
+      <label><input type="checkbox"><span>Homework 10.4: compare a tree of depth 2 and depth 10. Describe the difference in one sentence.</span></label>
+      <label><input type="checkbox"><span>Why are the petal measurements so much easier for every model?</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t3">
+  <div class="exp-head"><h2>Read the tree: follow the questions for one flower</h2>
+  <p>A tree trained on all four measurements (the lecture's split). Move the sliders to describe a flower and watch its path light up.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <div class="row"><label class="lab" for="t-depth">max_depth</label><select id="t-depth"><option>1</option><option selected>2</option><option>3</option><option>4</option></select>
+        <span class="small muted" id="t-acc"></span></div>
+      <div id="t-sliders" style="margin-top:10px"></div>
+      <div class="row" style="margin-top:8px" id="t-presets"></div>
+      <div class="status" id="t-status"></div>
+      <div class="out" id="t-text" style="font-size:14px"></div>
+    </div>
+    <div class="panel"><svg id="t-svg" width="100%" role="img" aria-label="The decision tree with this flower's path highlighted"></svg></div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>Each box asks one yes/no question. Yes (≤) goes left, no goes right.</li>
+      <li>The coloured bar shows the training flowers that reached the box; leaves answer with the majority.</li>
+      <li>Nobody typed these rules: the tree chose the questions that made each side as pure as possible.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Slide 11: check the three flowers. Do you get 0, 1 and 2?</span></label>
+      <label><input type="checkbox"><span>With depth 2, does sepal length ever change the answer? Why not?</span></label>
+      <label><input type="checkbox"><span>Press "a random test flower" until the tree gets one wrong. Which leaf was it in?</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t4">
+  <div class="exp-head"><h2>Compare the models: complexity, and the scale of the features</h2>
+  <p>All four measurements, the lecture's split. Training accuracy always rewards complexity; test accuracy tells the truth.</p></div>
+  <div class="grid even">
+    <div class="panel"><h3>k-NN: accuracy as k grows</h3><svg id="c-knn" width="100%" role="img" aria-label="Training and test accuracy against k"></svg>
+      <div class="row"><label class="lab" style="width:80px" for="c-k">k = <b id="c-k-v"></b></label><input type="range" id="c-k" min="1" max="60" value="5" style="flex:1"></div><div class="small" id="c-k-out"></div></div>
+    <div class="panel"><h3>Decision tree: accuracy as depth grows</h3><svg id="c-tree" width="100%" role="img" aria-label="Training and test accuracy against depth"></svg>
+      <div class="row"><label class="lab" style="width:110px" for="c-d">max_depth = <b id="c-d-v"></b></label><input type="range" id="c-d" min="1" max="10" value="3" style="flex:1"></div><div class="small" id="c-d-out"></div></div>
+  </div>
+  <div class="panel" style="margin-top:16px"><h3>Change the units of one measurement (cm → mm is × 10)</h3>
+    <div class="row"><label class="lab" for="c-feat">Feature</label><select id="c-feat"></select><label class="lab" for="c-f">multiply by</label><select id="c-f"><option>0.01</option><option>0.1</option><option selected>1</option><option>10</option><option>100</option></select></div>
+    <div class="row" style="margin-top:12px;gap:30px">
+      <div><div class="small muted">k-NN (k = 5), test accuracy</div><div class="big" id="c-sk"></div></div>
+      <div><div class="small muted">tree (depth 3), test accuracy</div><div class="big" id="c-st"></div></div>
+    </div>
+    <div class="status" id="c-status"></div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>k = 1 and deep trees score 100% on training data: they memorise.</li>
+      <li>k-NN measures distance, so a feature with bigger numbers dominates the vote. Trees only compare one feature with a threshold, so units do not matter.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Which k and which depth would you choose? Use the test curve only after deciding how (Lecture 11 shows the honest way).</span></label>
+      <label><input type="checkbox"><span>Multiply sepal width by 100. What happens to k-NN, and why?</span></label>
+    </div>
+  </div>
+</section>
+</main>
+<p class="foot">Works offline: no internet needed. The data and the trained models are built into this page. Every number was calculated with scikit-learn and checked, so it matches what you will see in Jupyter or Colab.</p>
+<script>/* minipy: a small, faithful subset of Python 3 for teaching labs.
+   Values: int (BigInt), float, bool, str, NoneType, list, tuple, dict, builtin, module, function (hook).
+   Statements: assignment, augmented assignment, tuple unpacking, expression statements.
+   Errors mirror CPython 3.12 messages. */
+var MiniPy = (function () {
+  "use strict";
+  function PyError(type, msg) { this.type = type; this.msg = msg; }
+  PyError.prototype.toString = function () { return this.type + (this.msg ? ": " + this.msg : ""); };
+
+  var NONE = { t: "NoneType" };
+  function I(n) { return { t: "int", v: BigInt(n) }; }
+  function F(x) { return { t: "float", v: x }; }
+  function B(b) { return { t: "bool", v: !!b }; }
+  function S(s) { return { t: "str", v: s }; }
+  function L(a) { return { t: "list", v: a }; }
+  function T(a) { return { t: "tuple", v: a }; }
+  function D() { return { t: "dict", m: new Map() }; }
+  function hashKey(v) {
+    switch (v.t) {
+      case "int": return "n:" + v.v.toString();
+      case "bool": return "n:" + (v.v ? "1" : "0");
+      case "float": return Number.isInteger(v.v) ? "n:" + BigInt(v.v).toString() : "f:" + v.v;
+      case "str": return "s:" + v.v;
+      case "NoneType": return "N";
+      case "tuple": return "t:(" + v.v.map(hashKey).join(",") + ")";
+    }
+    if (v.t === "list" || v.t === "dict") throw new PyError("TypeError", "unhashable type: '" + v.t + "'");
+    return "o:" + objId(v);
+  }
+  var ids = new WeakMap(), idNext = 0;
+  function objId(v) { if (!ids.has(v)) ids.set(v, 140601564316704 + 48 * (idNext++)); return ids.get(v); }
+  function dget(d, k) { var e = d.m.get(hashKey(k)); return e ? e[1] : undefined; }
+  function dset(d, k, v) { var h = hashKey(k), e = d.m.get(h); if (e) e[1] = v; else d.m.set(h, [k, v]); }
+  function dkeys(d) { return Array.from(d.m.values()).map(function (e) { return e[0]; }); }
+  function dvals(d) { return Array.from(d.m.values()).map(function (e) { return e[1]; }); }
+  function ditems(d) { return Array.from(d.m.values()).map(function (e) { return T([e[0], e[1]]); }); }
+
+  /* ---------- repr / str ---------- */
+  function floatRepr(x) {
+    if (x !== x) return "nan";
+    if (x === Infinity) return "inf";
+    if (x === -Infinity) return "-inf";
+    if (x === 0) return (1 / x < 0) ? "-0.0" : "0.0";
+    var e = x.toExponential(); // shortest round-trip digits
+    var m = e.split("e"), mant = m[0], exp = parseInt(m[1], 10);
+    var neg = mant[0] === "-"; if (neg) mant = mant.slice(1);
+    var digits = mant.replace(".", "");
+    var out;
+    if (exp >= -4 && exp < 16) {
+      if (exp >= 0) {
+        if (digits.length <= exp + 1) out = digits + "0".repeat(exp + 1 - digits.length) + ".0";
+        else out = digits.slice(0, exp + 1) + "." + digits.slice(exp + 1);
+      } else out = "0." + "0".repeat(-exp - 1) + digits;
+    } else {
+      var mm = digits.length > 1 ? digits[0] + "." + digits.slice(1) : digits;
+      var es = Math.abs(exp) < 10 ? "0" + Math.abs(exp) : String(Math.abs(exp));
+      out = mm + "e" + (exp < 0 ? "-" : "+") + es;
+    }
+    return (neg ? "-" : "") + out;
+  }
+  function strRepr(s) {
+    var q = (s.indexOf("'") >= 0 && s.indexOf('"') < 0) ? '"' : "'";
+    var body = s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/\t/g, "\\t");
+    if (q === "'") body = body.replace(/'/g, "\\'");
+    return q + body + q;
+  }
+  function repr(v) {
+    switch (v.t) {
+      case "int": return v.v.toString();
+      case "float": return floatRepr(v.v);
+      case "bool": return v.v ? "True" : "False";
+      case "str": return strRepr(v.v);
+      case "NoneType": return "None";
+      case "list": return "[" + v.v.map(repr).join(", ") + "]";
+      case "tuple": return v.v.length === 1 ? "(" + repr(v.v[0]) + ",)" : "(" + v.v.map(repr).join(", ") + ")";
+      case "type": return "<class '" + v.v + "'>";
+      case "builtin": return "<built-in function " + v.name.replace(/^math\./, "") + ">";
+      case "dict": return "{" + Array.from(v.m.values()).map(function (e) { return repr(e[0]) + ": " + repr(e[1]); }).join(", ") + "}";
+      case "dict_keys": case "dict_values": case "dict_items": return v.t + "([" + v.v.map(repr).join(", ") + "])";
+      case "function": return "<function " + v.name + " at 0x" + objId(v).toString(16) + ">";
+      case "module": return "<module '" + v.name + "' (built-in)>";
+      case "boundmethod": return "<built-in method " + v.name + " of " + typeName(v.obj) + " object>";
+    }
+    return "?";
+  }
+  function str(v) { return v.t === "str" ? v.v : repr(v); }
+  function typeName(v) { return v.t === "builtin" || v.t === "boundmethod" ? "builtin_function_or_method" : v.t; }
+
+  /* ---------- tokenizer ---------- */
+  var KW = { and: 1, or: 1, not: 1, "in": 1, is: 1, None: 1, True: 1, False: 1, "if": 1, "else": 1, elif: 1, "for": 1, "while": 1, def: 1, "return": 1, lambda: 1, "import": 1, from: 1, "class": 1, pass: 1, "break": 1, "continue": 1 };
+  var OPS = ["**=", "//=", "**", "//", "==", "!=", "<=", ">=", "+=", "-=", "*=", "/=", "%=", "+", "-", "*", "/", "%", "<", ">", "=", "(", ")", "[", "]", "{", "}", ",", ":", "."];
+  function tokenize(src) {
+    var toks = [], i = 0, n = src.length;
+    while (i < n) {
+      var c = src[i];
+      if (c === " " || c === "\t") { i++; continue; }
+      if (c === "#") break;
+      var start = i;
+      if (/[0-9]/.test(c) || (c === "." && /[0-9]/.test(src[i + 1] || ""))) {
+        var m = /^(\d[\d_]*\.?[\d_]*([eE][+-]?\d+)?|\.\d[\d_]*([eE][+-]?\d+)?)/.exec(src.slice(i));
+        var txt = m[0].replace(/_/g, "");
+        var isF = /[.eE]/.test(txt);
+        toks.push({ k: "num", v: isF ? F(parseFloat(txt)) : I(txt), p: start });
+        i += m[0].length;
+        if (/[A-Za-z_]/.test(src[i] || "")) throw new PyError("SyntaxError", "invalid decimal literal");
+        continue;
+      }
+      var fpre = /^([fFrRbB]{0,2})(['"])/.exec(src.slice(i));
+      if (fpre && (fpre[1] === "" || /^[fFrR]{1,2}$/.test(fpre[1])) && (fpre[1] !== "" || c === "'" || c === '"')) {
+        var pref = fpre[1].toLowerCase(), q = fpre[2];
+        i += fpre[0].length;
+        var s = "", closed = false;
+        while (i < n) {
+          var ch = src[i];
+          if (ch === "\\" && pref.indexOf("r") < 0) {
+            var nx = src[i + 1]; var map = { n: "\n", t: "\t", "\\": "\\", "'": "'", '"': '"' };
+            s += (nx in map) ? map[nx] : "\\" + nx; i += 2; continue;
+          }
+          if (ch === q) { closed = true; i++; break; }
+          s += ch; i++;
+        }
+        if (!closed) throw new PyError("SyntaxError", "unterminated string literal (detected at line 1)");
+        toks.push({ k: pref.indexOf("f") >= 0 ? "fstr" : "str", v: s, p: start });
+        continue;
+      }
+      if (/[A-Za-z_]/.test(c)) {
+        var mm = /^[A-Za-z_]\w*/.exec(src.slice(i))[0];
+        toks.push({ k: KW[mm] ? "kw" : "name", v: mm, p: start }); i += mm.length; continue;
+      }
+      var op = null;
+      for (var j = 0; j < OPS.length; j++) if (src.substr(i, OPS[j].length) === OPS[j]) { op = OPS[j]; break; }
+      if (!op) {
+        if (c === "!") throw new PyError("SyntaxError", "invalid syntax");
+        throw new PyError("SyntaxError", "invalid character '" + c + "'");
+      }
+      toks.push({ k: "op", v: op, p: start }); i += op.length;
+    }
+    toks.push({ k: "end", v: "", p: n });
+    return toks;
+  }
+
+  /* ---------- parser (Pratt) ---------- */
+  function Parser(toks) { this.t = toks; this.i = 0; }
+  Parser.prototype.peek = function () { return this.t[this.i]; };
+  Parser.prototype.next = function () { return this.t[this.i++]; };
+  Parser.prototype.is = function (k, v) { var t = this.t[this.i]; return t.k === k && (v === undefined || t.v === v); };
+  Parser.prototype.eat = function (k, v) { if (this.is(k, v)) return this.next(); return null; };
+  Parser.prototype.expect = function (k, v) {
+    var t = this.peek();
+    if (t.k === k && (v === undefined || t.v === v)) return this.next();
+    if (v === ")" || v === "]") throw new PyError("SyntaxError", t.k === "end" ? "'" + (v === ")" ? "(" : "[") + "' was never closed" : "invalid syntax");
+    throw new PyError("SyntaxError", "invalid syntax");
+  };
+  Parser.prototype.exprList = function () { // for tuple without parens
+    var first = this.expr();
+    if (!this.is("op", ",")) return first;
+    var items = [first];
+    while (this.eat("op", ",")) { if (this.is("end") || this.is("op", "=") || this.is("op", ")")) break; items.push(this.expr()); }
+    return { n: "tuple", items: items };
+  };
+  Parser.prototype.expr = function () { return this.ternary(); };
+  Parser.prototype.ternary = function () {
+    var body = this.or();
+    if (this.eat("kw", "if")) { var cond = this.or(); this.expect("kw", "else"); var other = this.ternary(); return { n: "ifexp", cond: cond, a: body, b: other }; }
+    return body;
+  };
+  Parser.prototype.or = function () { var l = this.and(); while (this.eat("kw", "or")) l = { n: "bool", op: "or", l: l, r: this.and() }; return l; };
+  Parser.prototype.and = function () { var l = this.not(); while (this.eat("kw", "and")) l = { n: "bool", op: "and", l: l, r: this.not() }; return l; };
+  Parser.prototype.not = function () { if (this.eat("kw", "not")) return { n: "not", e: this.not() }; return this.cmp(); };
+  Parser.prototype.cmp = function () {
+    var first = this.arith(), ops = [], rest = [];
+    for (;;) {
+      var t = this.peek(), op = null;
+      if (t.k === "op" && ["<", ">", "==", "!=", "<=", ">="].indexOf(t.v) >= 0) { this.next(); op = t.v; }
+      else if (this.is("kw", "in")) { this.next(); op = "in"; }
+      else if (this.is("kw", "not") && this.t[this.i + 1].k === "kw" && this.t[this.i + 1].v === "in") { this.i += 2; op = "not in"; }
+      else if (this.is("kw", "is")) { this.next(); op = this.eat("kw", "not") ? "is not" : "is"; }
+      if (!op) break;
+      ops.push(op); rest.push(this.arith());
+    }
+    return ops.length ? { n: "cmp", first: first, ops: ops, rest: rest } : first;
+  };
+  Parser.prototype.arith = function () {
+    var l = this.term();
+    while (this.is("op", "+") || this.is("op", "-")) { var op = this.next().v; l = { n: "bin", op: op, l: l, r: this.term() }; }
+    return l;
+  };
+  Parser.prototype.term = function () {
+    var l = this.unary();
+    while (this.is("op", "*") || this.is("op", "/") || this.is("op", "//") || this.is("op", "%")) { var op = this.next().v; l = { n: "bin", op: op, l: l, r: this.unary() }; }
+    return l;
+  };
+  Parser.prototype.unary = function () {
+    if (this.is("op", "-") || this.is("op", "+")) { var op = this.next().v; return { n: "unary", op: op, e: this.unary() }; }
+    return this.power();
+  };
+  Parser.prototype.power = function () {
+    var b = this.postfix();
+    if (this.eat("op", "**")) return { n: "bin", op: "**", l: b, r: this.unary() };
+    return b;
+  };
+  Parser.prototype.postfix = function () {
+    var e = this.atom();
+    for (;;) {
+      if (this.eat("op", "(")) {
+        var args = [], kws = [];
+        if (!this.is("op", ")")) { do {
+          if (this.is("op", ")")) break;
+          if (this.is("name") && this.t[this.i + 1].k === "op" && this.t[this.i + 1].v === "=") { var kn = this.next().v; this.next(); kws.push([kn, this.expr()]); }
+          else { if (kws.length) throw new PyError("SyntaxError", "positional argument follows keyword argument"); args.push(this.expr()); }
+        } while (this.eat("op", ",")); }
+        this.expect("op", ")"); e = { n: "call", f: e, args: args, kws: kws };
+      } else if (this.eat("op", "[")) {
+        var a = null, b = null, isSlice = false;
+        if (!this.is("op", ":")) a = this.expr();
+        var c = null;
+        if (this.eat("op", ":")) { isSlice = true; if (!this.is("op", "]") && !this.is("op", ":")) b = this.expr(); if (this.eat("op", ":")) { if (!this.is("op", "]")) c = this.expr(); } }
+        this.expect("op", "]");
+        e = isSlice ? { n: "slice", o: e, a: a, b: b, c: c } : { n: "index", o: e, i: a };
+      } else if (this.eat("op", ".")) {
+        var nm = this.next(); if (nm.k !== "name") throw new PyError("SyntaxError", "invalid syntax");
+        e = { n: "attr", o: e, name: nm.v };
+      } else break;
+    }
+    return e;
+  };
+  Parser.prototype.atom = function () {
+    var t = this.next();
+    if (t.k === "num") return { n: "const", v: t.v };
+    if (t.k === "str") { var s = t.v; while (this.is("str")) s += this.next().v; return { n: "const", v: S(s) }; }
+    if (t.k === "fstr") return { n: "fstr", parts: parseF(t.v) };
+    if (t.k === "name") return { n: "name", id: t.v, p: t.p };
+    if (t.k === "kw" && t.v === "None") return { n: "const", v: NONE };
+    if (t.k === "kw" && t.v === "True") return { n: "const", v: B(true) };
+    if (t.k === "kw" && t.v === "False") return { n: "const", v: B(false) };
+    if (t.k === "op" && t.v === "(") {
+      if (this.eat("op", ")")) return { n: "tuple", items: [] };
+      var e = this.expr();
+      if (this.is("op", ",")) { var items = [e]; while (this.eat("op", ",")) { if (this.is("op", ")")) break; items.push(this.expr()); } this.expect("op", ")"); return { n: "tuple", items: items }; }
+      this.expect("op", ")"); return e;
+    }
+    if (t.k === "op" && t.v === "[") {
+      var its = [];
+      if (!this.is("op", "]")) { do { if (this.is("op", "]")) break; its.push(this.expr()); } while (this.eat("op", ",")); }
+      this.expect("op", "]"); return { n: "list", items: its };
+    }
+    if (t.k === "op" && t.v === "{") {
+      var pairs = [];
+      if (!this.is("op", "}")) { do {
+        if (this.is("op", "}")) break;
+        var kk = this.expr();
+        if (!this.eat("op", ":")) throw new PyError("NotSupported", "Sets are not part of this lab. A dictionary needs key: value pairs.");
+        pairs.push([kk, this.expr()]);
+      } while (this.eat("op", ",")); }
+      this.expect("op", "}"); return { n: "dict", items: pairs };
+    }
+    if (t.k === "end") throw new PyError("SyntaxError", "invalid syntax");
+    throw new PyError("SyntaxError", "invalid syntax");
+  };
+  function parseF(s) {
+    var parts = [], i = 0, lit = "";
+    while (i < s.length) {
+      if (s[i] === "{" && s[i + 1] === "{") { lit += "{"; i += 2; continue; }
+      if (s[i] === "}" && s[i + 1] === "}") { lit += "}"; i += 2; continue; }
+      if (s[i] === "{") {
+        if (lit) { parts.push({ lit: lit }); lit = ""; }
+        var depth = 1, j = i + 1, inner = "";
+        while (j < s.length && depth) { if (s[j] === "{") depth++; if (s[j] === "}") depth--; if (depth) inner += s[j]; j++; }
+        if (depth) throw new PyError("SyntaxError", "f-string: expecting '}'");
+        var spec = null, colon = -1, d2 = 0;
+        for (var k = 0; k < inner.length; k++) { var ch = inner[k]; if ("([{".indexOf(ch) >= 0) d2++; if (")]}".indexOf(ch) >= 0) d2--; if (ch === ":" && d2 === 0) { colon = k; break; } }
+        var src = inner; if (colon >= 0) { src = inner.slice(0, colon); spec = inner.slice(colon + 1); }
+        if (!src.trim()) throw new PyError("SyntaxError", "f-string: valid expression required before '}'");
+        var p = new Parser(tokenize(src)); var node = p.expr(); if (!p.is("end")) throw new PyError("SyntaxError", "f-string: invalid syntax");
+        parts.push({ node: node, spec: spec, src: src.trim() });
+        i = j; continue;
+      }
+      if (s[i] === "}") throw new PyError("SyntaxError", "f-string: single '}' is not allowed");
+      lit += s[i]; i++;
+    }
+    if (lit) parts.push({ lit: lit });
+    return parts;
+  }
+
+  /* ---------- numeric helpers ---------- */
+  function isNum(v) { return v.t === "int" || v.t === "float" || v.t === "bool"; }
+  function toF(v) { return v.t === "float" ? v.v : v.t === "bool" ? (v.v ? 1 : 0) : Number(v.v); }
+  function toBI(v) { return v.t === "bool" ? BigInt(v.v ? 1 : 0) : v.v; }
+  function truthy(v) {
+    switch (v.t) {
+      case "int": return v.v !== 0n; case "float": return v.v !== 0; case "bool": return v.v; case "str": case "list": case "tuple": case "dict_keys": case "dict_values": case "dict_items": return v.v.length > 0;
+      case "dict": return v.m.size > 0;
+      case "NoneType": return false;
+    }
+    return true;
+  }
+  function floorDivBI(a, b) { var q = a / b; if ((a % b !== 0n) && ((a < 0n) !== (b < 0n))) q -= 1n; return q; }
+  function modBI(a, b) { var r = a % b; if (r !== 0n && ((r < 0n) !== (b < 0n))) r += b; return r; }
+  function fmod(a, b) { var r = a - b * Math.floor(a / b); if (r === 0 && b < 0) return -0; return r; }
+  var OPNAME = { "+": "+", "-": "-", "*": "*", "/": "/", "//": "//", "%": "%", "**": "** or pow()" };
+  function unsupported(op, a, b) { return new PyError("TypeError", "unsupported operand type(s) for " + OPNAME[op] + ": '" + typeName(a) + "' and '" + typeName(b) + "'"); }
+  function binop(op, a, b) {
+    if (isNum(a) && isNum(b)) {
+      var intOp = (a.t !== "float" && b.t !== "float");
+      if (intOp) {
+        var x = toBI(a), y = toBI(b);
+        switch (op) {
+          case "+": return I(x + y); case "-": return I(x - y); case "*": return I(x * y);
+          case "/": if (y === 0n) throw new PyError("ZeroDivisionError", "division by zero"); return F(Number(x) / Number(y));
+          case "//": if (y === 0n) throw new PyError("ZeroDivisionError", "integer division or modulo by zero"); return I(floorDivBI(x, y));
+          case "%": if (y === 0n) throw new PyError("ZeroDivisionError", "integer modulo by zero"); return I(modBI(x, y));
+          case "**":
+            if (y < 0n) { if (x === 0n) throw new PyError("ZeroDivisionError", "0.0 cannot be raised to a negative power"); return F(Math.pow(Number(x), Number(y))); }
+            if (y > 4000n) throw new PyError("OverflowError", "result too large for this lab");
+            return I(x ** y);
+        }
+      } else {
+        var p = toF(a), q = toF(b);
+        switch (op) {
+          case "+": return F(p + q); case "-": return F(p - q); case "*": return F(p * q);
+          case "/": if (q === 0) throw new PyError("ZeroDivisionError", "float division by zero"); return F(p / q);
+          case "//": if (q === 0) throw new PyError("ZeroDivisionError", "float floor division by zero"); return F(Math.floor(p / q));
+          case "%": if (q === 0) throw new PyError("ZeroDivisionError", "float modulo by zero"); return F(fmod(p, q));
+          case "**":
+            if (p === 0 && q < 0) throw new PyError("ZeroDivisionError", "zero to a negative power");
+            var r = Math.pow(p, q); if (r !== r && p < 0) throw new PyError("ValueError", "complex results are not supported in this lab"); if (!isFinite(r)) throw new PyError("OverflowError", "(34, 'Numerical result out of range')"); return F(r);
+        }
+      }
+    }
+    if (op === "+") {
+      if (a.t === "str") { if (b.t !== "str") throw new PyError("TypeError", 'can only concatenate str (not "' + typeName(b) + '") to str'); return S(a.v + b.v); }
+      if (a.t === "list") { if (b.t !== "list") throw new PyError("TypeError", 'can only concatenate list (not "' + typeName(b) + '") to list'); return L(a.v.concat(b.v)); }
+      if (a.t === "tuple" && b.t === "tuple") return T(a.v.concat(b.v));
+    }
+    if (op === "*") {
+      var seq = null, cnt = null;
+      if ((a.t === "str" || a.t === "list" || a.t === "tuple") && (b.t === "int" || b.t === "bool")) { seq = a; cnt = b; }
+      else if ((b.t === "str" || b.t === "list" || b.t === "tuple") && (a.t === "int" || a.t === "bool")) { seq = b; cnt = a; }
+      if (seq) {
+        var k = Number(toBI(cnt)); if (k < 0) k = 0;
+        if (seq.v.length * k > 100000) throw new PyError("MemoryError", "too large for this lab");
+        if (seq.t === "str") return S(seq.v.repeat(k));
+        var out = []; for (var z = 0; z < k; z++) out = out.concat(seq.v);
+        return seq.t === "list" ? L(out) : T(out);
+      }
+      if ((a.t === "str" || a.t === "list") && (b.t === "str" || b.t === "list" || b.t === "float")) throw new PyError("TypeError", "can't multiply sequence by non-int of type '" + typeName(b) + "'");
+      if ((b.t === "str" || b.t === "list") && a.t === "float") throw new PyError("TypeError", "can't multiply sequence by non-int of type '" + typeName(a) + "'");
+    }
+    if (op === "%" && a.t === "str") throw new PyError("TypeError", "this lab does not support % formatting; use an f-string");
+    throw unsupported(op, a, b);
+  }
+  function eq(a, b) {
+    if (isNum(a) && isNum(b)) {
+      if (a.t !== "float" && b.t !== "float") return toBI(a) === toBI(b);
+      return toF(a) === toF(b);
+    }
+    if (a.t !== b.t) return false;
+    if (a.t === "str") return a.v === b.v;
+    if (a.t === "NoneType") return true;
+    if (a.t === "list" || a.t === "tuple") { if (a.v.length !== b.v.length) return false; for (var i = 0; i < a.v.length; i++) if (!eq(a.v[i], b.v[i])) return false; return true; }
+    if (a.t === "dict") { if (a.m.size !== b.m.size) return false; var ok = true; a.m.forEach(function (e, h) { var o = b.m.get(h); if (!o || !eq(e[1], o[1])) ok = false; }); return ok; }
+    return a === b;
+  }
+  function lt(a, b, op) {
+    if (isNum(a) && isNum(b)) { if (a.t !== "float" && b.t !== "float") return toBI(a) < toBI(b); return toF(a) < toF(b); }
+    if (a.t === "str" && b.t === "str") return a.v < b.v;
+    if ((a.t === "list" && b.t === "list") || (a.t === "tuple" && b.t === "tuple")) {
+      for (var i = 0; i < Math.min(a.v.length, b.v.length); i++) { if (!eq(a.v[i], b.v[i])) return lt(a.v[i], b.v[i], "<"); }
+      return a.v.length < b.v.length;
+    }
+    throw new PyError("TypeError", "'" + op + "' not supported between instances of '" + typeName(a) + "' and '" + typeName(b) + "'");
+  }
+  function checkOrder(a, b, op) {
+    var ok = (isNum(a) && isNum(b)) || (a.t === "str" && b.t === "str") || (a.t === "list" && b.t === "list") || (a.t === "tuple" && b.t === "tuple");
+    if (!ok) throw new PyError("TypeError", "'" + op + "' not supported between instances of '" + typeName(a) + "' and '" + typeName(b) + "'");
+  }
+  function compare(op, a, b) {
+    switch (op) {
+      case "==": return eq(a, b); case "!=": return !eq(a, b);
+      case "<": return lt(a, b, "<"); case ">": checkOrder(a, b, ">"); return lt(b, a, ">");
+      case "<=": return lt(a, b, "<=") || eq(a, b); case ">=": checkOrder(a, b, ">="); return lt(b, a, ">=") || eq(a, b);
+      case "in": case "not in":
+        var r;
+        if (b.t === "str") { if (a.t !== "str") throw new PyError("TypeError", "'in <string>' requires string as left operand, not " + typeName(a)); r = b.v.indexOf(a.v) >= 0; }
+        else if (b.t === "list" || b.t === "tuple" || /^dict_/.test(b.t)) r = b.v.some(function (x) { return eq(x, a); });
+        else if (b.t === "dict") r = b.m.has(hashKey(a));
+        else throw new PyError("TypeError", "argument of type '" + typeName(b) + "' is not iterable");
+        return op === "in" ? r : !r;
+      case "is": return a === b || (a.t === "NoneType" && b.t === "NoneType") || (a.t === "bool" && b.t === "bool" && a.v === b.v);
+      case "is not": return !compare("is", a, b);
+    }
+  }
+
+  /* ---------- formatting for f-strings ---------- */
+  function pyFixed(x, p) { if (!isFinite(x)) return floatRepr(x); var r = pyRound(x, p); return (r === 0 && x < 0 ? "-" : "") + Math.abs(r).toFixed(p).replace(/^/, r < 0 ? "-" : ""); }
+  function fmtNumber(v, spec) {
+    var m = /^([<>^]?)(\+?)(0?)(\d*)(,?)(?:\.(\d+))?([fdeg%s]?)$/.exec(spec);
+    if (!m) throw new PyError("ValueError", "Invalid format specifier '" + spec + "' for object of type '" + typeName(v) + "'");
+    var kind = m[7], prec = m[6] === undefined ? null : parseInt(m[6], 10), width = m[4] ? parseInt(m[4], 10) : 0, comma = m[5] === ",";
+    var s;
+    if (kind === "s") { if (v.t !== "str") throw new PyError("ValueError", "Unknown format code 's' for object of type '" + typeName(v) + "'"); s = v.v; }
+    else if (v.t === "str") { if (kind || prec !== null || comma) throw new PyError("ValueError", "Unknown format code '" + (kind || "f") + "' for object of type 'str'"); s = v.v; }
+    else if (kind === "d") { if (v.t === "float") throw new PyError("ValueError", "Unknown format code 'd' for object of type 'float'"); s = toBI(v).toString(); }
+    else if (kind === "%") { s = pyFixed(toF(v) * 100, prec === null ? 6 : prec) + "%"; }
+    else if (kind === "f") { s = pyFixed(toF(v), prec === null ? 6 : prec); }
+    else if (kind === "e") { var e = toF(v).toExponential(prec === null ? 6 : prec); s = e.replace(/e([+-])(\d)$/, "e$10$2"); }
+    else if (prec !== null) { s = Number(toF(v).toPrecision(prec)).toString(); }
+    else s = str(v);
+    if (comma) { var parts = s.split("."); var neg = parts[0][0] === "-"; var ip = neg ? parts[0].slice(1) : parts[0]; ip = ip.replace(/\B(?=(\d{3})+(?!\d))/g, ","); parts[0] = (neg ? "-" : "") + ip; s = parts.join("."); }
+    if (m[2] === "+" && s[0] !== "-" && v.t !== "str") s = "+" + s;
+    if (width && s.length < width) {
+      var align = m[1] || (v.t === "str" ? "<" : ">"), pad = width - s.length, fill = m[3] === "0" ? "0" : " ";
+      if (align === "<") s = s + " ".repeat(pad); else if (align === "^") s = " ".repeat(Math.floor(pad / 2)) + s + " ".repeat(Math.ceil(pad / 2)); else s = fill.repeat(pad) + s;
+    }
+    return s;
+  }
+
+  /* ---------- builtins ---------- */
+  function argc(name, args, lo, hi) {
+    if (args.length < lo || args.length > hi) {
+      if (lo === hi) throw new PyError("TypeError", name + "() takes exactly one argument (" + args.length + " given)");
+      throw new PyError("TypeError", name + " expected at most " + hi + " argument" + (hi > 1 ? "s" : "") + ", got " + args.length);
+    }
+  }
+  function lenOf(v) {
+    if (v.t === "str" || v.t === "list" || v.t === "tuple" || /^dict_/.test(v.t)) return v.v.length;
+    if (v.t === "dict") return v.m.size;
+    throw new PyError("TypeError", "object of type '" + typeName(v) + "' has no len()");
+  }
+  function iter(v) {
+    if (v.t === "str") return Array.from(v.v).map(S);
+    if (v.t === "list" || v.t === "tuple" || /^dict_/.test(v.t)) return v.v.slice();
+    if (v.t === "dict") return dkeys(v);
+    throw new PyError("TypeError", "'" + typeName(v) + "' object is not iterable");
+  }
+  function pyRound(x, nd) {
+    /* correctly rounded on the exact binary value, ties to even (as CPython) */
+    if (!isFinite(x) || nd > 20) return x;
+    var neg = x < 0, a = Math.abs(x);
+    var long = a.toFixed(Math.min(100, nd + 40)), cut = long.indexOf(".") + nd + (nd > 0 ? 1 : 0);
+    if (nd === 0) cut = long.indexOf(".");
+    var rest = long.slice(cut + (nd === 0 ? 1 : 0)), isTie = /^50*$/.test(rest);
+    var r;
+    if (isTie) {
+      var down = Number(long.slice(0, cut)), f = Math.pow(10, nd), step = 1 / f;
+      var lastDigit = parseInt(long[cut - 1] === "." ? long[cut - 2] : long[cut - 1], 10);
+      r = (lastDigit % 2 === 0) ? down : Number((down + step).toFixed(nd));
+    } else r = Number(a.toFixed(nd));
+    return neg ? -r : r;
+  }
+  var KWOK = { print: ["sep", "end"], sorted: ["reverse", "key"], sort: ["reverse", "key"], max: ["key"], min: ["key"] };
+  var BUILTINS = {
+    print: function (args, ctx, kw) {
+      kw = kw || {}; var sep = kw.sep && kw.sep.t !== "NoneType" ? kw.sep.v : " ", end = kw.end && kw.end.t !== "NoneType" ? kw.end.v : "\n";
+      var o = ctx.root || ctx, parts = ((o.pend || "") + args.map(str).join(sep) + end).split("\n");
+      o.pend = parts.pop(); parts.forEach(function (l) { o.out.push(l); }); return NONE;
+    },
+    enumerate: function (args) { argc("enumerate", args, 1, 2); var st = args[1] ? Number(toBI(args[1])) : 0; return L(iter(args[0]).map(function (x, k) { return T([I(k + st), x]); })); },
+    len: function (args) { argc("len", args, 1, 1); return I(lenOf(args[0])); },
+    type: function (args) { argc("type", args, 1, 1); return { t: "type", v: typeName(args[0]) }; },
+    str: function (args) { return S(args.length ? str(args[0]) : ""); },
+    int: function (args) {
+      if (!args.length) return I(0); var v = args[0];
+      if (v.t === "int") return v; if (v.t === "bool") return I(v.v ? 1 : 0);
+      if (v.t === "float") { if (!isFinite(v.v)) throw new PyError("OverflowError", "cannot convert float infinity to integer"); return I(Math.trunc(v.v)); }
+      if (v.t === "str") { var t = v.v.trim().replace(/_/g, ""); if (!/^[+-]?\d+$/.test(t)) throw new PyError("ValueError", "invalid literal for int() with base 10: " + strRepr(v.v)); return I(t); }
+      throw new PyError("TypeError", "int() argument must be a string, a bytes-like object or a real number, not '" + typeName(v) + "'");
+    },
+    float: function (args) {
+      if (!args.length) return F(0); var v = args[0];
+      if (isNum(v)) return F(toF(v));
+      if (v.t === "str") { var t = v.v.trim(); if (!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(t)) throw new PyError("ValueError", "could not convert string to float: " + strRepr(v.v)); return F(parseFloat(t)); }
+      throw new PyError("TypeError", "float() argument must be a string or a real number, not '" + typeName(v) + "'");
+    },
+    bool: function (args) { return B(args.length ? truthy(args[0]) : false); },
+    abs: function (args) { argc("abs", args, 1, 1); var v = args[0]; if (v.t === "float") return F(Math.abs(v.v)); if (isNum(v)) { var x = toBI(v); return I(x < 0n ? -x : x); } throw new PyError("TypeError", "bad operand type for abs(): '" + typeName(v) + "'"); },
+    round: function (args) {
+      var v = args[0]; if (!isNum(v)) throw new PyError("TypeError", "type " + typeName(v) + " doesn't define __round__ method");
+      if (args.length === 1) { if (v.t !== "float") return I(toBI(v)); return I(pyRound(v.v, 0)); }
+      var nd = Number(toBI(args[1])); if (v.t !== "float") return v; return F(pyRound(v.v, nd));
+    },
+    max: function (args, ctx, kw) { return minmax(args, "max", kw, ctx); }, min: function (args, ctx, kw) { return minmax(args, "min", kw, ctx); },
+    sum: function (args) {
+      if (!args.length) throw new PyError("TypeError", "sum() takes at least 1 positional argument (0 given)");
+      var items = iterArg(args[0]), acc = args[1] || I(0);
+      items.forEach(function (x) { if (x.t === "str") throw new PyError("TypeError", "unsupported operand type(s) for +: '" + typeName(acc) + "' and 'str'"); acc = binop("+", acc, x); }); return acc;
+    },
+    list: function (args) { return L(args.length ? iter(args[0]) : []); },
+    tuple: function (args) { return T(args.length ? iter(args[0]) : []); },
+    sorted: function (args, ctx, kw) {
+      argc("sorted", args, 1, 1); var a = iter(args[0]), rev = kw && kw.reverse && truthy(kw.reverse);
+      var keyed = a.map(function (x, i) { return { x: x, k: kw && kw.key && kw.key.t !== "NoneType" ? callValue(kw.key, [x], {}, ctx) : x, i: i }; });
+      keyed.sort(function (p, q) { var c = lt(p.k, q.k, "<") ? -1 : lt(q.k, p.k, "<") ? 1 : 0; if (rev) c = -c; return c || p.i - q.i; });
+      return L(keyed.map(function (p) { return p.x; }));
+    },
+    dict: function (args) { var d = D(); if (args.length) { if (args[0].t === "dict") args[0].m.forEach(function (e) { dset(d, e[0], e[1]); }); else iter(args[0]).forEach(function (pr) { var kv = iter(pr); dset(d, kv[0], kv[1]); }); } return d; },
+    repr: function (args) { argc("repr", args, 1, 1); return S(repr(args[0])); },
+    id: function (args) { argc("id", args, 1, 1); return I(objId(args[0])); },
+    pow: function (args) { if (args.length === 3) { if (args[0].t !== "int" || args[1].t !== "int" || args[2].t !== "int") throw new PyError("TypeError", "pow() 3rd argument not allowed unless all arguments are integers"); return binop("%", binop("**", args[0], args[1]), args[2]); } if (args.length < 2) throw new PyError("TypeError", "pow() missing required argument '" + (args.length ? "exp' (pos 2)" : "base' (pos 1)")); if (args.length > 3) throw new PyError("TypeError", "pow() takes at most 3 arguments (" + args.length + " given)"); return binop("**", args[0], args[1]); },
+    range: function (args) {
+      var nums = args.map(function (a) { if (a.t !== "int" && a.t !== "bool") throw new PyError("TypeError", "'" + typeName(a) + "' object cannot be interpreted as an integer"); return Number(toBI(a)); });
+      var start = 0, stop, step = 1; if (nums.length === 1) stop = nums[0]; else { start = nums[0]; stop = nums[1]; if (nums.length > 2) step = nums[2]; }
+      if (step === 0) throw new PyError("ValueError", "range() arg 3 must not be zero");
+      var out = []; for (var x = start; step > 0 ? x < stop : x > stop; x += step) { out.push(I(x)); if (out.length > 10000) break; }
+      return L(out);
+    },
+    input: function () { throw new PyError("RuntimeError", "input() is not available in this lab; type the value into the code instead"); }
+  };
+  function iterArg(v) { return iter(v); }
+  function minmax(args, nm, kw, ctx) {
+    if (!args.length) throw new PyError("TypeError", nm + " expected at least 1 argument, got 0");
+    var items = args.length === 1 ? iter(args[0]) : args;
+    if (!items.length) throw new PyError("ValueError", nm + "() iterable argument is empty");
+    var kf = function (x) { return kw && kw.key && kw.key.t !== "NoneType" ? callValue(kw.key, [x], {}, ctx) : x; };
+    var best = items[0], bk = kf(best);
+    for (var i = 1; i < items.length; i++) { var x = items[i], xk = kf(x); if (nm === "max" ? lt(bk, xk, "<") : lt(xk, bk, "<")) { best = x; bk = xk; } }
+    return best;
+  }
+  function callValue(f, args, kw, ctx) {
+    kw = kw || {};
+    var fname = f.t === "builtin" ? f.name : f.t === "type" ? f.v : f.t === "boundmethod" ? f.name : "";
+    if (f.t !== "function") Object.keys(kw).forEach(function (k) { if ((KWOK[fname] || []).indexOf(k) < 0) throw new PyError("TypeError", fname.replace(/^math\./, "") + "() got an unexpected keyword argument '" + k + "'"); });
+    if (f.t === "builtin") return (f.fn || BUILTINS[f.name])(args, ctx, kw);
+    if (f.t === "boundmethod") return f.fn(args, kw);
+    if (f.t === "type") { if (BUILTINS[f.v]) return BUILTINS[f.v](args, ctx, kw); throw new PyError("TypeError", "cannot create '" + f.v + "' instances"); }
+    if (f.t === "function") return f.call(args, kw, ctx);
+    throw new PyError("TypeError", "'" + typeName(f) + "' object is not callable");
+  }
+  function stripChars(s, c, side) {
+    var set = c && c.t === "str" ? c.v : null, ws = function (ch) { return set === null ? /\s/.test(ch) : set.indexOf(ch) >= 0; }, a = 0, b = s.length;
+    if (side & 1) while (a < b && ws(s[a])) a++;
+    if (side & 2) while (b > a && ws(s[b - 1])) b--;
+    return s.slice(a, b);
+  }
+  function method(obj, name) {
+    var s = obj.v;
+    var M = null;
+    if (obj.t === "str") M = {
+      lower: function () { return S(s.toLowerCase()); }, upper: function () { return S(s.toUpperCase()); },
+      title: function () { return S(s.toLowerCase().replace(/(^|[^A-Za-z])([a-z])/g, function (m, a, b) { return a + b.toUpperCase(); })); },
+      strip: function (a) { return S(stripChars(s, a[0], 3)); }, lstrip: function (a) { return S(stripChars(s, a[0], 1)); }, rstrip: function (a) { return S(stripChars(s, a[0], 2)); },
+      join: function (a) { var it = iter(a[0]); it.forEach(function (x, k) { if (x.t !== "str") throw new PyError("TypeError", "sequence item " + k + ": expected str instance, " + typeName(x) + " found"); }); return S(it.map(function (x) { return x.v; }).join(s)); },
+      isupper: function () { return B(/[A-Z]/.test(s) && !/[a-z]/.test(s)); }, islower: function () { return B(/[a-z]/.test(s) && !/[A-Z]/.test(s)); }, capitalize: function () { return S(s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()); },
+      split: function (a) { if (a.length) { if (a[0].v === "") throw new PyError("ValueError", "empty separator"); return L(s.split(a[0].v).map(S)); } return L(s.split(/\s+/).filter(function (x) { return x; }).map(S)); },
+      count: function (a) { if (!a.length || a[0].t !== "str") throw new PyError("TypeError", "must be str, not " + (a.length ? typeName(a[0]) : "nothing")); var sub = a[0].v; if (sub === "") return I(s.length + 1); var c = 0, i = 0; while ((i = s.indexOf(sub, i)) >= 0) { c++; i += sub.length; } return I(c); },
+      replace: function (a) { return S(s.split(a[0].v).join(a[1].v)); },
+      startswith: function (a) { return B(s.indexOf(a[0].v) === 0); }, endswith: function (a) { return B(s.length >= a[0].v.length && s.slice(s.length - a[0].v.length) === a[0].v); },
+      find: function (a) { return I(s.indexOf(a[0].v)); },
+      isdigit: function () { return B(/^\d+$/.test(s)); }, isalpha: function () { return B(/^[A-Za-z]+$/.test(s)); }
+    };
+    else if (obj.t === "list") M = {
+      append: function (a) { s.push(a[0]); return NONE; }, pop: function (a) { if (!s.length) throw new PyError("IndexError", "pop from empty list"); var i = a.length ? Number(toBI(a[0])) : s.length - 1; if (i < 0) i += s.length; if (i < 0 || i >= s.length) throw new PyError("IndexError", "pop index out of range"); return s.splice(i, 1)[0]; },
+      insert: function (a) { var i = Number(toBI(a[0])); if (i < 0) i = Math.max(0, s.length + i); s.splice(Math.min(i, s.length), 0, a[1]); return NONE; },
+      remove: function (a) { for (var i = 0; i < s.length; i++) if (eq(s[i], a[0])) { s.splice(i, 1); return NONE; } throw new PyError("ValueError", "list.remove(x): x not in list"); },
+      index: function (a) { for (var i = 0; i < s.length; i++) if (eq(s[i], a[0])) return I(i); throw new PyError("ValueError", repr(a[0]) + " is not in list"); },
+      count: function (a) { return I(s.filter(function (x) { return eq(x, a[0]); }).length); },
+      sort: function (a, kw) { if (kw && kw.key) { var srt = BUILTINS.sorted([obj], null, kw); s.splice.apply(s, [0, s.length].concat(srt.v)); return NONE; } s.sort(function (x, y) { return lt(x, y, "<") ? -1 : lt(y, x, "<") ? 1 : 0; }); if (kw && kw.reverse && truthy(kw.reverse)) s.reverse(); return NONE; },
+      reverse: function () { s.reverse(); return NONE; }, copy: function () { return L(s.slice()); }
+    };
+    else if (obj.t === "dict") M = {
+      get: function (a) { if (!a.length) throw new PyError("TypeError", "get expected at least 1 argument, got 0"); var v = dget(obj, a[0]); return v === undefined ? (a.length > 1 ? a[1] : NONE) : v; },
+      keys: function () { return { t: "dict_keys", v: dkeys(obj) }; }, values: function () { return { t: "dict_values", v: dvals(obj) }; }, items: function () { return { t: "dict_items", v: ditems(obj) }; },
+      pop: function (a) { var h = hashKey(a[0]), e = obj.m.get(h); if (!e) { if (a.length > 1) return a[1]; throw new PyError("KeyError", repr(a[0])); } obj.m.delete(h); return e[1]; },
+      copy: function () { var d = D(); obj.m.forEach(function (e, h) { d.m.set(h, [e[0], e[1]]); }); return d; },
+      update: function (a) { iter(a[0]).forEach(function (k) { dset(obj, k, dget(a[0], k)); }); return NONE; }
+    };
+    if (M && M[name]) return M[name];
+    throw new PyError("AttributeError", "'" + typeName(obj) + "' object has no attribute '" + name + "'");
+  }
+
+  /* ---------- evaluation ---------- */
+  function lev(a, b) { var d = []; for (var i = 0; i <= a.length; i++) { d[i] = [i]; } for (var j = 0; j <= b.length; j++) d[0][j] = j; for (i = 1; i <= a.length; i++) for (j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; }
+  function suggest(name, env) {
+    var best = null, bd = 99;
+    Object.keys(env).forEach(function (k) { var dd = lev(name, k); if (dd < bd && dd <= Math.max(1, Math.floor(name.length / 3))) { bd = dd; best = k; } });
+    return best;
+  }
+  function index(seq, iv) {
+    if (seq.t === "dict") { var dv = dget(seq, iv); if (dv === undefined) throw new PyError("KeyError", repr(iv)); return dv; }
+    if (seq.t === "str" || seq.t === "list" || seq.t === "tuple") {
+      if (iv.t !== "int" && iv.t !== "bool") throw new PyError("TypeError", seq.t === "str" ? "string indices must be integers, not '" + typeName(iv) + "'" : seq.t + " indices must be integers or slices, not " + typeName(iv));
+      var n = seq.v.length, i = Number(toBI(iv)); if (i < 0) i += n;
+      if (i < 0 || i >= n) throw new PyError("IndexError", (seq.t === "str" ? "string" : seq.t) + " index out of range");
+      return seq.t === "str" ? S(seq.v[i]) : seq.v[i];
+    }
+    throw new PyError("TypeError", "'" + typeName(seq) + "' object is not subscriptable");
+  }
+  function sliceIdx(n, av, bv, cv) {
+    function num(v) { if (!v || v.t === "NoneType") return null; if (v.t !== "int" && v.t !== "bool") throw new PyError("TypeError", "slice indices must be integers or None or have an __index__ method"); return Number(toBI(v)); }
+    var a = num(av), b = num(bv), c = num(cv); if (c === null) c = 1;
+    if (c === 0) throw new PyError("ValueError", "slice step cannot be zero");
+    function adj(x, dflt, lo, hi) { if (x === null) return dflt; if (x < 0) { x += n; if (x < lo) x = lo; } else if (x > hi) x = hi; return x; }
+    var out = [], i;
+    if (c > 0) { a = adj(a, 0, 0, n); b = adj(b, n, 0, n); for (i = a; i < b; i += c) out.push(i); }
+    else { a = adj(a, n - 1, -1, n - 1); b = adj(b, -1, -1, n - 1); for (i = a; i > b; i += c) out.push(i); }
+    return out;
+  }
+  function ev(node, ctx) {
+    switch (node.n) {
+      case "const": return node.v;
+      case "name":
+        if (Object.prototype.hasOwnProperty.call(ctx.env, node.id)) return ctx.env[node.id];
+        if (ctx.localNames && ctx.localNames[node.id]) throw new PyError("UnboundLocalError", "cannot access local variable '" + node.id + "' where it is not associated with a value");
+        if (ctx.globals && Object.prototype.hasOwnProperty.call(ctx.globals, node.id)) return ctx.globals[node.id];
+        if (BUILTINS[node.id]) return { t: "builtin", name: node.id };
+        var known = {}; Object.keys(ctx.globals || {}).forEach(function (k) { known[k] = 1; }); Object.keys(ctx.env).forEach(function (k) { known[k] = 1; });
+        var sg = suggest(node.id, known);
+        var e = new PyError("NameError", "name '" + node.id + "' is not defined"); if (sg) e.hint = "Did you mean: '" + sg + "'?"; throw e;
+      case "list": return L(node.items.map(function (x) { return ev(x, ctx); }));
+      case "dict": var dd = D(); node.items.forEach(function (pr) { var kv = ev(pr[0], ctx); dset(dd, kv, ev(pr[1], ctx)); }); return dd;
+      case "tuple": return T(node.items.map(function (x) { return ev(x, ctx); }));
+      case "fstr":
+        return S(node.parts.map(function (p) { if (p.lit !== undefined) return p.lit; var v = ev(p.node, ctx); return p.spec === null ? str(v) : fmtNumber(v, p.spec); }).join(""));
+      case "unary":
+        var u = ev(node.e, ctx);
+        if (node.op === "-") { if (u.t === "float") return F(-u.v); if (isNum(u)) return I(-toBI(u)); throw new PyError("TypeError", "bad operand type for unary -: '" + typeName(u) + "'"); }
+        if (isNum(u)) return u.t === "bool" ? I(toBI(u)) : u; throw new PyError("TypeError", "bad operand type for unary +: '" + typeName(u) + "'");
+      case "not": return B(!truthy(ev(node.e, ctx)));
+      case "bool":
+        var l = ev(node.l, ctx);
+        if (node.op === "and") return truthy(l) ? ev(node.r, ctx) : l;
+        return truthy(l) ? l : ev(node.r, ctx);
+      case "ifexp": return truthy(ev(node.cond, ctx)) ? ev(node.a, ctx) : ev(node.b, ctx);
+      case "bin": return binop(node.op, ev(node.l, ctx), ev(node.r, ctx));
+      case "cmp":
+        var left = ev(node.first, ctx);
+        for (var i = 0; i < node.ops.length; i++) { var right = ev(node.rest[i], ctx); if (!compare(node.ops[i], left, right)) return B(false); left = right; }
+        return B(true);
+      case "index": return index(ev(node.o, ctx), ev(node.i, ctx));
+      case "slice":
+        var o = ev(node.o, ctx); if (o.t !== "str" && o.t !== "list" && o.t !== "tuple") throw new PyError("TypeError", "'" + typeName(o) + "' object is not subscriptable");
+        var seqv = o.t === "str" ? Array.from(o.v) : o.v, idx = sliceIdx(seqv.length, node.a && ev(node.a, ctx), node.b && ev(node.b, ctx), node.c && ev(node.c, ctx));
+        var sl = idx.map(function (k) { return seqv[k]; }); return o.t === "str" ? S(sl.join("")) : o.t === "list" ? L(sl) : T(sl);
+      case "attr":
+        var obj = ev(node.o, ctx);
+        if (obj.t === "module") { if (!Object.prototype.hasOwnProperty.call(obj.attrs, node.name)) throw new PyError("AttributeError", "module '" + obj.name + "' has no attribute '" + node.name + "'"); return obj.attrs[node.name]; }
+        var fn = method(obj, node.name);
+        return { t: "boundmethod", obj: obj, fn: fn, name: node.name };
+      case "call":
+        var f = ev(node.f, ctx), args = node.args.map(function (x) { return ev(x, ctx); }), kw = {};
+        (node.kws || []).forEach(function (k) { kw[k[0]] = ev(k[1], ctx); });
+        return callValue(f, args, kw, ctx);
+    }
+    throw new PyError("SyntaxError", "invalid syntax");
+  }
+
+  /* ---------- statements (one line each) ---------- */
+  function assignTargets(lhs) {
+    var p = new Parser(tokenize(lhs)); var e = p.exprList();
+    if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+    function chk(x) {
+      if (x.n === "name") return x;
+      if (x.n === "tuple") { x.items.forEach(chk); return x; }
+      if (x.n === "index") return x;
+      if (x.n === "const" || x.n === "call" || x.n === "bin") throw new PyError("SyntaxError", "cannot assign to " + (x.n === "const" ? "literal" : x.n === "call" ? "function call" : "expression") + " here. Maybe you meant '==' instead of '='?");
+      throw new PyError("SyntaxError", "cannot assign to expression");
+    }
+    return chk(e);
+  }
+  function bind(target, value, ctx) {
+    if (target.n === "name") { ctx.env[target.id] = value; ctx.changed.push(target.id); return; }
+    if (target.n === "index") {
+      var seq = ev(target.o, ctx), iv = ev(target.i, ctx);
+      if (seq.t === "dict") { dset(seq, iv, value); ctx.changed.push("*"); return; }
+      if (seq.t === "list") { if (iv.t !== "int" && iv.t !== "bool") throw new PyError("TypeError", "list indices must be integers or slices, not " + typeName(iv)); var n = seq.v.length, i = Number(toBI(iv)); if (i < 0) i += n; if (i < 0 || i >= n) throw new PyError("IndexError", "list assignment index out of range"); seq.v[i] = value; ctx.changed.push("*"); return; }
+      throw new PyError("TypeError", "'" + typeName(seq) + "' object does not support item assignment");
+    }
+    var vals = iter(value);
+    if (vals.length !== target.items.length) throw new PyError("ValueError", vals.length > target.items.length ? "too many values to unpack (expected " + target.items.length + ")" : "not enough values to unpack (expected " + target.items.length + ", got " + vals.length + ")");
+    target.items.forEach(function (t, k) { bind(t, vals[k], ctx); });
+  }
+  function splitTopLevelEq(line) {
+    var depth = 0, q = null;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (q) { if (c === "\\") { i++; continue; } if (c === q) q = null; continue; }
+      if (c === "'" || c === '"') { q = c; continue; }
+      if (c === "#") break;
+      if ("([{".indexOf(c) >= 0) depth++; else if (")]}".indexOf(c) >= 0) depth--;
+      else if (depth === 0 && c === "=") {
+        var prev = line[i - 1] || "", nx = line[i + 1] || "";
+        if (nx === "=") { i++; continue; }
+        if ("=!<>".indexOf(prev) >= 0) continue;
+        var aug = "";
+        if ("+-*/%".indexOf(prev) >= 0) { aug = prev; if ((prev === "/" || prev === "*") && line[i - 2] === prev) aug = prev + prev; }
+        return { at: i, aug: aug };
+      }
+    }
+    return null;
+  }
+  function execLine(line, ctx) {
+    ctx.changed = []; ctx.last = undefined;
+    var raw = line.replace(/\s+$/, "");
+    if (!raw.trim() || raw.trim()[0] === "#") return { kind: "blank" };
+    if (/^\s/.test(raw)) throw new PyError("IndentationError", "unexpected indent");
+    var firstWord = (/^[A-Za-z_]\w*/.exec(raw) || [""])[0];
+    if (["if", "elif", "else", "for", "while", "def", "class", "try", "with"].indexOf(firstWord) >= 0)
+      throw new PyError("NotSupported", "This lab runs one-line statements only. Blocks like '" + firstWord + "' are covered in Lecture 3.");
+    if (firstWord === "import" || firstWord === "from") throw new PyError("NotSupported", "Imports are not available in this lab.");
+    var sp = splitTopLevelEq(raw);
+    if (sp) {
+      var lhs = raw.slice(0, sp.at - sp.aug.length).trim(), rhs = raw.slice(sp.at + 1).trim();
+      if (!rhs) throw new PyError("SyntaxError", "invalid syntax");
+      var target = assignTargets(lhs);
+      var p = new Parser(tokenize(rhs)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+      if (sp.aug) {
+        if (target.n === "tuple") throw new PyError("SyntaxError", "'tuple' is an illegal expression for augmented assignment");
+        var cur = ev(target.n === "name" ? { n: "name", id: target.id } : target, ctx), rv = ev(e, ctx), v;
+        if (sp.aug === "+" && cur.t === "list") { var add = iter(rv); Array.prototype.push.apply(cur.v, add); v = cur; }
+        else if (sp.aug === "*" && cur.t === "list" && (rv.t === "int" || rv.t === "bool")) { var rep0 = cur.v.slice(), times = Number(toBI(rv)); cur.v.length = 0; for (var z = 0; z < times; z++) Array.prototype.push.apply(cur.v, rep0); v = cur; }
+        else v = binop(sp.aug, cur, rv);
+        bind(target, v, ctx);
+        return { kind: "assign", targets: target.n === "name" ? [target.id] : ["*"], value: v };
+      }
+      var val = ev(e, ctx); bind(target, val, ctx);
+      return { kind: "assign", targets: ctx.changed.slice(), value: val };
+    }
+    var pp = new Parser(tokenize(raw)); var ex = pp.exprList();
+    if (!pp.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+    var r = ev(ex, ctx);
+    return { kind: "expr", value: r };
+  }
+  function mathFn(name, lo, hi, f) { return { t: "builtin", name: "math." + name, fn: function (args) { if (args.length < lo || args.length > hi) throw new PyError("TypeError", lo === hi ? "math." + name + "() takes exactly " + (lo === 1 ? "one argument" : lo + " arguments") + " (" + args.length + " given)" : name + " expected at most " + hi + " arguments, got " + args.length); return f(args); } }; }
+  function needNum(v) { if (!isNum(v)) throw new PyError("TypeError", "must be real number, not " + typeName(v)); return toF(v); }
+  function needInt(v, fn) { if (v.t !== "int" && v.t !== "bool") throw new PyError("TypeError", "'" + typeName(v) + "' object cannot be interpreted as an integer"); return toBI(v); }
+  function bgcd(a, b) { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) { var t = a % b; a = b; b = t; } return a; }
+  var MODULES = {
+    math: function () {
+      return { t: "module", name: "math", attrs: {
+        pi: F(Math.PI), e: F(Math.E), inf: F(Infinity),
+        sqrt: mathFn("sqrt", 1, 1, function (a) { var x = needNum(a[0]); if (x < 0) throw new PyError("ValueError", "math domain error"); return F(Math.sqrt(x)); }),
+        floor: mathFn("floor", 1, 1, function (a) { return a[0].t === "float" ? I(Math.floor(a[0].v)) : I(toBI(a[0])); }),
+        ceil: mathFn("ceil", 1, 1, function (a) { return a[0].t === "float" ? I(Math.ceil(a[0].v)) : I(toBI(a[0])); }),
+        gcd: { t: "builtin", name: "math.gcd", fn: function (a) { var g = 0n; a.forEach(function (x) { g = bgcd(g, needInt(x)); }); return I(g); } },
+        lcm: { t: "builtin", name: "math.lcm", fn: function (a) { var l = 1n; a.forEach(function (x) { var y = needInt(x); if (y === 0n) { l = 0n; return; } y = y < 0n ? -y : y; l = l === 0n ? 0n : l / bgcd(l, y) * y; }); return I(l); } },
+        fabs: mathFn("fabs", 1, 1, function (a) { return F(Math.abs(needNum(a[0]))); }),
+        pow: mathFn("pow", 2, 2, function (a) { return F(Math.pow(needNum(a[0]), needNum(a[1]))); }),
+        log: mathFn("log", 1, 2, function (a) { var x = needNum(a[0]); if (x <= 0) throw new PyError("ValueError", "math domain error"); return F(a.length > 1 ? Math.log(x) / Math.log(needNum(a[1])) : Math.log(x)); }),
+        log10: mathFn("log10", 1, 1, function (a) { var x = needNum(a[0]); if (x <= 0) throw new PyError("ValueError", "math domain error"); return F(Math.log10(x)); }),
+        factorial: mathFn("factorial", 1, 1, function (a) { var n = needInt(a[0]); if (n < 0n) throw new PyError("ValueError", "factorial() not defined for negative values"); var r = 1n; for (var k = 2n; k <= n; k++) r *= k; return I(r); }),
+        isqrt: mathFn("isqrt", 1, 1, function (a) { var n = needInt(a[0]); if (n < 0n) throw new PyError("ValueError", "isqrt() argument must be nonnegative"); return I(Math.floor(Math.sqrt(Number(n)))); })
+      } };
+    }
+  };
+  function importModule(name) { if (!MODULES[name]) throw new PyError("ModuleNotFoundError", "No module named '" + name + "'"); return MODULES[name](); }
+  function compileLine(line) {
+    var raw = line.trim(); if (!raw || raw[0] === "#") return;
+    var sp = splitTopLevelEq(raw);
+    if (sp) {
+      var lhs = raw.slice(0, sp.at - sp.aug.length).trim(), rhs = raw.slice(sp.at + 1).trim();
+      if (!rhs) throw new PyError("SyntaxError", "invalid syntax");
+      assignTargets(lhs); var p = new Parser(tokenize(rhs)); p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return;
+    }
+    var pp = new Parser(tokenize(raw)); pp.exprList(); if (!pp.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+  }
+  function compileExpr(src) { var p = new Parser(tokenize(src)); p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); }
+  function assignTargetNames(lhs) { var out = []; (function walk(x) { if (x.n === "name") out.push(x.id); else if (x.n === "tuple") x.items.forEach(walk); })(assignTargets(lhs)); return out; }
+  function newCtx() { return { env: {}, out: [], changed: [], pend: "" }; }
+  function assignTo(lhs, value, ctx) { ctx.changed = []; bind(assignTargets(lhs), value, ctx); return ctx.changed.slice(); }
+  function evalIn(src, ctx) { var p = new Parser(tokenize(src)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return ev(e, ctx); }
+  function evalExpr(src, env) { var ctx = { env: env || {}, out: [], changed: [] }; var p = new Parser(tokenize(src)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return { value: ev(e, ctx), out: ctx.out }; }
+  return { PyError: PyError, repr: repr, str: str, typeName: typeName, execLine: execLine, newCtx: newCtx, evalExpr: evalExpr, evalIn: evalIn, assignTo: assignTo, iter: iter, truthy: truthy, D: D, dset: dset, dget: dget, objId: objId, importModule: importModule, compileLine: compileLine, compileExpr: compileExpr, assignTargetNames: assignTargetNames, splitTopLevelEq: splitTopLevelEq, callValue: callValue, eq: eq, I: I, F: F, S: S, B: B, L: L, NONE: NONE };
+})();
+if (typeof module !== "undefined") module.exports = MiniPy;
+
+/* Shared helpers for all labs */
+var Lab = (function () {
+  "use strict";
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var KWS = /\b(and|or|not|in|is|if|elif|else|for|while|def|return|match|case|True|False|None|break|continue|import|from|as|print)\b/g;
+  function hl(line) {
+    // split out comment and strings first, then highlight keywords and numbers in code parts
+    var out = "", i = 0, n = line.length, buf = "";
+    function flush() {
+      out += esc(buf).replace(/\b(\d+\.?\d*)\b/g, '<span class="nu">$1</span>')
+        .replace(/\b(and|or|not|in|is|if|elif|else|for|while|def|return|match|case|True|False|None|break|continue)\b/g, '<span class="kw">$1</span>')
+        .replace(/\b(print|len|type|int|float|str|round|abs|max|min|sum|range|sorted|list)\b(?=\()/g, '<span class="fn">$1</span>');
+      buf = "";
+    }
+    while (i < n) {
+      var c = line[i];
+      if (c === "#") { flush(); out += '<span class="cm">' + esc(line.slice(i)) + "</span>"; return out; }
+      if (c === "'" || c === '"') {
+        var pre = "";
+        if (/[fF]$/.test(buf) && !/\w[fF]$/.test(buf)) { pre = buf.slice(-1); buf = buf.slice(0, -1); }
+        flush();
+        var j = i + 1; while (j < n && line[j] !== c) { if (line[j] === "\\") j++; j++; }
+        out += '<span class="st">' + esc(pre + line.slice(i, j + 1)) + "</span>"; i = j + 1; continue;
+      }
+      buf += c; i++;
+    }
+    flush(); return out;
+  }
+  function renderCode(el, lines, states, annotate) {
+    el.innerHTML = lines.map(function (l, k) {
+      var st = states && states[k] ? " " + states[k] : "";
+      var note = annotate && annotate[k] ? '<span style="margin-left:auto;padding-left:16px">' + annotate[k] + "</span>" : "";
+      return '<div class="ln' + st + '"><span class="no">' + (k + 1) + "</span><span>" + (hl(l) || " ") + "</span>" + note + "</div>";
+    }).join("");
+  }
+  function tabs() {
+    var btns = $$(".tabs button");
+    function show(id) {
+      btns.forEach(function (b) { b.setAttribute("aria-selected", b.dataset.tab === id ? "true" : "false"); });
+      $$(".exp").forEach(function (s) { s.classList.toggle("on", s.id === id); });
+      try { localStorage.setItem(document.title + ":tab", id); } catch (e) { }
+      if (history.replaceState) history.replaceState(null, "", "#" + id);
+    }
+    btns.forEach(function (b) { b.addEventListener("click", function () { show(b.dataset.tab); }); });
+    var start = (location.hash || "").slice(1);
+    if (!start || !$("#" + start)) { try { start = localStorage.getItem(document.title + ":tab"); } catch (e) { start = null; } }
+    show(start && $("#" + start) ? start : btns[0].dataset.tab);
+  }
+  function tryLists() {
+    $$(".try input[type=checkbox]").forEach(function (cb, k) {
+      var key = document.title + ":try" + k;
+      try { cb.checked = localStorage.getItem(key) === "1"; } catch (e) { }
+      function upd() { cb.closest("label").classList.toggle("done", cb.checked); }
+      upd();
+      cb.addEventListener("change", function () { upd(); try { localStorage.setItem(key, cb.checked ? "1" : "0"); } catch (e) { } });
+    });
+  }
+  function chipFor(v) { var t = MiniPy.typeName(v); return '<span class="chip ' + t + '">' + t + "</span>"; }
+  function errHTML(e) {
+    if (e.type === "NotSupported") return '<span class="e">' + esc(e.msg) + "</span>";
+    return '<span class="e">' + esc(e.type + ": " + e.msg) + "</span>" + (e.hint ? '<span class="hint">. ' + esc(e.hint) + "</span>" : "");
+  }
+  function init() { tabs(); tryLists(); }
+  document.addEventListener("DOMContentLoaded", init);
+  return { $: $, $$: $$, esc: esc, hl: hl, renderCode: renderCode, chipFor: chipFor, errHTML: errHTML };
+})();
+
+/* Small SVG chart helpers shared by the ML labs: nice ticks, a framed plot area with axes and grid, and marks. */
+var Plot = (function () {
+  "use strict";
+  var esc = Lab.esc;
+  var C = { blue: "#2459C4", orange: "#E07A1F", teal: "#1F8A7A", red: "#B4432A", navy: "#15213A", muted: "#5D6573", grid: "#E6EAF1", purple: "#6B3FA0" };
+  var CLASS = ["#2459C4", "#E07A1F", "#1F8A7A"], CLASS_SOFT = ["#C9D7F2", "#F8DDC2", "#C3E3DD"];
+  function ticks(lo, hi, n) {
+    var span = hi - lo || 1, step = Math.pow(10, Math.floor(Math.log10(span / n))), err = span / n / step;
+    step *= err >= 7.5 ? 10 : err >= 3.5 ? 5 : err >= 1.5 ? 2 : 1;
+    var out = []; for (var t = Math.ceil(lo / step - 1e-9) * step; t <= hi + 1e-9; t += step) out.push(+t.toFixed(10));
+    return out;
+  }
+  function fmt(v) { var a = Math.abs(v); return a >= 1000 ? String(Math.round(v)) : String(+v.toFixed(a >= 10 ? 1 : a >= 1 ? 2 : 3)); }
+  function frame(o) {
+    var W = o.W || 560, H = o.H || 380, m = o.m || { l: 56, r: 16, t: 16, b: 46 }, x0 = o.x[0], x1 = o.x[1], y0 = o.y[0], y1 = o.y[1];
+    var X = function (v) { return m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r); }, Y = function (v) { return H - m.b - (v - y0) / (y1 - y0) * (H - m.t - m.b); };
+    var id = "clip" + Math.random().toString(36).slice(2, 8), s = '<defs><clipPath id="' + id + '"><rect x="' + m.l + '" y="' + m.t + '" width="' + (W - m.l - m.r) + '" height="' + (H - m.t - m.b) + '"/></clipPath></defs>';
+    (o.xticks || ticks(x0, x1, o.nx || 7)).forEach(function (t) { s += '<line x1="' + X(t) + '" y1="' + m.t + '" x2="' + X(t) + '" y2="' + (H - m.b) + '" stroke="' + C.grid + '"/><text x="' + X(t) + '" y="' + (H - m.b + 16) + '" text-anchor="middle" font-size="11" fill="' + C.muted + '">' + (o.xfmt ? o.xfmt(t) : fmt(t)) + "</text>"; });
+    (o.yticks || ticks(y0, y1, o.ny || 6)).forEach(function (t) { s += '<line x1="' + m.l + '" y1="' + Y(t) + '" x2="' + (W - m.r) + '" y2="' + Y(t) + '" stroke="' + C.grid + '"/><text x="' + (m.l - 6) + '" y="' + (Y(t) + 4) + '" text-anchor="end" font-size="11" fill="' + C.muted + '">' + (o.yfmt ? o.yfmt(t) : fmt(t)) + "</text>"; });
+    s += '<line x1="' + m.l + '" y1="' + (H - m.b) + '" x2="' + (W - m.r) + '" y2="' + (H - m.b) + '" stroke="' + C.navy + '"/><line x1="' + m.l + '" y1="' + m.t + '" x2="' + m.l + '" y2="' + (H - m.b) + '" stroke="' + C.navy + '"/>';
+    if (o.xlabel) s += '<text x="' + ((m.l + W - m.r) / 2) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="12" font-weight="700" fill="' + C.muted + '">' + esc(o.xlabel) + "</text>";
+    if (o.ylabel) s += '<text transform="translate(14 ' + ((m.t + H - m.b) / 2) + ') rotate(-90)" text-anchor="middle" font-size="12" font-weight="700" fill="' + C.muted + '">' + esc(o.ylabel) + "</text>";
+    return { X: X, Y: Y, W: W, H: H, m: m, axes: s, clip: 'clip-path="url(#' + id + ')"', inside: function (px, py) { return px >= m.l && px <= W - m.r && py >= m.t && py <= H - m.b; },
+      invX: function (px) { return x0 + (px - m.l) / (W - m.l - m.r) * (x1 - x0); }, invY: function (py) { return y0 + (H - m.b - py) / (H - m.t - m.b) * (y1 - y0); } };
+  }
+  function dot(x, y, r, fill, stroke, title) { return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + fill + '"' + (stroke ? ' stroke="' + stroke + '" stroke-width="1.5"' : "") + ">" + (title ? "<title>" + esc(title) + "</title>" : "") + "</circle>"; }
+  function line(x1, y1, x2, y2, stroke, w, dash, extra) { return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + stroke + '" stroke-width="' + (w || 2) + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : "") + (extra || "") + "/>"; }
+  function path(pts, stroke, w, dash, extra) { return '<path d="' + pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") + '" fill="none" stroke="' + stroke + '" stroke-width="' + (w || 2) + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : "") + (extra || "") + "/>"; }
+  function text(x, y, s, o) { o = o || {}; return '<text x="' + x + '" y="' + y + '" font-size="' + (o.size || 12) + '"' + (o.anchor ? ' text-anchor="' + o.anchor + '"' : "") + ' fill="' + (o.fill || C.navy) + '"' + (o.bold ? ' font-weight="700"' : "") + (o.mono ? ' font-family="Consolas,Courier New,monospace"' : "") + ">" + esc(s) + "</text>"; }
+  function put(svgEl, W, H, inner) { svgEl.setAttribute("viewBox", "0 0 " + W + " " + H); svgEl.innerHTML = inner; }
+  function rleDecode(s) { return s.split(",").map(function (t) { return t[0].repeat(t.length > 1 ? parseInt(t.slice(1), 16) : 1); }).join(""); }
+  return { C: C, CLASS: CLASS, CLASS_SOFT: CLASS_SOFT, ticks: ticks, fmt: fmt, frame: frame, dot: dot, line: line, path: path, text: text, put: put, rleDecode: rleDecode };
+})();
+
+var LAB_DATA = {"X": [[5.1, 3.5, 1.4, 0.2], [4.9, 3.0, 1.4, 0.2], [4.7, 3.2, 1.3, 0.2], [4.6, 3.1, 1.5, 0.2], [5.0, 3.6, 1.4, 0.2], [5.4, 3.9, 1.7, 0.4], [4.6, 3.4, 1.4, 0.3], [5.0, 3.4, 1.5, 0.2], [4.4, 2.9, 1.4, 0.2], [4.9, 3.1, 1.5, 0.1], [5.4, 3.7, 1.5, 0.2], [4.8, 3.4, 1.6, 0.2], [4.8, 3.0, 1.4, 0.1], [4.3, 3.0, 1.1, 0.1], [5.8, 4.0, 1.2, 0.2], [5.7, 4.4, 1.5, 0.4], [5.4, 3.9, 1.3, 0.4], [5.1, 3.5, 1.4, 0.3], [5.7, 3.8, 1.7, 0.3], [5.1, 3.8, 1.5, 0.3], [5.4, 3.4, 1.7, 0.2], [5.1, 3.7, 1.5, 0.4], [4.6, 3.6, 1.0, 0.2], [5.1, 3.3, 1.7, 0.5], [4.8, 3.4, 1.9, 0.2], [5.0, 3.0, 1.6, 0.2], [5.0, 3.4, 1.6, 0.4], [5.2, 3.5, 1.5, 0.2], [5.2, 3.4, 1.4, 0.2], [4.7, 3.2, 1.6, 0.2], [4.8, 3.1, 1.6, 0.2], [5.4, 3.4, 1.5, 0.4], [5.2, 4.1, 1.5, 0.1], [5.5, 4.2, 1.4, 0.2], [4.9, 3.1, 1.5, 0.2], [5.0, 3.2, 1.2, 0.2], [5.5, 3.5, 1.3, 0.2], [4.9, 3.6, 1.4, 0.1], [4.4, 3.0, 1.3, 0.2], [5.1, 3.4, 1.5, 0.2], [5.0, 3.5, 1.3, 0.3], [4.5, 2.3, 1.3, 0.3], [4.4, 3.2, 1.3, 0.2], [5.0, 3.5, 1.6, 0.6], [5.1, 3.8, 1.9, 0.4], [4.8, 3.0, 1.4, 0.3], [5.1, 3.8, 1.6, 0.2], [4.6, 3.2, 1.4, 0.2], [5.3, 3.7, 1.5, 0.2], [5.0, 3.3, 1.4, 0.2], [7.0, 3.2, 4.7, 1.4], [6.4, 3.2, 4.5, 1.5], [6.9, 3.1, 4.9, 1.5], [5.5, 2.3, 4.0, 1.3], [6.5, 2.8, 4.6, 1.5], [5.7, 2.8, 4.5, 1.3], [6.3, 3.3, 4.7, 1.6], [4.9, 2.4, 3.3, 1.0], [6.6, 2.9, 4.6, 1.3], [5.2, 2.7, 3.9, 1.4], [5.0, 2.0, 3.5, 1.0], [5.9, 3.0, 4.2, 1.5], [6.0, 2.2, 4.0, 1.0], [6.1, 2.9, 4.7, 1.4], [5.6, 2.9, 3.6, 1.3], [6.7, 3.1, 4.4, 1.4], [5.6, 3.0, 4.5, 1.5], [5.8, 2.7, 4.1, 1.0], [6.2, 2.2, 4.5, 1.5], [5.6, 2.5, 3.9, 1.1], [5.9, 3.2, 4.8, 1.8], [6.1, 2.8, 4.0, 1.3], [6.3, 2.5, 4.9, 1.5], [6.1, 2.8, 4.7, 1.2], [6.4, 2.9, 4.3, 1.3], [6.6, 3.0, 4.4, 1.4], [6.8, 2.8, 4.8, 1.4], [6.7, 3.0, 5.0, 1.7], [6.0, 2.9, 4.5, 1.5], [5.7, 2.6, 3.5, 1.0], [5.5, 2.4, 3.8, 1.1], [5.5, 2.4, 3.7, 1.0], [5.8, 2.7, 3.9, 1.2], [6.0, 2.7, 5.1, 1.6], [5.4, 3.0, 4.5, 1.5], [6.0, 3.4, 4.5, 1.6], [6.7, 3.1, 4.7, 1.5], [6.3, 2.3, 4.4, 1.3], [5.6, 3.0, 4.1, 1.3], [5.5, 2.5, 4.0, 1.3], [5.5, 2.6, 4.4, 1.2], [6.1, 3.0, 4.6, 1.4], [5.8, 2.6, 4.0, 1.2], [5.0, 2.3, 3.3, 1.0], [5.6, 2.7, 4.2, 1.3], [5.7, 3.0, 4.2, 1.2], [5.7, 2.9, 4.2, 1.3], [6.2, 2.9, 4.3, 1.3], [5.1, 2.5, 3.0, 1.1], [5.7, 2.8, 4.1, 1.3], [6.3, 3.3, 6.0, 2.5], [5.8, 2.7, 5.1, 1.9], [7.1, 3.0, 5.9, 2.1], [6.3, 2.9, 5.6, 1.8], [6.5, 3.0, 5.8, 2.2], [7.6, 3.0, 6.6, 2.1], [4.9, 2.5, 4.5, 1.7], [7.3, 2.9, 6.3, 1.8], [6.7, 2.5, 5.8, 1.8], [7.2, 3.6, 6.1, 2.5], [6.5, 3.2, 5.1, 2.0], [6.4, 2.7, 5.3, 1.9], [6.8, 3.0, 5.5, 2.1], [5.7, 2.5, 5.0, 2.0], [5.8, 2.8, 5.1, 2.4], [6.4, 3.2, 5.3, 2.3], [6.5, 3.0, 5.5, 1.8], [7.7, 3.8, 6.7, 2.2], [7.7, 2.6, 6.9, 2.3], [6.0, 2.2, 5.0, 1.5], [6.9, 3.2, 5.7, 2.3], [5.6, 2.8, 4.9, 2.0], [7.7, 2.8, 6.7, 2.0], [6.3, 2.7, 4.9, 1.8], [6.7, 3.3, 5.7, 2.1], [7.2, 3.2, 6.0, 1.8], [6.2, 2.8, 4.8, 1.8], [6.1, 3.0, 4.9, 1.8], [6.4, 2.8, 5.6, 2.1], [7.2, 3.0, 5.8, 1.6], [7.4, 2.8, 6.1, 1.9], [7.9, 3.8, 6.4, 2.0], [6.4, 2.8, 5.6, 2.2], [6.3, 2.8, 5.1, 1.5], [6.1, 2.6, 5.6, 1.4], [7.7, 3.0, 6.1, 2.3], [6.3, 3.4, 5.6, 2.4], [6.4, 3.1, 5.5, 1.8], [6.0, 3.0, 4.8, 1.8], [6.9, 3.1, 5.4, 2.1], [6.7, 3.1, 5.6, 2.4], [6.9, 3.1, 5.1, 2.3], [5.8, 2.7, 5.1, 1.9], [6.8, 3.2, 5.9, 2.3], [6.7, 3.3, 5.7, 2.5], [6.7, 3.0, 5.2, 2.3], [6.3, 2.5, 5.0, 1.9], [6.5, 3.0, 5.2, 2.0], [6.2, 3.4, 5.4, 2.3], [5.9, 3.0, 5.1, 1.8]], "y": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], "test": [1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1], "pairs": {"sepal": {"cols": [0, 1], "x": [4.0, 8.2], "y": [1.8, 4.6]}, "petal": {"cols": [2, 3], "x": [0.5, 7.4], "y": [-0.1, 2.8]}}, "grid": [140, 90], "ks": [1, 2, 3, 5, 7, 10, 15, 20, 30, 50], "depths": [1, 2, 3, 4, 5, 6, 8, 10], "maps": {"sepal|knn|1": {"map": "012,122,219,11b,224,013,121,218,11c,224,014,121,217,11c,224,014,121,217,11c,224,015,120,216,11d,224,015,121,215,11c,225,016,120,215,11c,225,017,120,213,11d,225,017,120,213,11c,226,018,120,211,11d,226,019,11f,211,11c,227,019,11f,211,11c,227,019,120,2f,11c,228,019,120,2f,11c,228,019,121,2e,11b,229,019,121,2d,11c,229,019,122,2c,11c,229,019,123,2b,11b,22a,019,124,29,11c,22a,019,126,28,11b,22a,019,128,21d,14,22a,019,128,21b,16,22a,019,128,21a,17,22a,019,128,218,19,22a,019,128,217,1b,229,019,129,216,1a,22a,01b,128,214,1b,22a,01d,127,213,1b,22a,01d,11c,23,19,211,1b,22b,01e,11b,23,1c,2e,1a,22c,01f,11b,22,1c,2d,1a,22d,020,11a,26,18,2c,1a,22e,021,119,26,18,2c,19,22f,021,119,26,18,2b,19,230,022,119,24,1c,28,18,231,023,119,22,1d,28,17,232,025,126,29,15,233,026,11b,23,17,2a,13,234,026,11b,23,17,2b,1,235,027,11a,23,17,241,028,119,23,17,2b,17,22f,028,119,23,17,2b,17,22f,029,119,22,16,2c,16,230,02a,11f,22,17,25,14,231,02b,11d,24,16,25,13,232,033,113,27,15,23a,035,112,27,14,23a,037,110,28,13,23a,038,1f,29,12,23a,039,1f,29,1,23a,039,1f,244,03a,1e,244,03a,1e,244,03b,1d,244,03b,1d,244,03b,1d,244,03c,1c,244,03d,1b,244,03f,19,244,040,18,244,042,16,244,043,15,244,044,14,244,048,244,049,243,04a,242,04b,241,04d,23f,04e,23e,04f,23d,050,23c,052,23a,053,239,054,238,055,237,057,235,057,235,057,235,058,234,058,234,058,234,058,234,059,233,059,233,059,233,05a,232,05a,232,05a,232,05b,231,05b,231", "tr": 0.9333333333333333, "te": 0.7333333333333333}, "sepal|knn|2": {"map": "019,151,222,019,151,222,019,150,223,019,150,223,019,14f,224,019,14f,224,019,14e,225,019,14e,225,019,14e,225,019,14d,226,019,14d,226,019,14d,226,01a,14c,226,01a,14b,227,01b,14a,227,01c,149,227,01c,125,2,122,228,01d,124,23,120,228,01e,123,24,11f,228,01e,123,25,11e,228,01e,123,26,11c,229,01d,128,23,11b,229,01d,128,23,11b,229,01c,12a,23,11a,229,01c,12b,22,11a,229,01b,12c,23,1b,23,1b,229,01c,12c,2f,1c,229,01e,12a,2f,1b,22a,022,126,2e,1c,22a,025,124,2d,1c,22a,025,124,2c,1d,22a,025,116,2,1d,2b,1e,22a,025,125,2a,1f,229,025,126,28,110,229,025,127,27,110,229,026,127,26,111,228,026,128,26,110,228,026,128,27,1f,228,029,124,29,1f,227,02b,121,2b,1e,227,02b,120,22,12,27,110,226,02c,125,25,110,226,02d,125,23,18,2,18,226,02f,12e,22,16,227,031,12c,23,15,227,034,114,2,1c,23,1,28,14,227,036,112,23,1a,2d,12,228,038,110,25,18,2e,1,228,039,1f,27,15,238,03a,1e,29,13,238,03a,1e,2b,1,238,03a,1e,244,03b,1e,243,03c,1d,243,03c,1d,243,03f,1b,242,042,18,242,043,17,242,043,18,241,044,17,241,045,16,241,045,17,240,046,16,240,048,14,240,04b,12,23f,04d,23f,04f,23d,050,23c,052,23a,053,239,054,238,055,237,056,236,056,236,056,236,057,235,058,234,059,233,05a,232,05b,231,05c,230,05d,22f,05d,22f,05d,22f,05d,22f,05e,22e,05e,22e,05e,22e,05e,22e,05e,22e", "tr": 0.8666666666666667, "te": 0.7111111111111111}, "sepal|knn|3": {"map": "142,218,1c,226,142,217,1c,227,142,216,1d,227,142,215,1e,227,142,214,1f,227,141,214,110,227,141,213,111,227,0,140,212,112,227,02,13f,211,112,228,03,13e,2f,114,228,04,13d,2e,115,228,05,13c,2d,115,229,07,13a,2c,116,229,08,139,2b,117,229,0a,137,2a,118,229,0b,136,29,118,22a,0d,132,2a,119,2,1,228,0f,130,29,11c,228,010,12f,28,11c,229,012,12d,28,11b,22a,014,12b,29,119,22b,018,12b,27,117,22b,019,12b,27,1d,2,19,22a,019,12b,215,12,22,15,22a,01a,12b,218,15,22a,01b,12b,216,16,22a,01a,12d,214,17,22a,01a,12e,212,18,22a,01c,11d,23,15,2,15,213,18,22a,023,116,23,1b,212,19,22a,025,115,22,1b,211,1a,22a,025,116,25,18,210,18,22c,025,117,23,1a,2e,1a,22b,025,118,22,1a,2e,1a,22b,025,124,2e,19,22c,025,124,2e,19,22c,025,125,2d,18,22d,026,125,2c,16,22f,027,125,2b,16,22f,02b,120,2c,16,22f,02b,120,212,12,22d,02b,120,212,1,22e,02d,11b,244,02f,118,2,12,242,031,116,2,1,243,034,114,244,036,111,245,037,1f,246,039,1d,246,039,1c,247,039,1c,247,039,1c,247,039,1b,248,039,1b,248,03c,18,248,03d,17,248,03e,15,249,03f,12,03,248,045,247,046,246,046,246,048,244,049,243,04a,242,04c,240,04d,23f,04d,23f,04e,23e,04e,23e,04f,23d,04f,23d,050,23c,051,23b,052,23a,053,239,053,239,054,238,054,238,054,238,054,238,054,238,054,238,055,237,055,237,055,237,056,236,057,235,058,234,059,233,05a,232", "tr": 0.8761904761904762, "te": 0.6666666666666666}, "sepal|knn|5": {"map": "0e,136,248,0e,135,249,0e,135,249,0f,134,249,0f,133,24a,0f,133,24a,010,132,24a,010,131,24b,011,130,24b,011,130,21f,13,229,011,130,21e,14,229,012,12f,21e,14,229,012,12f,21d,16,228,012,12f,21d,16,228,013,12e,21c,17,228,013,12e,21c,17,228,014,12d,21b,18,228,015,12d,21a,17,229,015,12d,219,18,229,015,12e,218,17,22a,016,12c,218,17,22b,016,12d,22,13,212,13,22,12,22b,017,131,244,019,12d,246,020,126,246,020,127,218,1,22c,021,124,21a,12,22b,022,122,21a,13,22b,023,122,219,15,229,023,117,25,17,217,15,22a,024,116,25,18,215,16,22a,025,116,24,19,213,16,22b,026,116,23,1a,212,16,22b,027,116,2,1b,211,17,22b,028,121,211,17,22b,028,121,210,18,22b,029,121,2e,19,22b,029,122,2d,14,2,15,22a,02a,122,2b,15,2,14,22b,02a,123,2a,14,22,13,22c,02b,121,2c,1,23,1,22f,02d,11e,241,02e,11a,244,02f,119,244,030,118,244,033,115,244,036,112,244,037,111,244,039,19,22,14,244,03a,17,23,14,244,03b,16,23,14,244,03d,14,23,14,244,03d,1,02,1,23,14,244,040,18,244,040,18,244,040,18,244,041,17,244,042,16,244,044,14,244,048,1,243,04a,242,04b,241,04b,12,23f,04c,12,23e,04d,12,23d,04e,23e,04f,23d,04f,23d,050,23c,050,23c,051,23b,051,23b,052,23a,052,23a,052,23a,052,23a,052,23a,052,23a,052,23a,053,239,054,238,055,237,056,236,056,236,057,235,058,234,059,233,05a,232,05a,232,05a,232", "tr": 0.8761904761904762, "te": 0.7111111111111111}, "sepal|knn|7": {"map": "0d,13c,243,0e,13a,244,0f,139,244,010,138,244,011,137,244,011,137,244,012,136,244,013,135,244,014,134,244,014,134,244,015,133,244,015,133,244,016,131,245,016,131,245,017,130,245,017,130,245,018,12f,245,019,12d,21b,1,22a,01a,12c,21b,1,22a,01b,12b,21a,12,22a,01c,12a,219,12,22b,01d,129,246,01e,127,2,12,244,01f,127,2,1,244,020,125,247,020,125,247,020,125,21b,1,22b,021,124,21a,12,22b,021,125,218,14,22a,022,124,217,15,22a,024,123,215,17,229,026,122,214,17,229,027,121,214,17,229,027,122,213,17,229,027,123,211,16,22b,028,123,210,16,22b,028,123,210,15,22c,029,121,211,13,22e,029,120,211,13,22f,02a,11f,22,1,2e,1,231,02d,11f,240,02e,11a,2,1,242,02e,11b,243,02f,119,244,030,118,244,032,116,244,033,115,244,034,114,244,034,114,244,035,113,244,036,111,245,03d,1a,245,03e,19,245,03e,13,2,14,246,03f,12,22,13,246,043,14,245,043,15,244,044,2,13,244,044,2,14,243,044,14,244,045,13,244,045,13,244,045,13,244,046,12,244,046,12,244,046,12,244,048,244,049,243,04a,242,04b,241,04c,240,04d,23f,04e,23e,050,23c,051,23b,051,23b,052,23a,052,23a,053,239,053,239,053,239,053,239,053,239,053,239,054,238,054,238,054,238,055,237,055,237,055,237", "tr": 0.8857142857142857, "te": 0.7333333333333333}, "sepal|knn|10": {"map": "0d,140,23f,0e,13f,23f,0f,13d,240,0f,13d,240,010,13b,241,011,13a,241,011,13a,241,012,138,242,013,137,242,013,136,243,014,135,243,015,134,243,016,133,243,016,133,243,017,132,243,018,131,243,018,131,243,019,130,243,01a,12f,243,01b,12d,21b,1,228,01b,12d,244,01c,12c,244,01d,12a,245,01d,12b,244,01e,12a,244,01f,129,244,020,128,244,021,128,243,021,128,243,022,126,244,024,124,244,025,124,243,026,123,243,027,122,243,029,120,243,029,121,242,02a,120,242,02a,120,242,02b,120,241,02c,11e,242,02e,11b,243,02f,11b,242,031,118,243,032,117,243,032,117,243,032,117,243,032,116,244,034,113,245,035,112,245,036,111,245,03a,1c,246,03b,12,0,18,246,03c,1,0,18,246,03f,16,247,040,15,247,041,23,1,247,041,23,1,247,042,24a,043,249,044,248,045,247,045,247,046,246,046,246,047,245,047,245,048,244,048,244,049,243,049,243,049,243,04a,242,04a,242,04b,241,04b,241,04c,240,04c,240,04d,23f,04d,23f,04e,23e,04e,23e,04e,23e,04e,23e,04f,23d,050,23c,051,23b,051,23b,052,23a,052,23a,052,23a", "tr": 0.8761904761904762, "te": 0.7111111111111111}, "sepal|knn|15": {"map": "0d,140,23f,0e,13e,240,0f,13d,240,0f,13c,241,010,13b,241,010,13a,242,011,139,242,012,138,242,012,138,242,013,137,242,014,136,242,014,135,243,015,134,243,016,133,243,017,131,244,018,12f,245,018,12f,245,019,12e,245,01a,12c,246,01b,12b,246,01c,12a,246,01d,128,247,01d,128,247,01e,124,2,12,247,01e,12a,244,01e,12a,244,01f,128,245,021,126,245,022,124,246,023,123,246,023,123,246,024,122,246,025,121,246,026,120,246,027,11e,247,028,11d,247,029,11d,246,02a,11d,245,02b,11d,244,02c,11c,244,02d,11c,243,02e,11b,243,030,119,243,030,119,243,031,118,243,031,118,243,034,115,243,034,115,243,034,115,243,035,113,244,037,111,244,039,1f,244,03b,1d,244,040,18,244,040,18,244,042,14,246,043,2,12,246,043,249,043,249,043,249,044,248,044,248,045,247,045,247,046,246,047,245,048,244,049,243,04a,242,04a,242,04a,242,04b,241,04b,241,04b,241,04c,240,04c,240,04c,240,04d,23f,04e,23e,04e,23e,04e,23e,04e,23e,04f,23d,04f,23d,04f,23d,050,23c,050,23c,050,23c,051,23b,051,23b", "tr": 0.8476190476190476, "te": 0.6888888888888889}, "sepal|knn|20": {"map": "016,13b,2,15,235,016,13a,2,1,2,13,236,016,13a,22,12,238,017,138,23,1,239,017,137,23,1,22,1,237,018,136,23e,018,135,26,1,238,019,133,26,1,239,01a,132,26,1,239,01b,130,26,12,239,01b,130,25,12,23a,01c,12f,24,13,23a,01d,12e,24,12,23b,01d,12d,24,13,23b,01e,129,2,12,24,12,23c,01e,128,2,12,25,12,23c,01e,127,22,12,24,12,23d,01e,127,22,12,24,12,23d,01e,12b,24,12,23d,01f,12a,24,1,23e,01f,129,24,12,23e,01f,129,23,12,23f,01f,129,22,13,23f,01f,129,2,14,23f,020,12c,240,021,12b,240,022,123,22,14,241,023,122,22,13,242,023,124,22,1,242,023,123,246,023,123,22,1,243,024,121,247,025,120,247,026,11e,248,027,11d,248,02a,11b,247,02b,11a,247,02c,11a,246,02d,118,247,02f,117,246,02f,118,245,02f,117,246,030,116,246,033,113,246,033,113,246,033,113,246,034,113,245,034,113,245,036,111,245,037,110,245,038,1f,245,038,1e,246,03a,1c,246,03c,1a,246,03d,19,246,03e,18,246,03f,17,246,03f,1,02,14,246,044,12,246,045,1,246,046,246,047,245,047,245,048,244,048,244,049,243,049,243,049,243,04a,242,04a,242,04a,242,04a,242,04b,241,04b,241,04b,241,04b,241,04c,240,04c,240,04c,240,04c,240,04c,240,04d,23f,04d,23f,04d,23f,04e,23e,04e,23e,04f,23d,04f,23d,050,23c,050,23c", "tr": 0.8380952380952381, "te": 0.7111111111111111}, "sepal|knn|30": {"map": "0d,14c,233,0d,14b,234,0c,14c,234,0d,149,2,1,234,0e,149,235,0f,148,235,010,147,235,011,145,236,012,144,236,013,143,236,014,141,237,015,13e,239,016,13c,23a,016,13b,23b,017,13a,23b,018,138,22,1,239,019,136,23d,01a,134,23e,01b,132,23f,01b,131,240,01c,130,240,01d,12e,241,01e,12d,241,01f,12b,242,020,12a,242,021,129,242,021,128,243,022,127,243,022,128,242,023,127,242,024,125,243,025,124,243,026,122,244,026,121,245,027,120,245,029,11e,245,02a,11c,246,02b,11a,247,02d,118,247,02d,118,247,02e,117,247,02e,118,246,030,116,246,031,116,245,034,113,245,034,113,245,035,111,246,036,110,246,036,1f,247,037,1e,247,039,1c,247,03a,1a,248,03a,1a,248,03b,1c,245,03b,1b,246,03d,1a,245,03d,1a,245,03e,19,245,03f,17,246,040,16,246,042,14,246,042,14,246,044,2,1,246,045,1,246,045,247,045,247,046,246,046,246,047,245,048,244,049,243,04a,242,04a,242,04b,241,04b,241,04c,240,04c,240,04d,23f,04d,23f,04e,23e,04f,23d,04f,23d,050,23c,050,23c,04f,23d,04f,23d,04f,23d,050,23c,050,23c,051,23b", "tr": 0.8666666666666667, "te": 0.7555555555555555}, "sepal|knn|50": {"map": "013,146,233,014,145,233,015,144,233,016,143,233,017,142,233,017,142,233,018,141,233,018,140,234,019,13e,235,019,13e,235,01a,13d,235,01b,13c,235,01b,13c,235,01c,13a,236,01d,138,237,01d,137,238,01e,135,239,01f,134,239,021,132,239,023,130,239,025,12e,239,025,12d,23a,026,12b,23b,026,12b,23b,026,12b,23b,027,12a,23b,027,12a,23b,027,12a,23b,027,12a,23b,028,128,23c,028,128,23c,028,128,23c,028,128,23c,029,127,23c,02a,126,23c,02b,125,23c,02c,125,23b,02d,123,23c,02d,123,23c,02d,123,23c,02d,123,23c,02e,122,23c,02f,120,23d,032,11d,23d,033,11b,23e,033,11a,23f,033,11b,23e,036,118,23e,037,110,245,037,1,0,1e,245,03a,1d,245,03c,1c,244,03c,1d,243,03d,1f,240,03d,1f,240,03d,1e,241,03f,1b,242,041,1a,241,042,19,241,043,16,243,043,16,243,043,1,22,12,244,043,12,247,045,247,045,247,046,1,245,046,1,245,046,1,245,047,245,048,244,048,244,049,243,049,243,04a,242,04a,242,04a,242,04b,241,04c,240,04c,240,04d,23f,04d,23f,04d,23f,04e,23e,04e,23e,04f,23d,04f,23d,050,23c,050,23c,050,23c,050,23c", "tr": 0.819047619047619, "te": 0.7111111111111111}, "sepal|tree|1": {"map": "030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c,030,25c", "tr": 0.6285714285714286, "te": 0.6222222222222222}, "sepal|tree|2": {"map": "14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,14b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241", "tr": 0.8095238095238095, "te": 0.6888888888888889}, "sepal|tree|3": {"map": "019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,132,241,019,132,241,019,132,241,019,132,241,019,132,241,019,132,241,019,132,241,019,132,241,019,132,241,019,132,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241", "tr": 0.8666666666666667, "te": 0.6888888888888889}, "sepal|tree|4": {"map": "019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,173,019,132,241,019,132,241,019,132,241,019,132,241,019,132,241,019,132,241,019,132,241,019,132,241,019,132,241,019,132,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241", "tr": 0.8761904761904762, "te": 0.6888888888888889}, "sepal|tree|5": {"map": "019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,252,019,121,252,019,121,252,019,121,252,019,121,252,019,121,252,019,121,252,019,121,252,019,121,252,019,121,252,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,02d,11e,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241", "tr": 0.8857142857142857, "te": 0.6222222222222222}, "sepal|tree|6": {"map": "019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,241,02d,11e,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241", "tr": 0.8952380952380953, "te": 0.6888888888888889}, "sepal|tree|8": {"map": "019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,23,141,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,23,14,23a,02d,11e,23,14,23a,030,11b,23,14,23a,030,11b,23,14,23a,030,11b,23,14,23a,030,11b,23,14,23a,030,11b,23,14,23a,030,11b,23,14,23a,030,11b,23,14,23a,030,11b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a,04b,23,14,23a", "tr": 0.9047619047619048, "te": 0.6666666666666666}, "sepal|tree|10": {"map": "019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,121,211,141,019,126,2c,141,019,126,2c,141,019,126,2c,141,019,126,2c,141,019,126,216,110,227,019,126,216,110,227,019,126,216,110,227,019,126,216,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,12f,2d,110,227,019,121,25,19,2d,110,227,019,121,25,19,2d,110,227,019,121,25,19,2d,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,11e,2a,110,227,02d,114,23,17,2a,110,227,02d,114,23,17,2a,110,227,02d,114,23,17,2a,110,227,02d,114,23,17,2a,110,227,02d,114,23,17,2a,110,227,02d,11e,2a,110,227,02d,125,23a,02d,125,23a,030,122,23a,030,122,23a,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,030,11b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241,04b,241", "tr": 0.9333333333333333, "te": 0.6666666666666666}, "petal|knn|1": {"map": "033,131,228,032,132,228,032,132,228,032,132,228,031,133,228,031,133,228,031,133,228,030,133,229,030,133,229,02f,134,229,02f,134,229,02f,134,229,02e,135,229,02e,135,229,02e,134,22a,02d,135,22a,02d,135,22a,02d,135,22a,02d,135,22a,02c,136,22a,02c,136,22a,02c,135,22b,02c,135,22b,02b,136,22b,02b,136,22b,02b,136,22b,02a,137,22b,02a,137,22b,02a,136,22c,02a,136,22c,029,137,22c,029,137,22c,029,136,22d,028,137,22d,028,136,22e,028,136,22e,028,135,22f,027,136,22f,027,135,230,027,135,230,026,135,231,026,134,232,026,134,232,026,134,232,025,135,232,025,135,232,025,135,232,024,136,232,024,136,232,024,136,232,024,136,232,024,136,22,17,229,023,137,2,17,22a,023,13f,22a,023,133,22,1a,22a,023,131,25,18,22b,023,131,26,17,22b,022,131,27,14,22e,022,131,28,12,22f,022,130,23a,022,130,23a,022,130,23a,021,130,23b,021,130,23b,021,12f,23c,021,12f,23c,021,12e,23d,020,12f,23d,020,12f,23d,020,12e,23e,020,12e,23e,020,12d,23f,01f,12e,23f,01f,12d,240,01f,12d,240,01f,12c,241,01f,12c,241,01e,12d,241,01e,12c,242,01e,12c,242,01e,12b,243,01e,12b,243,01d,12b,244,01d,12a,245,01d,129,246,01d,129,246,01c,129,247,01c,128,248,01c,128,248,01c,127,249", "tr": 0.9904761904761905, "te": 0.9777777777777777}, "petal|knn|2": {"map": "034,137,221,034,137,221,033,138,221,033,137,222,033,137,222,032,138,222,032,138,222,032,138,222,031,138,223,031,138,223,031,138,223,030,139,223,030,138,224,030,138,224,02f,139,224,02f,139,224,02f,138,225,02f,138,225,02e,138,226,02e,138,226,02e,137,227,02e,137,227,02d,137,228,02d,137,228,02d,136,229,02d,136,229,02c,136,22a,02c,136,22a,02c,135,22b,02c,135,22b,02b,135,22c,02b,135,22c,02b,135,22c,02b,135,22c,02a,135,22d,02a,134,22e,02a,134,22e,02a,133,22f,02a,132,230,029,133,230,029,132,231,029,132,231,029,132,231,028,133,231,028,133,231,028,133,25,1,22b,028,133,24,12,22b,027,134,24,13,22a,027,134,23,14,22a,027,134,22,15,22a,027,134,22,15,22a,026,13d,229,026,13c,22a,026,13c,22a,025,131,22,1a,22a,025,12f,25,18,22b,025,12f,25,18,22b,025,12e,26,15,22e,024,12f,27,13,22f,024,12e,23a,024,12e,23a,023,12f,23a,023,12e,23b,023,12e,23b,023,12d,23c,022,12e,23c,022,12d,23d,022,12d,23d,021,12e,23d,021,12d,23e,021,12d,23e,021,12c,23f,020,12d,23f,020,12c,240,020,12c,240,020,12b,241,01f,12c,241,01f,12c,241,01f,12b,242,01e,12c,242,01e,12b,243,01e,12b,243,01e,12a,244,01d,12b,244,01d,12b,244,01d,12a,245,01d,12a,245,01c,12a,246,01c,12a,246,01c,129,247", "tr": 0.9809523809523809, "te": 0.9777777777777777}, "petal|knn|3": {"map": "033,131,228,033,131,228,032,132,228,032,131,229,032,131,229,032,131,229,031,132,229,031,131,22a,031,131,22a,031,131,22a,030,132,22a,030,131,22b,030,131,22b,030,131,22b,02f,132,22b,02f,131,22c,02f,131,22c,02e,132,22c,02e,131,22d,02e,131,22d,02d,132,22d,02d,132,22d,02d,132,22d,02c,133,22d,02c,132,22e,02c,132,22e,02b,133,22e,02b,132,22f,02b,132,22f,02a,133,22f,02a,132,230,02a,132,230,02a,132,230,02a,132,230,029,132,231,029,132,231,029,132,231,029,132,231,029,132,231,028,133,231,028,133,231,028,133,231,028,133,231,028,133,231,028,133,231,027,134,231,027,134,231,027,134,231,027,134,231,027,134,231,026,135,231,026,135,231,026,136,230,026,12f,22,1a,22b,025,130,24,18,22b,025,12f,26,16,22c,024,12f,28,14,22d,024,12e,23a,024,12d,23b,023,12e,23b,023,12d,23c,023,12c,23d,022,12d,23d,022,12c,23e,022,12c,23e,021,12c,23f,021,12c,23f,021,12c,23f,020,12c,240,020,12c,240,020,12c,240,01f,12c,241,01f,12c,241,01f,12c,241,01e,12c,242,01e,12c,242,01e,12c,242,01d,12c,243,01d,12c,243,01d,12c,243,01c,12c,244,01c,12c,244,01b,12d,244,01b,12c,245,01b,12c,245,01a,12d,245,01a,12c,246,01a,12c,246,019,12d,246,019,12c,247", "tr": 0.9809523809523809, "te": 0.9777777777777777}, "petal|knn|5": {"map": "031,133,228,031,132,229,030,133,229,030,133,229,030,132,22a,030,132,22a,02f,133,22a,02f,132,22b,02f,132,22b,02e,133,22b,02e,132,22c,02e,132,22c,02e,132,22c,02d,133,22c,02d,132,22d,02d,132,22d,02d,132,22d,02c,133,22d,02c,133,22d,02c,132,22e,02c,132,22e,02c,132,22e,02c,132,22e,02b,133,22e,02b,133,22e,02b,133,22e,02b,133,22e,02b,133,22e,02a,134,22e,02a,134,22e,02a,135,22d,02a,135,22d,029,136,22d,029,136,22d,029,136,22d,028,137,22d,028,137,22d,028,137,22d,027,138,22d,027,138,22d,027,138,22d,026,13a,22c,026,13a,22c,026,13a,22c,026,13a,22c,026,13a,22c,025,13b,22c,025,13b,22c,025,13b,22c,025,13b,22c,025,13b,22c,024,13c,22c,024,13b,22d,024,13a,22e,024,132,23,12,231,023,132,237,023,132,237,023,131,238,023,130,239,023,130,239,022,130,23a,022,130,23a,022,12f,23b,022,12f,23b,022,12e,23c,021,12f,23c,021,12e,23d,021,12e,23d,021,12d,23e,021,12d,23e,020,12e,23e,020,12d,23f,020,12d,23f,020,12d,23f,020,12c,240,01f,12d,240,01f,12d,240,01f,12c,241,01f,12b,242,01f,12b,242,01e,12b,243,01e,12a,244,01e,129,245,01e,129,245,01d,129,246,01d,12a,245,01d,128,247,01d,129,246,01d,127,2,1,246,01c,129,247", "tr": 0.9619047619047619, "te": 0.9777777777777777}, "petal|knn|7": {"map": "032,134,226,032,134,226,032,134,226,031,135,226,031,135,226,031,135,226,031,134,227,030,135,227,030,135,227,030,135,227,030,135,227,030,135,227,02f,136,227,02f,136,227,02f,136,227,02f,136,227,02e,136,228,02e,136,228,02e,136,228,02e,136,228,02e,136,228,02d,137,228,02d,137,228,02d,137,228,02d,137,228,02c,138,228,02c,138,228,02c,138,228,02c,138,228,02b,139,228,02b,139,228,02b,139,228,02a,13a,228,02a,139,229,02a,139,229,029,13a,229,029,13a,229,029,139,22a,028,13a,22a,028,13a,22a,028,13a,22a,027,13b,22a,027,13b,22a,027,13b,22a,026,13c,22a,026,13c,22a,025,13d,22a,025,13c,22b,025,13c,22b,024,13d,22b,024,13c,22c,024,13c,22c,023,13c,22d,023,13b,22e,023,136,2,13,22f,023,137,232,023,135,234,022,134,236,022,134,236,022,132,238,022,132,238,022,131,239,021,132,239,021,131,23a,021,131,23a,021,130,23b,021,12f,23c,020,130,23c,020,12f,23d,020,12f,23d,020,12e,23e,020,12e,23e,01f,12e,23f,01f,12e,23f,01f,12d,240,01f,12c,241,01f,12b,242,01e,12c,242,01e,12b,243,01e,12b,243,01e,12a,244,01e,12a,244,01d,12a,245,01d,12a,245,01d,12a,245,01d,129,246,01d,129,246,01c,12a,246,01c,129,247,01c,129,247", "tr": 0.9619047619047619, "te": 0.9777777777777777}, "petal|knn|10": {"map": "034,13a,21e,034,139,21f,033,13a,21f,033,13a,21f,033,139,220,033,139,220,033,139,220,032,139,221,032,139,221,032,139,221,032,139,221,031,13a,221,031,139,222,031,139,222,030,13a,222,030,139,223,030,139,223,030,139,223,02f,139,224,02f,139,224,02f,139,224,02e,139,225,02e,139,225,02e,139,225,02e,138,226,02d,139,226,02d,139,226,02d,138,227,02c,139,227,02c,139,227,02c,138,228,02c,138,228,02c,138,228,02b,138,229,02b,138,229,02b,138,229,02b,138,229,02b,138,229,02a,139,229,02a,138,22a,02a,138,22a,02a,137,22b,029,138,22b,029,138,22b,029,138,22b,029,137,22c,028,137,22d,028,137,22d,028,136,22e,028,136,22e,027,136,22f,027,135,230,027,135,230,027,135,230,026,135,231,026,135,231,026,134,232,026,132,234,025,132,235,025,131,236,025,130,237,025,130,237,024,130,238,024,130,238,024,12f,239,024,12f,239,023,12f,23a,023,12f,23a,023,12f,23a,023,12e,23b,023,12d,23c,022,12d,23d,022,12d,23d,022,12c,23e,022,12c,23e,022,12b,23f,022,12b,23f,021,12b,240,021,12b,240,021,12a,241,021,129,242,021,128,243,021,128,243,020,128,244,020,127,245,020,126,246,020,126,246,020,125,247,01f,126,247,01f,125,248", "tr": 0.9523809523809523, "te": 0.9777777777777777}, "petal|knn|15": {"map": "034,138,220,034,137,221,034,137,221,034,137,221,034,136,222,033,137,222,033,137,222,033,137,222,033,136,223,032,137,223,032,137,223,032,137,223,031,138,223,031,137,224,031,137,224,031,137,224,030,138,224,030,138,224,030,138,224,02f,138,225,02f,138,225,02f,138,225,02f,138,225,02e,139,225,02e,139,225,02e,139,225,02d,139,226,02d,139,226,02d,139,226,02d,139,226,02c,13a,226,02c,13a,226,02c,139,227,02c,139,227,02b,13a,227,02b,13a,227,02b,13a,227,02b,139,228,02b,138,229,02a,139,229,02a,138,22a,02a,137,22b,02a,136,22c,029,136,22d,029,136,22d,029,135,22e,028,136,22e,028,136,22e,028,134,230,028,133,231,027,134,231,027,133,232,027,132,233,026,133,233,026,132,234,026,132,234,025,133,234,025,132,235,025,131,236,025,131,236,024,132,236,024,132,236,024,132,236,024,132,236,023,133,236,023,132,237,023,12f,23a,023,12e,23b,023,12e,23b,022,12c,23e,022,12b,23f,022,12b,23f,021,12b,240,021,12b,240,021,12b,240,020,12b,241,020,12b,241,020,12b,241,020,12a,242,01f,12b,242,01f,12a,243,01f,129,244,01f,129,244,01e,129,245,01e,129,245,01e,128,246,01e,128,246,01d,129,246,01d,128,247,01d,128,247", "tr": 0.9714285714285714, "te": 0.9777777777777777}, "petal|knn|20": {"map": "036,13c,21a,035,13d,21a,035,13d,21a,035,13d,21a,034,13e,21a,034,13d,21b,034,13d,21b,033,13e,21b,033,13e,21b,033,13e,21b,032,13e,21c,032,13e,21c,032,13e,21c,032,13e,21c,031,13e,21d,031,13e,21d,031,13d,21e,031,13d,21e,030,13d,21f,030,13d,21f,030,13c,220,02f,13d,220,02f,13c,221,02f,13b,222,02f,13b,222,02f,13a,223,02f,139,224,02e,13a,224,02e,139,225,02e,139,225,02e,138,226,02d,138,227,02d,137,228,02d,137,228,02c,138,228,02c,138,228,02c,137,229,02c,136,22a,02b,136,22b,02b,135,22c,02b,135,22c,02a,135,22d,02a,135,22d,02a,136,22c,02a,136,22c,029,135,22e,029,135,22e,029,134,22f,028,135,22f,028,135,22f,028,134,230,028,134,230,027,135,230,027,134,231,027,134,231,027,134,231,026,135,231,026,135,231,026,134,232,025,135,232,025,134,233,025,134,233,025,133,234,024,133,235,024,133,235,024,133,235,024,132,236,024,132,236,023,133,236,023,132,237,023,132,237,023,131,238,022,131,239,022,130,23a,022,130,23a,022,12f,23b,021,12f,23c,021,12e,23d,021,12e,23d,021,12d,23e,021,12c,23f,020,12d,23f,020,12c,240,020,12c,240,01f,12d,240,01f,12c,241,01f,12b,242,01e,12c,242,01e,12b,243,01e,12b,243", "tr": 0.9428571428571428, "te": 0.9555555555555556}, "petal|knn|30": {"map": "037,13a,21b,037,13a,21b,036,13a,21c,036,13a,21c,036,13a,21c,035,13a,21d,035,13a,21d,035,13a,21d,035,13a,21d,034,13a,21e,034,13a,21e,034,139,21f,034,139,21f,033,139,220,033,139,220,033,139,220,033,138,221,032,139,221,032,139,221,032,139,221,031,139,222,031,139,222,031,138,223,031,138,223,030,138,224,030,138,224,030,138,224,030,137,225,02f,138,225,02f,137,226,02f,137,226,02f,136,227,02e,137,227,02e,137,227,02e,137,227,02d,137,228,02d,137,228,02d,136,229,02d,135,22a,02c,136,22a,02c,136,22a,02c,135,22b,02c,135,22b,02b,136,22b,02b,136,22b,02b,136,22b,02b,135,22c,02a,136,22c,02a,136,22c,02a,135,22d,029,136,22d,029,135,22e,029,135,22e,029,134,22f,028,135,22f,028,134,230,028,133,231,028,133,231,027,133,232,027,133,232,027,132,233,027,132,233,027,132,233,026,132,234,026,132,234,026,131,235,026,131,235,026,131,235,025,131,236,025,131,236,025,130,237,025,130,237,024,130,238,024,130,238,024,12f,239,024,12e,23a,024,12e,23a,023,12e,23b,023,12e,23b,023,12d,23c,023,12d,23c,023,12c,23d,022,12d,23d,022,12d,23d,022,12d,23d,022,12c,23e,021,12d,23e,021,12c,23f,021,12c,23f,021,12c,23f", "tr": 0.9523809523809523, "te": 0.9555555555555556}, "petal|knn|50": {"map": "03a,135,21d,039,136,21d,039,136,21d,039,135,21e,039,135,21e,038,136,21e,038,135,21f,038,135,21f,038,135,21f,037,136,21f,037,135,220,037,135,220,037,135,220,036,135,221,036,135,221,036,135,221,036,134,222,035,135,222,035,134,223,035,134,223,035,134,223,034,134,224,034,134,224,034,134,224,034,133,225,034,133,225,033,134,225,033,133,226,033,133,226,032,134,226,032,133,227,032,133,227,032,132,228,031,133,228,031,132,229,031,132,229,031,131,22a,030,132,22a,030,131,22b,030,131,22b,030,130,22c,02f,131,22c,02f,130,22d,02f,130,22d,02f,12f,22e,02f,12f,22e,02e,12f,22f,02e,12f,22f,02e,12f,22f,02e,12f,22f,02d,12f,230,02d,12f,230,02d,12f,230,02d,12f,230,02c,12f,231,02c,12f,231,02c,12e,232,02c,12e,232,02b,12f,232,02b,12e,233,02b,12e,233,02b,12e,233,02a,12f,233,02a,12f,233,02a,12f,233,02a,12f,233,029,12f,234,029,12f,234,029,12f,234,029,12f,234,028,130,234,028,12f,235,028,12f,235,028,12f,235,027,12f,236,027,12f,236,027,12f,236,027,12f,236,026,130,236,026,130,236,026,12f,237,026,12f,237,025,130,237,025,12f,238,025,12f,238,025,12e,239,024,12f,239,024,12f,239,024,12e,23a,024,12e,23a", "tr": 0.9428571428571428, "te": 0.9555555555555556}, "petal|tree|1": {"map": "0ec4,12274", "tr": 0.6666666666666666, "te": 0.6666666666666666}, "petal|tree|2": {"map": "0ec4,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236", "tr": 0.9523809523809523, "te": 0.9555555555555556}, "petal|tree|3": {"map": "0ec4,110be,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236", "tr": 0.9523809523809523, "te": 0.9777777777777777}, "petal|tree|4": {"map": "0ec4,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236", "tr": 0.9714285714285714, "te": 0.9777777777777777}, "petal|tree|5": {"map": "0ec4,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,139e,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236", "tr": 0.9809523809523809, "te": 0.9777777777777777}, "petal|tree|6": {"map": "0ec4,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,164,228,164,228,164,228,164,228,164,228,164,228,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236", "tr": 0.9904761904761905, "te": 0.9777777777777777}, "petal|tree|8": {"map": "0ec4,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,164,228,164,228,164,228,164,228,164,228,164,228,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236", "tr": 0.9904761904761905, "te": 0.9777777777777777}, "petal|tree|10": {"map": "0ec4,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,15a,232,164,228,164,228,164,228,164,228,164,228,164,228,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236,156,236", "tr": 0.9904761904761905, "te": 0.9777777777777777}}, "curves": {"knn": [[1, 1.0, 0.9777777777777777], [2, 0.9714285714285714, 0.9777777777777777], [3, 0.9619047619047619, 0.9777777777777777], [4, 0.9619047619047619, 0.9777777777777777], [5, 0.9809523809523809, 0.9777777777777777], [6, 0.9619047619047619, 0.9777777777777777], [7, 0.9523809523809523, 0.9777777777777777], [8, 0.9523809523809523, 0.9777777777777777], [9, 0.9523809523809523, 0.9777777777777777], [10, 0.9523809523809523, 0.9777777777777777], [11, 0.9523809523809523, 0.9777777777777777], [12, 0.9523809523809523, 0.9777777777777777], [13, 0.9619047619047619, 0.9777777777777777], [14, 0.9619047619047619, 0.9555555555555556], [15, 0.9809523809523809, 0.9777777777777777], [16, 0.9619047619047619, 0.9555555555555556], [17, 0.9619047619047619, 0.9555555555555556], [18, 0.9428571428571428, 0.9333333333333333], [19, 0.9428571428571428, 0.9333333333333333], [20, 0.9333333333333333, 0.9333333333333333], [21, 0.9333333333333333, 0.9333333333333333], [22, 0.9333333333333333, 0.9333333333333333], [23, 0.9428571428571428, 0.9555555555555556], [24, 0.9523809523809523, 0.9555555555555556], [25, 0.9428571428571428, 0.9555555555555556], [26, 0.9523809523809523, 0.9333333333333333], [27, 0.9428571428571428, 0.9555555555555556], [28, 0.9523809523809523, 0.9555555555555556], [29, 0.9428571428571428, 0.9555555555555556], [30, 0.9428571428571428, 0.9555555555555556], [31, 0.9333333333333333, 0.9555555555555556], [32, 0.9428571428571428, 0.9333333333333333], [33, 0.9523809523809523, 0.9333333333333333], [34, 0.9523809523809523, 0.9333333333333333], [35, 0.9619047619047619, 0.9111111111111111], [36, 0.9523809523809523, 0.8666666666666667], [37, 0.9523809523809523, 0.8888888888888888], [38, 0.9523809523809523, 0.8888888888888888], [39, 0.9428571428571428, 0.8666666666666667], [40, 0.9333333333333333, 0.8888888888888888], [41, 0.9333333333333333, 0.8888888888888888], [42, 0.9238095238095239, 0.8888888888888888], [43, 0.9333333333333333, 0.8888888888888888], [44, 0.9238095238095239, 0.8888888888888888], [45, 0.9523809523809523, 0.8888888888888888], [46, 0.9238095238095239, 0.8666666666666667], [47, 0.9238095238095239, 0.8888888888888888], [48, 0.9142857142857143, 0.8666666666666667], [49, 0.9142857142857143, 0.8888888888888888], [50, 0.8952380952380953, 0.8666666666666667], [51, 0.8952380952380953, 0.8666666666666667], [52, 0.8952380952380953, 0.8888888888888888], [53, 0.8952380952380953, 0.8444444444444444], [54, 0.8952380952380953, 0.8666666666666667], [55, 0.8952380952380953, 0.8666666666666667], [56, 0.8857142857142857, 0.8666666666666667], [57, 0.8952380952380953, 0.8666666666666667], [58, 0.8857142857142857, 0.8666666666666667], [59, 0.8857142857142857, 0.8444444444444444], [60, 0.8857142857142857, 0.8666666666666667]], "tree": [[1, 0.6666666666666666, 0.6666666666666666], [2, 0.9523809523809523, 0.9555555555555556], [3, 0.9523809523809523, 0.9777777777777777], [4, 0.9714285714285714, 0.9777777777777777], [5, 0.9904761904761905, 0.9777777777777777], [6, 1.0, 0.9777777777777777], [7, 1.0, 0.9777777777777777], [8, 1.0, 0.9777777777777777], [9, 1.0, 0.9777777777777777], [10, 1.0, 0.9777777777777777]]}, "scale": {"0|0.01": {"knn": 0.9777777777777777, "tree": 0.9777777777777777}, "0|0.1": {"knn": 0.9777777777777777, "tree": 0.9777777777777777}, "0|1": {"knn": 0.9777777777777777, "tree": 0.9777777777777777}, "0|10": {"knn": 0.8444444444444444, "tree": 0.9777777777777777}, "0|100": {"knn": 0.7333333333333333, "tree": 0.9777777777777777}, "1|0.01": {"knn": 0.9777777777777777, "tree": 0.9777777777777777}, "1|0.1": {"knn": 0.9777777777777777, "tree": 0.9777777777777777}, "1|1": {"knn": 0.9777777777777777, "tree": 0.9777777777777777}, "1|10": {"knn": 0.8888888888888888, "tree": 0.9777777777777777}, "1|100": {"knn": 0.7333333333333333, "tree": 0.9777777777777777}, "2|0.01": {"knn": 0.9555555555555556, "tree": 0.9777777777777777}, "2|0.1": {"knn": 0.9555555555555556, "tree": 0.9777777777777777}, "2|1": {"knn": 0.9777777777777777, "tree": 0.9777777777777777}, "2|10": {"knn": 0.9777777777777777, "tree": 0.9777777777777777}, "2|100": {"knn": 0.9555555555555556, "tree": 0.9777777777777777}, "3|0.01": {"knn": 0.9555555555555556, "tree": 0.9777777777777777}, "3|0.1": {"knn": 0.9555555555555556, "tree": 0.9777777777777777}, "3|1": {"knn": 0.9777777777777777, "tree": 0.9777777777777777}, "3|10": {"knn": 0.9777777777777777, "tree": 0.9777777777777777}, "3|100": {"knn": 0.9777777777777777, "tree": 0.9777777777777777}}, "trees": {"1": {"nodes": [{"f": 3, "t": 0.75, "l": 1, "r": 2, "n": 105, "v": [35, 35, 35]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 35, "v": [35, 0, 0]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 70, "v": [0, 35, 35]}], "text": "|--- petal wid <= 0.75\n|   |--- class: 0\n|--- petal wid >  0.75\n|   |--- class: 1\n", "train": 0.6666666666666666, "test": 0.6666666666666666, "pred_test": [1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0]}, "2": {"nodes": [{"f": 3, "t": 0.75, "l": 1, "r": 2, "n": 105, "v": [35, 35, 35]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 35, "v": [35, 0, 0]}, {"f": 2, "t": 4.75, "l": 3, "r": 4, "n": 70, "v": [0, 35, 35]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 30, "v": [0, 30, 0]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 40, "v": [0, 5, 35]}], "text": "|--- petal wid <= 0.75\n|   |--- class: 0\n|--- petal wid >  0.75\n|   |--- petal len <= 4.75\n|   |   |--- class: 1\n|   |--- petal len >  4.75\n|   |   |--- class: 2\n", "train": 0.9523809523809523, "test": 0.9555555555555556, "pred_test": [2, 0, 0, 1, 1, 1, 2, 1, 2, 0, 0, 2, 0, 1, 0, 2, 2, 1, 1, 2, 2, 0, 1, 2, 1, 1, 1, 2, 0, 2, 0, 0, 1, 1, 2, 2, 0, 0, 0, 1, 2, 2, 1, 0, 0]}, "3": {"nodes": [{"f": 3, "t": 0.75, "l": 1, "r": 2, "n": 105, "v": [35, 35, 35]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 35, "v": [35, 0, 0]}, {"f": 2, "t": 4.75, "l": 3, "r": 4, "n": 70, "v": [0, 35, 35]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 30, "v": [0, 30, 0]}, {"f": 3, "t": 1.75, "l": 5, "r": 6, "n": 40, "v": [0, 5, 35]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 8, "v": [0, 4, 4]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 32, "v": [0, 1, 31]}], "text": "|--- petal wid <= 0.75\n|   |--- class: 0\n|--- petal wid >  0.75\n|   |--- petal len <= 4.75\n|   |   |--- class: 1\n|   |--- petal len >  4.75\n|   |   |--- petal wid <= 1.75\n|   |   |   |--- class: 1\n|   |   |--- petal wid >  1.75\n|   |   |   |--- class: 2\n", "train": 0.9523809523809523, "test": 0.9777777777777777, "pred_test": [2, 0, 0, 1, 1, 1, 2, 1, 2, 0, 0, 2, 0, 1, 0, 1, 2, 1, 1, 2, 2, 0, 1, 2, 1, 1, 1, 2, 0, 2, 0, 0, 1, 1, 2, 2, 0, 0, 0, 1, 2, 2, 1, 0, 0]}, "4": {"nodes": [{"f": 3, "t": 0.75, "l": 1, "r": 2, "n": 105, "v": [35, 35, 35]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 35, "v": [35, 0, 0]}, {"f": 2, "t": 4.75, "l": 3, "r": 4, "n": 70, "v": [0, 35, 35]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 30, "v": [0, 30, 0]}, {"f": 3, "t": 1.75, "l": 5, "r": 8, "n": 40, "v": [0, 5, 35]}, {"f": 2, "t": 4.95, "l": 6, "r": 7, "n": 8, "v": [0, 4, 4]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 2, "v": [0, 2, 0]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 6, "v": [0, 2, 4]}, {"f": 2, "t": 4.85, "l": 9, "r": 10, "n": 32, "v": [0, 1, 31]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 3, "v": [0, 1, 2]}, {"f": -2, "t": -2.0, "l": -1, "r": -1, "n": 29, "v": [0, 0, 29]}], "text": "|--- petal wid <= 0.75\n|   |--- class: 0\n|--- petal wid >  0.75\n|   |--- petal len <= 4.75\n|   |   |--- class: 1\n|   |--- petal len >  4.75\n|   |   |--- petal wid <= 1.75\n|   |   |   |--- petal len <= 4.95\n|   |   |   |   |--- class: 1\n|   |   |   |--- petal len >  4.95\n|   |   |   |   |--- class: 2\n|   |   |--- petal wid >  1.75\n|   |   |   |--- petal len <= 4.85\n|   |   |   |   |--- class: 2\n|   |   |   |--- petal len >  4.85\n|   |   |   |   |--- class: 2\n", "train": 0.9714285714285714, "test": 0.9777777777777777, "pred_test": [2, 0, 0, 1, 1, 1, 2, 1, 2, 0, 0, 2, 0, 1, 0, 1, 2, 1, 1, 2, 2, 0, 1, 2, 1, 1, 1, 2, 0, 2, 0, 0, 1, 1, 2, 2, 0, 0, 0, 1, 2, 2, 1, 0, 0]}}, "names": ["sepal len", "sepal wid", "petal len", "petal wid"]};
+(function () {
+  "use strict";
+  var $ = Lab.$, $$ = Lab.$$, esc = Lab.esc, D = LAB_DATA, C = Plot.C, CL = Plot.CLASS, CS = Plot.CLASS_SOFT;
+  var SPECIES = ["setosa", "versicolor", "virginica"];
+  function pct(v) { return (v * 100).toFixed(1) + "%"; }
+
+  /* ================= 1. k-NN by hand ================= */
+  var PTS0 = [[1, 1, "A"], [2, 2, "A"], [1, 4, "A"], [5, 5, "B"], [6, 3, "B"], [5, 2, "B"]];
+  var kn = { pts: PTS0.map(function (p) { return p.slice(); }), q: [3, 5.5] };
+  function knnRank(pts, q) { return pts.map(function (p, i) { return { i: i, p: p, d: Math.sqrt((p[0] - q[0]) * (p[0] - q[0]) + (p[1] - q[1]) * (p[1] - q[1])) }; }).sort(function (a, b) { return a.d - b.d || a.i - b.i; }); }
+  function knnVote(rank, k) { var v = { A: 0, B: 0 }; rank.slice(0, k).forEach(function (r) { v[r.p[2]]++; }); return { v: v, win: v.B > v.A ? "B" : "A", tie: v.A === v.B }; }
+  function kDraw() {
+    var k = Math.min(+$("#k-k").value, kn.pts.length); $("#k-k").max = kn.pts.length; $("#k-k-v").textContent = k;
+    var rank = knnRank(kn.pts, kn.q), vote = knnVote(rank, k), R = rank[k - 1].d;
+    var F = Plot.frame({ W: 520, H: 480, x: [0, 7.5], y: [0, 7.5], xlabel: "x", ylabel: "y", m: { l: 44, r: 14, t: 14, b: 42 } }), g = "<g " + F.clip + ">";
+    var rpx = (F.X(R) - F.X(0));
+    g += '<circle cx="' + F.X(kn.q[0]) + '" cy="' + F.Y(kn.q[1]) + '" r="' + rpx + '" fill="' + (vote.win === "A" ? "rgba(36,89,196,.08)" : "rgba(224,122,31,.10)") + '" stroke="' + C.navy + '" stroke-dasharray="6 4"/>';
+    rank.forEach(function (r, j) { if (j < k) g += Plot.line(F.X(kn.q[0]), F.Y(kn.q[1]), F.X(r.p[0]), F.Y(r.p[1]), r.p[2] === "A" ? CL[0] : CL[1], 2); });
+    g += "</g>";
+    rank.forEach(function (r, j) { var c = r.p[2] === "A" ? CL[0] : CL[1]; g += Plot.dot(F.X(r.p[0]), F.Y(r.p[1]), 11, c, j < k ? C.navy : "#fff") + Plot.text(F.X(r.p[0]), F.Y(r.p[1]) + 4, r.p[2], { anchor: "middle", fill: "#fff", bold: true, size: 12 }); });
+    g += '<path d="' + star(F.X(kn.q[0]), F.Y(kn.q[1]), 13, 6) + '" fill="' + C.navy + '"/>' + Plot.text(F.X(kn.q[0]) + 14, F.Y(kn.q[1]) - 12, "? (" + kn.q[0] + ", " + kn.q[1] + ")", { bold: true, size: 13 });
+    Plot.put($("#k-svg"), F.W, F.H, F.axes + g);
+    $("#k-svg").__F = F;
+    $("#k-table").innerHTML = "<tr><th>rank</th><th>point</th><th>class</th><th>distance</th><th>votes?</th></tr>" + rank.map(function (r, j) {
+      return '<tr class="' + (j < k ? "hi" : "") + '"><td>' + (j + 1) + '</td><td class="m">(' + r.p[0] + ", " + r.p[1] + ')</td><td><span class="chip" style="background:' + (r.p[2] === "A" ? CS[0] : CS[1]) + '">' + r.p[2] + '</span></td><td class="m">' + r.d.toFixed(2) + "</td><td>" + (j < k ? "✓" : "") + "</td></tr>";
+    }).join("");
+    var st = $("#k-status"), tieD = k < rank.length && Math.abs(rank[k].d - rank[k - 1].d) < 1e-9;
+    st.className = "status good";
+    st.innerHTML = "k = " + k + ": A has <b>" + vote.v.A + "</b> vote" + (vote.v.A === 1 ? "" : "s") + ", B has <b>" + vote.v.B + "</b>. Prediction: <b>" + vote.win + "</b>." + (vote.tie ? " It is a tie; scikit-learn picks the class that comes first, A." : "") + (tieD ? "<br>Careful: the " + k + "th and " + (k + 1) + "th points are at the same distance, so which one votes depends on the algorithm's order." : "");
+  }
+  function star(cx, cy, R, r) { var s = ""; for (var i = 0; i < 10; i++) { var a = Math.PI / 5 * i - Math.PI / 2, rr = i % 2 ? r : R; s += (i ? "L" : "M") + (cx + rr * Math.cos(a)).toFixed(1) + "," + (cy + rr * Math.sin(a)).toFixed(1); } return s + "Z"; }
+  $("#k-svg").addEventListener("click", function (e) {
+    var svg = $("#k-svg"), F = svg.__F, rect = svg.getBoundingClientRect(), px = (e.clientX - rect.left) / rect.width * F.W, py = (e.clientY - rect.top) / rect.height * F.H;
+    if (!F.inside(px, py)) return;
+    var x = Math.round(F.invX(px) * 2) / 2, y = Math.round(F.invY(py) * 2) / 2, mode = document.querySelector('input[name="k-mode"]:checked').value;
+    if (mode === "move") kn.q = [x, y]; else kn.pts.push([x, y, mode]);
+    kDraw();
+  });
+  $("#k-k").addEventListener("input", kDraw);
+  $("#k-slide").addEventListener("click", function () { kn.q = [3, 5.5]; kDraw(); });
+  $("#k-hw").addEventListener("click", function () { kn.q = [4, 4]; kDraw(); });
+  $("#k-reset").addEventListener("click", function () { kn.pts = PTS0.map(function (p) { return p.slice(); }); kDraw(); });
+
+  /* ================= 2. Decision boundaries ================= */
+  var MAPS = {}; Object.keys(D.maps).forEach(function (k) { MAPS[k] = D.maps[k]; });
+  function bParams() { return $("#b-model").value === "knn" ? D.ks : D.depths; }
+  function bDraw() {
+    var pair = $("#b-pair").value, model = $("#b-model").value, ps = bParams(), idx = Math.min(+$("#b-p").value, ps.length - 1), pv = ps[idx];
+    $("#b-p").max = ps.length - 1; $("#b-p-name").textContent = model === "knn" ? "k" : "max_depth"; $("#b-p-v").textContent = pv;
+    var M = MAPS[pair + "|" + model + "|" + pv], PR = D.pairs[pair], GW = D.grid[0], GH = D.grid[1];
+    if (!M.dec) M.dec = Plot.rleDecode(M.map);
+    var cv = document.createElement("canvas"); cv.width = GW; cv.height = GH; var cx = cv.getContext("2d"), img = cx.createImageData(GW, GH);
+    var RGB = [[201, 215, 242], [248, 221, 194], [195, 227, 221]];
+    for (var r = 0; r < GH; r++) for (var c = 0; c < GW; c++) { var cls = +M.dec[r * GW + c], o = ((GH - 1 - r) * GW + c) * 4; img.data[o] = RGB[cls][0]; img.data[o + 1] = RGB[cls][1]; img.data[o + 2] = RGB[cls][2]; img.data[o + 3] = 255; }
+    cx.putImageData(img, 0, 0);
+    var names = pair === "sepal" ? ["sepal length (cm)", "sepal width (cm)"] : ["petal length (cm)", "petal width (cm)"];
+    var F = Plot.frame({ W: 560, H: 420, x: PR.x, y: PR.y, xlabel: names[0], ylabel: names[1] });
+    var dx = (PR.x[1] - PR.x[0]) / (GW - 1) / 2, dy = (PR.y[1] - PR.y[0]) / (GH - 1) / 2;
+    var g = '<image href="' + cv.toDataURL() + '" x="' + F.X(PR.x[0] - dx) + '" y="' + F.Y(PR.y[1] + dy) + '" width="' + (F.X(PR.x[1] + dx) - F.X(PR.x[0] - dx)) + '" height="' + (F.Y(PR.y[0] - dy) - F.Y(PR.y[1] + dy)) + '" preserveAspectRatio="none" style="image-rendering:pixelated" ' + F.clip + "/>";
+    var showTest = $("#b-test").checked;
+    D.X.forEach(function (row, i) {
+      var x = row[PR.cols[0]], y = row[PR.cols[1]], te = D.test[i]; if (te && !showTest) return;
+      var jx = ((i * 37) % 11 - 5) * 0.004, jy = ((i * 53) % 11 - 5) * 0.004; // tiny offset so identical flowers stay visible
+      g += te ? Plot.dot(F.X(x + jx), F.Y(y + jy), 5, "#fff", CL[D.y[i]]).replace('stroke-width="1.5"', 'stroke-width="2.5"') : Plot.dot(F.X(x + jx), F.Y(y + jy), 4.5, CL[D.y[i]], "#fff");
+    });
+    Plot.put($("#b-svg"), F.W, F.H, F.axes + g);
+    Lab.renderCode($("#b-code"), model === "knn" ? ["m = KNeighborsClassifier(n_neighbors=" + pv + ")", "m.fit(X_tr[:, " + JSON.stringify(PR.cols) + "], y_tr)"] : ["m = DecisionTreeClassifier(max_depth=" + pv + ", random_state=0)", "m.fit(X_tr[:, " + JSON.stringify(PR.cols) + "], y_tr)"]);
+    $("#b-tr").textContent = pct(M.tr); $("#b-te").textContent = pct(M.te);
+    var st = $("#b-status"), gap = M.tr - M.te;
+    st.className = "status" + (gap > 0.1 ? " bad" : "");
+    st.innerHTML = gap > 0.1 ? "Training accuracy is much higher than test accuracy: the model has memorised the training flowers (overfitting)." : M.te < 0.75 && M.tr < 0.8 ? "Both accuracies are low: the model is too simple for these measurements (underfitting), or the classes really overlap." : "Training and test accuracy are close: the model generalises reasonably.";
+  }
+  ["#b-pair", "#b-model", "#b-p", "#b-test"].forEach(function (id) { $(id).addEventListener("input", bDraw); $(id).addEventListener("change", function () { if (id === "#b-model") $("#b-p").value = id === "#b-model" && $("#b-model").value === "tree" ? 1 : 0; bDraw(); }); });
+
+  /* ================= 3. Read the tree ================= */
+  var RANGES = [[4.3, 7.9], [2.0, 4.4], [1.0, 6.9], [0.1, 2.5]], FV = [5.1, 3.5, 1.5, 0.2];
+  $("#t-sliders").innerHTML = D.names.map(function (n, j) { return '<div class="row"><label class="lab" style="width:150px" for="t-f' + j + '">' + n + " = <b id=\"t-f" + j + '-v"></b></label><input type="range" id="t-f' + j + '" min="' + RANGES[j][0] + '" max="' + RANGES[j][1] + '" step="0.1" value="' + FV[j] + '" style="flex:1"></div>'; }).join("");
+  var TPRE = [["slide flower 1", [5.1, 3.5, 1.5, 0.2]], ["slide flower 2", [6.1, 2.8, 4.7, 1.2]], ["slide flower 3", [6.5, 3.0, 5.8, 2.2]]];
+  $("#t-presets").innerHTML = TPRE.map(function (p, k) { return '<button class="btn alt sm" data-k="' + k + '">' + p[0] + "</button>"; }).join("") + '<button class="btn sm" id="t-rand">a random test flower</button>';
+  var tState = { truth: null };
+  function walk(nodes, x) { var path = [0], i = 0; while (nodes[i].l !== -1) { i = x[nodes[i].f] <= nodes[i].t ? nodes[i].l : nodes[i].r; path.push(i); } return path; }
+  function argmax(v) { var b = 0; v.forEach(function (x, i) { if (x > v[b]) b = i; }); return b; }
+  function tDraw() {
+    var dep = $("#t-depth").value, T = D.trees[dep], nodes = T.nodes, x = D.names.map(function (_, j) { return +$("#t-f" + j).value; });
+    D.names.forEach(function (_, j) { $("#t-f" + j + "-v").textContent = x[j].toFixed(1); });
+    var path = walk(nodes, x), leaf = nodes[path[path.length - 1]], pred = argmax(leaf.v);
+    // layout: leaves in order, parents centred above children
+    var pos = {}, leafN = 0, maxDepth = 0;
+    (function lay(i, d) { maxDepth = Math.max(maxDepth, d); if (nodes[i].l === -1) { pos[i] = { x: leafN++, d: d }; return; } lay(nodes[i].l, d + 1); lay(nodes[i].r, d + 1); pos[i] = { x: (pos[nodes[i].l].x + pos[nodes[i].r].x) / 2, d: d }; })(0, 0);
+    var BW = 132, BH = 62, GX = 150, GY = 100, W = Math.max(560, leafN * GX + 20), H = (maxDepth + 1) * GY + 10, off = (W - leafN * GX) / 2 + GX / 2;
+    var cxp = function (i) { return off + pos[i].x * GX; }, cyp = function (i) { return 10 + pos[i].d * GY; }, g = "";
+    nodes.forEach(function (n, i) { if (n.l !== -1) [[n.l, "yes ≤"], [n.r, "no >"]].forEach(function (ch) { var on = path.indexOf(i) >= 0 && path.indexOf(ch[0]) >= 0; g += Plot.line(cxp(i), cyp(i) + BH, cxp(ch[0]), cyp(ch[0]), on ? C.orange : "#C3CAD6", on ? 4 : 2) + Plot.text((cxp(i) + cxp(ch[0])) / 2 + (ch[0] === n.l ? -8 : 8), (cyp(i) + BH + cyp(ch[0])) / 2, ch[1], { anchor: ch[0] === n.l ? "end" : "start", size: 11, fill: on ? C.orange : C.muted, bold: on }); }); });
+    nodes.forEach(function (n, i) {
+      var on = path.indexOf(i) >= 0, X0 = cxp(i) - BW / 2, Y0 = cyp(i), leafy = n.l === -1, tot = n.v.reduce(function (a, b) { return a + b; }, 0), xb = X0 + 8;
+      g += '<rect x="' + X0 + '" y="' + Y0 + '" width="' + BW + '" height="' + BH + '" rx="8" fill="' + (leafy ? CS[argmax(n.v)] : "#fff") + '" stroke="' + (on ? C.orange : "#9AA3B2") + '" stroke-width="' + (on ? 3.5 : 1.5) + '"/>';
+      g += Plot.text(cxp(i), Y0 + 18, leafy ? "class " + argmax(n.v) + ": " + SPECIES[argmax(n.v)] : D.names[n.f] + " ≤ " + (+n.t.toFixed(3)), { anchor: "middle", bold: true, size: 12, mono: !leafy });
+      g += Plot.text(cxp(i), Y0 + 34, n.n + " flowers: [" + n.v.join(", ") + "]", { anchor: "middle", size: 11, fill: C.muted });
+      n.v.forEach(function (v, c) { var w = (BW - 16) * v / tot; if (w > 0) g += '<rect x="' + xb + '" y="' + (Y0 + 42) + '" width="' + w + '" height="10" fill="' + CL[c] + '"/>'; xb += w; });
+    });
+    var svg = $("#t-svg"); svg.setAttribute("viewBox", "0 0 " + W + " " + H); svg.style.minWidth = Math.min(W, 900) + "px"; svg.innerHTML = g;
+    $("#t-acc").textContent = "training " + pct(T.train) + " · test " + pct(T.test);
+    $("#t-text").textContent = "print(export_text(tree, feature_names=names))\n\n" + T.text;
+    var steps = path.slice(0, -1).map(function (i) { var n = nodes[i], yes = x[n.f] <= n.t; return "<code>" + esc(D.names[n.f]) + " = " + x[n.f].toFixed(1) + (yes ? " ≤ " : " > ") + (+n.t.toFixed(3)) + "</code> → " + (yes ? "yes" : "no"); });
+    var st = $("#t-status"), right = tState.truth === null ? null : tState.truth === pred;
+    st.className = "status" + (right === false ? " bad" : right ? " good" : "");
+    st.innerHTML = (steps.length ? steps.join("<br>") + "<br>" : "") + "Prediction: <b>class " + pred + " (" + SPECIES[pred] + ")</b>." + (tState.truth !== null ? " This test flower is really <b>" + SPECIES[tState.truth] + "</b>: " + (right ? "correct." : "the tree is wrong here.") : "");
+  }
+  $("#t-sliders").addEventListener("input", function () { tState.truth = null; tDraw(); });
+  $("#t-depth").addEventListener("change", tDraw);
+  $("#t-presets").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    var v, truth = null;
+    if (b.id === "t-rand") { var te = []; D.test.forEach(function (t, i) { if (t) te.push(i); }); var i = te[Math.floor(Math.random() * te.length)]; v = D.X[i]; truth = D.y[i]; }
+    else v = TPRE[+b.dataset.k][1];
+    v.forEach(function (val, j) { $("#t-f" + j).value = val; }); tState.truth = truth; tDraw();
+  });
+
+  /* ================= 4. Compare ================= */
+  function curve(svgId, rows, xlabel, cur) {
+    var xs = rows.map(function (r) { return r[0]; }), lo = Math.floor(Math.min.apply(null, rows.map(function (r) { return Math.min(r[1], r[2]); })) * 10) / 10, F = Plot.frame({ W: 520, H: 300, x: [xs[0], xs[xs.length - 1]], y: [lo, 1.005], xlabel: xlabel, ylabel: "accuracy", yfmt: function (t) { return Math.round(t * 100) + "%"; } }), g = "";
+    [[1, C.blue, "training"], [2, C.orange, "test"]].forEach(function (s, k) { g += Plot.path(rows.map(function (r) { return [F.X(r[0]), F.Y((r[s[0]]))]; }), s[1], 2.5); g += '<rect x="' + (F.W - 112) + '" y="' + (F.H - F.m.b - 52 + k * 20) + '" width="12" height="12" fill="' + s[1] + '"/>' + Plot.text(F.W - 94, F.H - F.m.b - 42 + k * 20, s[2], { fill: s[1], bold: true }); });
+    var row = rows.filter(function (r) { return r[0] === cur; })[0];
+    g += Plot.line(F.X(cur), F.m.t, F.X(cur), F.H - F.m.b, C.navy, 1.5, "4 4") + Plot.dot(F.X(cur), F.Y((row[1])), 5, C.blue, "#fff") + Plot.dot(F.X(cur), F.Y((row[2])), 5, C.orange, "#fff");
+    Plot.put($(svgId), F.W, F.H, F.axes + g);
+    return row;
+  }
+  $("#c-feat").innerHTML = D.names.map(function (n, j) { return '<option value="' + j + '">' + n + "</option>"; }).join("");
+  function cDraw() {
+    var k = +$("#c-k").value, d = +$("#c-d").value; $("#c-k-v").textContent = k; $("#c-d-v").textContent = d;
+    var rk = curve("#c-knn", D.curves.knn, "k (n_neighbors)", k), rd = curve("#c-tree", D.curves.tree, "max_depth", d);
+    $("#c-k-out").innerHTML = "training <b>" + pct(rk[1]) + "</b>, test <b>" + pct(rk[2]) + "</b>" + (k > 50 ? " (k is close to the 105 training flowers: the vote is nearly the overall majority)" : "");
+    $("#c-d-out").innerHTML = "training <b>" + pct(rd[1]) + "</b>, test <b>" + pct(rd[2]) + "</b>";
+    var key = $("#c-feat").value + "|" + ($("#c-f").value === "1" ? "1" : $("#c-f").value), S = D.scale[key], base = D.scale[$("#c-feat").value + "|1"];
+    $("#c-sk").textContent = pct(S.knn); $("#c-st").textContent = pct(S.tree);
+    var st = $("#c-status"), moved = Math.abs(S.knn - base.knn) > 1e-9;
+    st.className = "status" + (moved ? " bad" : "");
+    st.innerHTML = "Unscaled: k-NN " + pct(base.knn) + ", tree " + pct(base.tree) + ". " + (moved ? "Changing only the <b>units</b> of " + esc(D.names[+$("#c-feat").value]) + " changed k-NN's accuracy: distances are now dominated by " + (+$("#c-f").value > 1 ? "this feature" : "the other features") + ". The tree is unaffected." : "No change for either model with this factor" + ($("#c-f").value === "1" ? "." : ": try a bigger factor."));
+  }
+  ["#c-k", "#c-d", "#c-feat", "#c-f"].forEach(function (id) { $(id).addEventListener("input", cDraw); $(id).addEventListener("change", cDraw); });
+
+  window.L10TEST = { check: function () {
+    var out = [], rank = knnRank(PTS0, [3, 5.5]);
+    out.push(["slide 4 distances", rank.map(function (r) { return +r.d.toFixed(2); }), [2.06, 2.5, 3.64, 3.91, 4.03, 4.92], 1e-9]);
+    out.push(["slide 4 k=1 is B, k=3 is A", [knnVote(rank, 1).win === "B" ? 1 : 0, knnVote(rank, 3).win === "A" ? 1 : 0], [1, 1], 0]);
+    [1, 2, 3, 4].forEach(function (dep) {
+      var T = D.trees[dep], te = []; D.test.forEach(function (t, i) { if (t) te.push(i); });
+      var ours = te.map(function (i) { var p = walk(T.nodes, D.X[i]); return argmax(T.nodes[p[p.length - 1]].v); }).sort(), theirs = T.pred_test.slice().sort();
+      out.push(["tree depth " + dep + " test predictions (as multiset)", ours, theirs, 0]);
+      var acc = te.filter(function (i) { var p = walk(T.nodes, D.X[i]); return argmax(T.nodes[p[p.length - 1]].v) === D.y[i]; }).length / te.length;
+      out.push(["tree depth " + dep + " test accuracy", acc, T.test, 1e-12]);
+    });
+    return out;
+  } };
+  document.addEventListener("DOMContentLoaded", function () { kDraw(); bDraw(); tDraw(); cDraw(); });
+})();
+</script></body></html>

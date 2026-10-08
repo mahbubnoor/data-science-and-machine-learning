@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Charts Lab · Lecture 7</title>
+<style>:root{
+  --navy:#15213A; --navy2:#1E2D4D; --blue:#2459C4; --bsoft:#E3EAF8; --orange:#E07A1F; --oink:#A4520C; --osoft:#FBE3CC;
+  --teal:#1F8A7A; --tink:#17695D; --tsoft:#E3F2EF; --red:#B4432A; --rsoft:#F8E1DB; --ink:#15213A; --muted:#5D6573;
+  --panel:#F3F5F9; --line:#D5DBE6; --bg:#EEF1F6; --card:#FFFFFF; --code:#1B2742; --codefg:#E8ECF4; --hl:#FFE3B8;
+  --sans:"Segoe UI",Calibri,Carlito,"Helvetica Neue",Arial,sans-serif; --mono:Consolas,"Courier New","Liberation Mono",monospace;
+  box-sizing:border-box;
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+code,.mono{font-family:var(--mono)}
+.top{background:var(--navy);color:#fff;padding:18px 28px 16px;display:flex;gap:24px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.top .kicker{color:var(--orange);font-weight:700;letter-spacing:.12em;font-size:13px;text-transform:uppercase}
+.top h1{margin:2px 0 2px;font-size:30px;line-height:1.15;font-family:Arial,"Helvetica Neue",sans-serif}
+.top p{margin:0;color:#D9DEE8;font-size:16px}
+.top .meta{text-align:right;color:#B9C1D0;font-size:13px;line-height:1.5}
+.tabs{display:flex;gap:6px;padding:10px 28px 0;background:var(--navy);flex-wrap:wrap}
+.tabs button{background:#22335A;color:#D9DEE8;border:0;border-radius:10px 10px 0 0;padding:10px 16px;cursor:pointer;font-weight:600;font-size:15px}
+.tabs button .n{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#33477A;color:#fff;align-items:center;justify-content:center;font-size:12px;margin-right:8px}
+.tabs button[aria-selected="true"]{background:var(--bg);color:var(--ink)}
+.tabs button[aria-selected="true"] .n{background:var(--orange)}
+.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+main{max-width:1320px;margin:0 auto;padding:20px 28px 40px}
+.exp{display:none}.exp.on{display:block}
+.exp-head h2{margin:0 0 4px;font-size:24px;font-family:Arial,"Helvetica Neue",sans-serif}
+.exp-head p{margin:0 0 16px;color:var(--muted);max-width:90ch}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:18px;align-items:start}
+.grid.even{grid-template-columns:1fr 1fr}
+.grid.wide-right{grid-template-columns:minmax(0,4fr) minmax(0,7fr)}
+@media (max-width:900px){.grid,.grid.even,.grid.wide-right{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.panel h3{margin:0 0 10px;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:0;border-radius:9px;padding:9px 16px;cursor:pointer;font-weight:700;background:var(--navy);color:#fff}
+.btn.alt{background:var(--bsoft);color:var(--ink)}.btn.warm{background:var(--orange);color:var(--navy)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:6px 12px;font-size:14px}
+select,input[type=text],input[type=number],textarea{border:2px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff}
+input[type=number]{width:92px}
+input[type=range]{width:100%;accent-color:var(--orange)}
+label.lab{font-weight:700;font-size:14px;color:var(--muted)}
+.code{background:var(--code);color:var(--codefg);border-radius:12px;padding:12px 0;font-family:var(--mono);font-size:17px;overflow:auto}
+.code .ln{display:flex;padding:1px 14px 1px 0;white-space:pre;min-height:1.5em;border-left:5px solid transparent}
+.code .ln .no{width:38px;text-align:right;padding-right:12px;color:#7F8BA6;flex:none;user-select:none}
+.code .ln.cur{background:rgba(224,122,31,.28);border-left-color:var(--orange)}
+.code .ln.done{color:#B9C3D8}
+.code .ln.skip{color:#6E7891;text-decoration:line-through;text-decoration-color:#6E7891}
+.code .ln.err{background:rgba(180,67,42,.45);border-left-color:#F08A70}
+.code .kw{color:#F5AD69}.code .st{color:#A8D8A8}.code .nu{color:#9FC1E6}.code .cm{color:#7F8BA6;font-style:italic}.code .fn{color:#E8C27A}
+textarea.editor{width:100%;min-height:210px;font-family:var(--mono);font-size:17px;line-height:1.5;background:var(--code);color:var(--codefg);border:2px solid var(--code);border-radius:12px;padding:12px 14px;resize:vertical;tab-size:4}
+.out{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-family:var(--mono);font-size:16px;min-height:52px;white-space:pre-wrap;word-break:break-word}
+.out .e{color:var(--red);font-weight:700}.out .hint{color:var(--oink)}
+.out .label{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--muted);display:block;margin-bottom:2px}
+.status{border-left:6px solid var(--blue);background:var(--bsoft);padding:9px 14px;border-radius:0 10px 10px 0;margin:12px 0;min-height:46px}
+.status.bad{border-left-color:var(--red);background:var(--rsoft)}.status.good{border-left-color:var(--teal);background:var(--tsoft)}
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+@media (max-width:900px){.notes{grid-template-columns:1fr}}
+.notice{background:var(--osoft);border-radius:14px;padding:14px 18px}
+.notice h4,.try h4{margin:0 0 6px;font-size:16px}
+.notice ul{margin:0;padding-left:20px}
+.try{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.try label{display:flex;gap:10px;align-items:flex-start;margin:6px 0;cursor:pointer}
+.try input{margin-top:5px;accent-color:var(--teal);width:18px;height:18px;flex:none}
+.try label.done span{color:var(--muted);text-decoration:line-through}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 11px;font-size:13px;font-weight:700;background:var(--panel);border:1px solid var(--line);white-space:nowrap}
+.chip.t{background:var(--tsoft);color:var(--tink);border-color:#B9DCD5}.chip.f{background:var(--rsoft);color:var(--red);border-color:#EBC2B8}.chip.n{color:var(--muted)}
+.chip.int{background:var(--bsoft);color:var(--blue);border-color:#C3D2EF}.chip.float{background:#EDE3F7;color:#6B3FA0;border-color:#D7C5EC}.chip.str{background:var(--tsoft);color:var(--tink);border-color:#B9DCD5}.chip.bool{background:var(--osoft);color:var(--oink);border-color:#F1CDA9}.chip.list,.chip.tuple,.chip.NoneType{background:var(--panel);color:var(--muted)}
+table.t{border-collapse:collapse;width:100%;font-size:16px}
+table.t th{background:var(--navy);color:#fff;text-align:left;padding:7px 10px;font-size:14px}
+table.t td{border-bottom:1px solid var(--line);padding:7px 10px;vertical-align:middle}
+table.t tr.hi td{background:var(--hl)}
+table.t td.m{font-family:var(--mono)}
+.muted{color:var(--muted)}.small{font-size:14px}
+.big{font-size:34px;font-weight:700;font-family:Arial,sans-serif}
+.foot{max-width:1320px;margin:0 auto;padding:0 28px 30px;color:var(--muted);font-size:13px}
+@keyframes flash{0%{background:var(--hl)}100%{background:transparent}}
+.flash{animation:flash 1.2s ease-out}
+@media (prefers-reduced-motion:reduce){.flash{animation:none}*{transition:none!important}}
+[hidden]{display:none!important}
+</style></head><body>
+<header class="top"><div><div class="kicker">Lecture 7 · Interactive lab</div><h1>Charts Lab</h1><p>Feel what mean, median and spread do, change histogram bins, read correlation and box plots</p></div>
+<div class="meta">Introduction to Data Science and Machine Learning<br>Md Mahbub E Noor · University of Barishal<br><a href="START_HERE.html" style="color:#F5AD69">All labs</a></div></header>
+<nav class="tabs" role="tablist"><button role="tab" data-tab="t1"><span class="n">1</span>Mean, median, spread</button><button role="tab" data-tab="t2"><span class="n">2</span>Histogram</button><button role="tab" data-tab="t3"><span class="n">3</span>Scatter and correlation</button><button role="tab" data-tab="t4"><span class="n">4</span>Box plot</button></nav>
+<main><section class="exp" id="t1">
+  <div class="exp-head"><h2>Mean, median and spread: feel what each one does</h2>
+  <p>Edit the numbers or drag the largest one far away. Watch which summary moves and which stays put.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <label class="lab" for="m-vals">values</label>
+      <input type="text" id="m-vals" class="mono" style="width:100%" value="2, 4, 4, 4, 5, 5, 7, 9">
+      <div class="row" id="m-presets" style="margin-top:8px"></div>
+      <div class="row" style="margin-top:12px"><label class="lab" style="width:150px" for="m-big">largest value = <b id="m-big-v"></b></label><input type="range" id="m-big" min="0" max="100" value="0" style="flex:1"></div>
+      <p class="small muted" style="margin:2px 0 0">Drag to push the largest value up to 10 times further away.</p>
+      <svg id="m-svg" viewBox="0 0 600 170" width="100%" style="margin-top:8px" role="img" aria-label="Dot plot with mean, median and one standard deviation band"></svg>
+      <div class="row" style="gap:22px">
+        <div><div class="small muted">mean</div><div class="big" id="m-mean" style="color:#A4520C"></div></div>
+        <div><div class="small muted">median</div><div class="big" id="m-med" style="color:var(--tink)"></div></div>
+        <div><div class="small muted">std (pandas)</div><div class="big" id="m-std"></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="panel"><h3>By hand, as on the slide</h3><table class="t" id="m-table"></table><div class="status" id="m-note"></div></div>
+      <div class="panel" style="margin-top:14px"><div class="code" id="m-code" style="font-size:14px"></div><div class="out" id="m-out" style="margin-top:8px"></div></div>
+    </div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>One extreme value drags the mean; the median hardly moves.</li>
+      <li>Standard deviation is the typical distance from the mean: square the gaps, average them, take the square root.</li>
+      <li>pandas <code>std()</code> divides by count − 1, so it is a little larger than the by-hand (divide by count) value.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Homework 7.1: enter 3, 5, 7, 9, 11. Check the by-hand standard deviation.</span></label>
+      <label><input type="checkbox"><span>Make a list where mean and median are exactly equal.</span></label>
+      <label><input type="checkbox"><span>Make two lists with the same mean but very different standard deviations.</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t2">
+  <div class="exp-head"><h2>Histogram: the shape of a column, and the bins you choose</h2>
+  <p>A histogram cuts the range into bins and counts the values in each. The same data can tell a different story with different bins.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <label class="lab" for="h-data">Data</label>
+      <select id="h-data" style="width:100%"><option value="sms">SMS message length: ham and spam</option><option value="hours">students.csv: hours</option><option value="attendance">students.csv: attendance</option><option value="prior_gpa">students.csv: prior_gpa</option></select>
+      <div class="row" style="margin-top:12px"><label class="lab" style="width:90px" for="h-bins">bins = <b id="h-bins-v">40</b></label><input type="range" id="h-bins" min="2" max="80" value="40" style="flex:1"></div>
+      <div class="row" id="h-sms-opts" style="margin-top:8px;gap:16px"><label class="small"><input type="checkbox" id="h-same"> same bin edges for both groups</label><label class="small"><input type="checkbox" id="h-dedup"> drop duplicates</label></div>
+      <div class="code" id="h-code" style="margin-top:12px;font-size:14px"></div>
+      <div class="status" id="h-note"></div>
+    </div>
+    <div class="panel"><h3 id="h-title">Histogram</h3><svg id="h-svg" viewBox="0 0 620 300" width="100%" role="img" aria-label="Histogram"></svg>
+      <p class="small muted" id="h-hover" style="margin:4px 0 0">Point at a bar to see its range and count.</p></div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>Too few bins hide the shape; too many make it look noisy. Try 5, 15 and 80.</li>
+      <li>Two separate <code>plt.hist</code> calls choose their own bin edges, so bars of ham and spam do not line up.</li>
+      <li>matplotlib silently skips missing values: check <code>isna().sum()</code> so you know how many were left out.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Find the number of bins where the two peaks of the SMS data are easiest to see.</span></label>
+      <label><input type="checkbox"><span>Draw attendance with 15 bins (slide 15, "Your turn"). Describe its shape in one sentence.</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t3">
+  <div class="exp-head"><h2>Scatter and correlation: how tightly two columns move together</h2>
+  <p>Build your own cloud of points, or look at real columns from students.csv. Then test your eye in the guessing game.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <label class="lab" for="c-src">Points from</label>
+      <select id="c-src" style="width:100%"><option value="gen">a generator: y = slope × x + noise</option><option value="st">students.csv</option></select>
+      <div id="c-gen" style="margin-top:12px">
+        <div class="row"><label class="lab" style="width:110px" for="c-slope">slope = <b id="c-slope-v"></b></label><input type="range" id="c-slope" min="-30" max="30" value="20" style="flex:1"></div>
+        <div class="row"><label class="lab" style="width:110px" for="c-noise">noise = <b id="c-noise-v"></b></label><input type="range" id="c-noise" min="0" max="80" value="20" style="flex:1"></div>
+        <div class="row"><label class="lab" style="width:110px" for="c-n">points = <b id="c-n-v"></b></label><input type="range" id="c-n" min="5" max="200" value="60" style="flex:1"></div>
+        <label class="small"><input type="checkbox" id="c-out"> add one outlier</label>
+      </div>
+      <div id="c-st" style="margin-top:12px" hidden>
+        <div class="row"><label class="lab" for="c-x">x</label><select id="c-x"><option>hours</option><option>attendance</option><option selected>prior_gpa</option></select>
+          <label class="lab" for="c-y">y</label><select id="c-y"><option selected>hours</option><option>attendance</option><option>prior_gpa</option></select>
+          <label class="small"><input type="checkbox" id="c-col" checked> colour by passed</label></div>
+      </div>
+      <div class="code" id="c-code" style="margin-top:12px;font-size:14px"></div>
+      <div class="row" style="margin-top:12px;gap:24px"><div><div class="small muted">correlation r</div><div class="big" id="c-r"></div></div><div><div class="small muted">points used</div><div class="big" id="c-used"></div></div></div>
+      <div class="status" id="c-note"></div>
+    </div>
+    <div class="panel"><svg id="c-svg" viewBox="0 0 560 420" width="100%" role="img" aria-label="Scatter plot"></svg></div>
+  </div>
+  <div class="panel" style="margin-top:16px">
+    <h3>Guess the correlation</h3>
+    <div class="grid even">
+      <div><svg id="g-svg" viewBox="0 0 420 300" width="100%" role="img" aria-label="Scatter plot to guess"></svg></div>
+      <div>
+        <div class="row"><label class="lab" style="width:120px" for="g-guess">your guess r = <b id="g-guess-v">0.00</b></label><input type="range" id="g-guess" min="-100" max="100" value="0" style="flex:1"></div>
+        <div class="row" style="margin-top:10px"><button class="btn warm" id="g-check">Check</button><button class="btn" id="g-new">New cloud</button></div>
+        <div class="status" id="g-res"></div>
+        <div class="row" style="gap:24px"><div><div class="small muted">rounds</div><div class="big" id="g-n">0</div></div><div><div class="small muted">average miss</div><div class="big" id="g-err">-</div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>r measures how close the points are to a <b>straight line</b>, from −1 to +1. It is not the slope.</li>
+      <li>One outlier can change r a lot when there are few points.</li>
+      <li>In students.csv, hours and prior_gpa are almost unrelated (r near 0), yet hours clearly differ between passed and failed students (see tab 4). Correlation only looks for straight-line patterns between numbers.</li>
+      <li>Correlation is not causation: a hidden third factor can drive both columns.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Set noise to 0. What is r for slope 2? For slope 0.1? Why is it the same?</span></label>
+      <label><input type="checkbox"><span>With 10 points and little noise, how much does one outlier lower r?</span></label>
+      <label><input type="checkbox"><span>Play 5 rounds of the game and get your average miss below 0.15.</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t4">
+  <div class="exp-head"><h2>Box plot: the middle half, the median and the unusual values</h2>
+  <p>The box holds the middle 50% of values, the line is the median, the whiskers reach the furthest values within 1.5 box-lengths, and dots are outliers.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <label class="lab" for="b-data">Compare</label>
+      <select id="b-data" style="width:100%"><option value="sms">SMS length: ham vs spam</option><option value="hours">students: hours by passed</option><option value="attendance">students: attendance by passed</option><option value="gpa">students: prior_gpa by passed</option><option value="dept">students: hours by dept</option></select>
+      <div class="row" style="margin-top:12px"><label class="lab" style="width:110px" for="b-whis">whis = <b id="b-whis-v">1.5</b></label><input type="range" id="b-whis" min="0" max="40" value="15" style="flex:1"></div>
+      <label class="small" style="display:block;margin-top:6px"><input type="checkbox" id="b-pts"> show every value as a dot behind the boxes</label>
+      <div class="code" id="b-code" style="margin-top:12px;font-size:14px"></div>
+      <table class="t" id="b-table" style="margin-top:12px"></table>
+    </div>
+    <div class="panel"><svg id="b-svg" viewBox="0 0 560 420" width="100%" role="img" aria-label="Box plots"></svg></div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>Half the values are inside the box; a quarter are below it and a quarter above.</li>
+      <li>"Outlier" here only means "beyond the whiskers": change <code>whis</code> and the number of dots changes.</li>
+      <li>Box plots compare groups quickly; tick "show every value" to see what the box hides.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Homework 7.3: box plot of hours by passed. Describe the difference in one sentence.</span></label>
+      <label><input type="checkbox"><span>Why does ham have so many outliers but spam has fewer?</span></label>
+    </div>
+  </div>
+</section>
+</main>
+<p class="foot">Works offline: no internet needed. The whole dataset is built into this page. Every number is calculated the same way as pandas and matplotlib and was checked against the real libraries, so it matches what you will see in Jupyter or Colab.</p>
+<script>/* minipy: a small, faithful subset of Python 3 for teaching labs.
+   Values: int (BigInt), float, bool, str, NoneType, list, tuple, dict, builtin, module, function (hook).
+   Statements: assignment, augmented assignment, tuple unpacking, expression statements.
+   Errors mirror CPython 3.12 messages. */
+var MiniPy = (function () {
+  "use strict";
+  function PyError(type, msg) { this.type = type; this.msg = msg; }
+  PyError.prototype.toString = function () { return this.type + (this.msg ? ": " + this.msg : ""); };
+
+  var NONE = { t: "NoneType" };
+  function I(n) { return { t: "int", v: BigInt(n) }; }
+  function F(x) { return { t: "float", v: x }; }
+  function B(b) { return { t: "bool", v: !!b }; }
+  function S(s) { return { t: "str", v: s }; }
+  function L(a) { return { t: "list", v: a }; }
+  function T(a) { return { t: "tuple", v: a }; }
+  function D() { return { t: "dict", m: new Map() }; }
+  function hashKey(v) {
+    switch (v.t) {
+      case "int": return "n:" + v.v.toString();
+      case "bool": return "n:" + (v.v ? "1" : "0");
+      case "float": return Number.isInteger(v.v) ? "n:" + BigInt(v.v).toString() : "f:" + v.v;
+      case "str": return "s:" + v.v;
+      case "NoneType": return "N";
+      case "tuple": return "t:(" + v.v.map(hashKey).join(",") + ")";
+    }
+    if (v.t === "list" || v.t === "dict") throw new PyError("TypeError", "unhashable type: '" + v.t + "'");
+    return "o:" + objId(v);
+  }
+  var ids = new WeakMap(), idNext = 0;
+  function objId(v) { if (!ids.has(v)) ids.set(v, 140601564316704 + 48 * (idNext++)); return ids.get(v); }
+  function dget(d, k) { var e = d.m.get(hashKey(k)); return e ? e[1] : undefined; }
+  function dset(d, k, v) { var h = hashKey(k), e = d.m.get(h); if (e) e[1] = v; else d.m.set(h, [k, v]); }
+  function dkeys(d) { return Array.from(d.m.values()).map(function (e) { return e[0]; }); }
+  function dvals(d) { return Array.from(d.m.values()).map(function (e) { return e[1]; }); }
+  function ditems(d) { return Array.from(d.m.values()).map(function (e) { return T([e[0], e[1]]); }); }
+
+  /* ---------- repr / str ---------- */
+  function floatRepr(x) {
+    if (x !== x) return "nan";
+    if (x === Infinity) return "inf";
+    if (x === -Infinity) return "-inf";
+    if (x === 0) return (1 / x < 0) ? "-0.0" : "0.0";
+    var e = x.toExponential(); // shortest round-trip digits
+    var m = e.split("e"), mant = m[0], exp = parseInt(m[1], 10);
+    var neg = mant[0] === "-"; if (neg) mant = mant.slice(1);
+    var digits = mant.replace(".", "");
+    var out;
+    if (exp >= -4 && exp < 16) {
+      if (exp >= 0) {
+        if (digits.length <= exp + 1) out = digits + "0".repeat(exp + 1 - digits.length) + ".0";
+        else out = digits.slice(0, exp + 1) + "." + digits.slice(exp + 1);
+      } else out = "0." + "0".repeat(-exp - 1) + digits;
+    } else {
+      var mm = digits.length > 1 ? digits[0] + "." + digits.slice(1) : digits;
+      var es = Math.abs(exp) < 10 ? "0" + Math.abs(exp) : String(Math.abs(exp));
+      out = mm + "e" + (exp < 0 ? "-" : "+") + es;
+    }
+    return (neg ? "-" : "") + out;
+  }
+  function strRepr(s) {
+    var q = (s.indexOf("'") >= 0 && s.indexOf('"') < 0) ? '"' : "'";
+    var body = s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/\t/g, "\\t");
+    if (q === "'") body = body.replace(/'/g, "\\'");
+    return q + body + q;
+  }
+  function repr(v) {
+    switch (v.t) {
+      case "int": return v.v.toString();
+      case "float": return floatRepr(v.v);
+      case "bool": return v.v ? "True" : "False";
+      case "str": return strRepr(v.v);
+      case "NoneType": return "None";
+      case "list": return "[" + v.v.map(repr).join(", ") + "]";
+      case "tuple": return v.v.length === 1 ? "(" + repr(v.v[0]) + ",)" : "(" + v.v.map(repr).join(", ") + ")";
+      case "type": return "<class '" + v.v + "'>";
+      case "builtin": return "<built-in function " + v.name.replace(/^math\./, "") + ">";
+      case "dict": return "{" + Array.from(v.m.values()).map(function (e) { return repr(e[0]) + ": " + repr(e[1]); }).join(", ") + "}";
+      case "dict_keys": case "dict_values": case "dict_items": return v.t + "([" + v.v.map(repr).join(", ") + "])";
+      case "function": return "<function " + v.name + " at 0x" + objId(v).toString(16) + ">";
+      case "module": return "<module '" + v.name + "' (built-in)>";
+      case "boundmethod": return "<built-in method " + v.name + " of " + typeName(v.obj) + " object>";
+    }
+    return "?";
+  }
+  function str(v) { return v.t === "str" ? v.v : repr(v); }
+  function typeName(v) { return v.t === "builtin" || v.t === "boundmethod" ? "builtin_function_or_method" : v.t; }
+
+  /* ---------- tokenizer ---------- */
+  var KW = { and: 1, or: 1, not: 1, "in": 1, is: 1, None: 1, True: 1, False: 1, "if": 1, "else": 1, elif: 1, "for": 1, "while": 1, def: 1, "return": 1, lambda: 1, "import": 1, from: 1, "class": 1, pass: 1, "break": 1, "continue": 1 };
+  var OPS = ["**=", "//=", "**", "//", "==", "!=", "<=", ">=", "+=", "-=", "*=", "/=", "%=", "+", "-", "*", "/", "%", "<", ">", "=", "(", ")", "[", "]", "{", "}", ",", ":", "."];
+  function tokenize(src) {
+    var toks = [], i = 0, n = src.length;
+    while (i < n) {
+      var c = src[i];
+      if (c === " " || c === "\t") { i++; continue; }
+      if (c === "#") break;
+      var start = i;
+      if (/[0-9]/.test(c) || (c === "." && /[0-9]/.test(src[i + 1] || ""))) {
+        var m = /^(\d[\d_]*\.?[\d_]*([eE][+-]?\d+)?|\.\d[\d_]*([eE][+-]?\d+)?)/.exec(src.slice(i));
+        var txt = m[0].replace(/_/g, "");
+        var isF = /[.eE]/.test(txt);
+        toks.push({ k: "num", v: isF ? F(parseFloat(txt)) : I(txt), p: start });
+        i += m[0].length;
+        if (/[A-Za-z_]/.test(src[i] || "")) throw new PyError("SyntaxError", "invalid decimal literal");
+        continue;
+      }
+      var fpre = /^([fFrRbB]{0,2})(['"])/.exec(src.slice(i));
+      if (fpre && (fpre[1] === "" || /^[fFrR]{1,2}$/.test(fpre[1])) && (fpre[1] !== "" || c === "'" || c === '"')) {
+        var pref = fpre[1].toLowerCase(), q = fpre[2];
+        i += fpre[0].length;
+        var s = "", closed = false;
+        while (i < n) {
+          var ch = src[i];
+          if (ch === "\\" && pref.indexOf("r") < 0) {
+            var nx = src[i + 1]; var map = { n: "\n", t: "\t", "\\": "\\", "'": "'", '"': '"' };
+            s += (nx in map) ? map[nx] : "\\" + nx; i += 2; continue;
+          }
+          if (ch === q) { closed = true; i++; break; }
+          s += ch; i++;
+        }
+        if (!closed) throw new PyError("SyntaxError", "unterminated string literal (detected at line 1)");
+        toks.push({ k: pref.indexOf("f") >= 0 ? "fstr" : "str", v: s, p: start });
+        continue;
+      }
+      if (/[A-Za-z_]/.test(c)) {
+        var mm = /^[A-Za-z_]\w*/.exec(src.slice(i))[0];
+        toks.push({ k: KW[mm] ? "kw" : "name", v: mm, p: start }); i += mm.length; continue;
+      }
+      var op = null;
+      for (var j = 0; j < OPS.length; j++) if (src.substr(i, OPS[j].length) === OPS[j]) { op = OPS[j]; break; }
+      if (!op) {
+        if (c === "!") throw new PyError("SyntaxError", "invalid syntax");
+        throw new PyError("SyntaxError", "invalid character '" + c + "'");
+      }
+      toks.push({ k: "op", v: op, p: start }); i += op.length;
+    }
+    toks.push({ k: "end", v: "", p: n });
+    return toks;
+  }
+
+  /* ---------- parser (Pratt) ---------- */
+  function Parser(toks) { this.t = toks; this.i = 0; }
+  Parser.prototype.peek = function () { return this.t[this.i]; };
+  Parser.prototype.next = function () { return this.t[this.i++]; };
+  Parser.prototype.is = function (k, v) { var t = this.t[this.i]; return t.k === k && (v === undefined || t.v === v); };
+  Parser.prototype.eat = function (k, v) { if (this.is(k, v)) return this.next(); return null; };
+  Parser.prototype.expect = function (k, v) {
+    var t = this.peek();
+    if (t.k === k && (v === undefined || t.v === v)) return this.next();
+    if (v === ")" || v === "]") throw new PyError("SyntaxError", t.k === "end" ? "'" + (v === ")" ? "(" : "[") + "' was never closed" : "invalid syntax");
+    throw new PyError("SyntaxError", "invalid syntax");
+  };
+  Parser.prototype.exprList = function () { // for tuple without parens
+    var first = this.expr();
+    if (!this.is("op", ",")) return first;
+    var items = [first];
+    while (this.eat("op", ",")) { if (this.is("end") || this.is("op", "=") || this.is("op", ")")) break; items.push(this.expr()); }
+    return { n: "tuple", items: items };
+  };
+  Parser.prototype.expr = function () { return this.ternary(); };
+  Parser.prototype.ternary = function () {
+    var body = this.or();
+    if (this.eat("kw", "if")) { var cond = this.or(); this.expect("kw", "else"); var other = this.ternary(); return { n: "ifexp", cond: cond, a: body, b: other }; }
+    return body;
+  };
+  Parser.prototype.or = function () { var l = this.and(); while (this.eat("kw", "or")) l = { n: "bool", op: "or", l: l, r: this.and() }; return l; };
+  Parser.prototype.and = function () { var l = this.not(); while (this.eat("kw", "and")) l = { n: "bool", op: "and", l: l, r: this.not() }; return l; };
+  Parser.prototype.not = function () { if (this.eat("kw", "not")) return { n: "not", e: this.not() }; return this.cmp(); };
+  Parser.prototype.cmp = function () {
+    var first = this.arith(), ops = [], rest = [];
+    for (;;) {
+      var t = this.peek(), op = null;
+      if (t.k === "op" && ["<", ">", "==", "!=", "<=", ">="].indexOf(t.v) >= 0) { this.next(); op = t.v; }
+      else if (this.is("kw", "in")) { this.next(); op = "in"; }
+      else if (this.is("kw", "not") && this.t[this.i + 1].k === "kw" && this.t[this.i + 1].v === "in") { this.i += 2; op = "not in"; }
+      else if (this.is("kw", "is")) { this.next(); op = this.eat("kw", "not") ? "is not" : "is"; }
+      if (!op) break;
+      ops.push(op); rest.push(this.arith());
+    }
+    return ops.length ? { n: "cmp", first: first, ops: ops, rest: rest } : first;
+  };
+  Parser.prototype.arith = function () {
+    var l = this.term();
+    while (this.is("op", "+") || this.is("op", "-")) { var op = this.next().v; l = { n: "bin", op: op, l: l, r: this.term() }; }
+    return l;
+  };
+  Parser.prototype.term = function () {
+    var l = this.unary();
+    while (this.is("op", "*") || this.is("op", "/") || this.is("op", "//") || this.is("op", "%")) { var op = this.next().v; l = { n: "bin", op: op, l: l, r: this.unary() }; }
+    return l;
+  };
+  Parser.prototype.unary = function () {
+    if (this.is("op", "-") || this.is("op", "+")) { var op = this.next().v; return { n: "unary", op: op, e: this.unary() }; }
+    return this.power();
+  };
+  Parser.prototype.power = function () {
+    var b = this.postfix();
+    if (this.eat("op", "**")) return { n: "bin", op: "**", l: b, r: this.unary() };
+    return b;
+  };
+  Parser.prototype.postfix = function () {
+    var e = this.atom();
+    for (;;) {
+      if (this.eat("op", "(")) {
+        var args = [], kws = [];
+        if (!this.is("op", ")")) { do {
+          if (this.is("op", ")")) break;
+          if (this.is("name") && this.t[this.i + 1].k === "op" && this.t[this.i + 1].v === "=") { var kn = this.next().v; this.next(); kws.push([kn, this.expr()]); }
+          else { if (kws.length) throw new PyError("SyntaxError", "positional argument follows keyword argument"); args.push(this.expr()); }
+        } while (this.eat("op", ",")); }
+        this.expect("op", ")"); e = { n: "call", f: e, args: args, kws: kws };
+      } else if (this.eat("op", "[")) {
+        var a = null, b = null, isSlice = false;
+        if (!this.is("op", ":")) a = this.expr();
+        var c = null;
+        if (this.eat("op", ":")) { isSlice = true; if (!this.is("op", "]") && !this.is("op", ":")) b = this.expr(); if (this.eat("op", ":")) { if (!this.is("op", "]")) c = this.expr(); } }
+        this.expect("op", "]");
+        e = isSlice ? { n: "slice", o: e, a: a, b: b, c: c } : { n: "index", o: e, i: a };
+      } else if (this.eat("op", ".")) {
+        var nm = this.next(); if (nm.k !== "name") throw new PyError("SyntaxError", "invalid syntax");
+        e = { n: "attr", o: e, name: nm.v };
+      } else break;
+    }
+    return e;
+  };
+  Parser.prototype.atom = function () {
+    var t = this.next();
+    if (t.k === "num") return { n: "const", v: t.v };
+    if (t.k === "str") { var s = t.v; while (this.is("str")) s += this.next().v; return { n: "const", v: S(s) }; }
+    if (t.k === "fstr") return { n: "fstr", parts: parseF(t.v) };
+    if (t.k === "name") return { n: "name", id: t.v, p: t.p };
+    if (t.k === "kw" && t.v === "None") return { n: "const", v: NONE };
+    if (t.k === "kw" && t.v === "True") return { n: "const", v: B(true) };
+    if (t.k === "kw" && t.v === "False") return { n: "const", v: B(false) };
+    if (t.k === "op" && t.v === "(") {
+      if (this.eat("op", ")")) return { n: "tuple", items: [] };
+      var e = this.expr();
+      if (this.is("op", ",")) { var items = [e]; while (this.eat("op", ",")) { if (this.is("op", ")")) break; items.push(this.expr()); } this.expect("op", ")"); return { n: "tuple", items: items }; }
+      this.expect("op", ")"); return e;
+    }
+    if (t.k === "op" && t.v === "[") {
+      var its = [];
+      if (!this.is("op", "]")) { do { if (this.is("op", "]")) break; its.push(this.expr()); } while (this.eat("op", ",")); }
+      this.expect("op", "]"); return { n: "list", items: its };
+    }
+    if (t.k === "op" && t.v === "{") {
+      var pairs = [];
+      if (!this.is("op", "}")) { do {
+        if (this.is("op", "}")) break;
+        var kk = this.expr();
+        if (!this.eat("op", ":")) throw new PyError("NotSupported", "Sets are not part of this lab. A dictionary needs key: value pairs.");
+        pairs.push([kk, this.expr()]);
+      } while (this.eat("op", ",")); }
+      this.expect("op", "}"); return { n: "dict", items: pairs };
+    }
+    if (t.k === "end") throw new PyError("SyntaxError", "invalid syntax");
+    throw new PyError("SyntaxError", "invalid syntax");
+  };
+  function parseF(s) {
+    var parts = [], i = 0, lit = "";
+    while (i < s.length) {
+      if (s[i] === "{" && s[i + 1] === "{") { lit += "{"; i += 2; continue; }
+      if (s[i] === "}" && s[i + 1] === "}") { lit += "}"; i += 2; continue; }
+      if (s[i] === "{") {
+        if (lit) { parts.push({ lit: lit }); lit = ""; }
+        var depth = 1, j = i + 1, inner = "";
+        while (j < s.length && depth) { if (s[j] === "{") depth++; if (s[j] === "}") depth--; if (depth) inner += s[j]; j++; }
+        if (depth) throw new PyError("SyntaxError", "f-string: expecting '}'");
+        var spec = null, colon = -1, d2 = 0;
+        for (var k = 0; k < inner.length; k++) { var ch = inner[k]; if ("([{".indexOf(ch) >= 0) d2++; if (")]}".indexOf(ch) >= 0) d2--; if (ch === ":" && d2 === 0) { colon = k; break; } }
+        var src = inner; if (colon >= 0) { src = inner.slice(0, colon); spec = inner.slice(colon + 1); }
+        if (!src.trim()) throw new PyError("SyntaxError", "f-string: valid expression required before '}'");
+        var p = new Parser(tokenize(src)); var node = p.expr(); if (!p.is("end")) throw new PyError("SyntaxError", "f-string: invalid syntax");
+        parts.push({ node: node, spec: spec, src: src.trim() });
+        i = j; continue;
+      }
+      if (s[i] === "}") throw new PyError("SyntaxError", "f-string: single '}' is not allowed");
+      lit += s[i]; i++;
+    }
+    if (lit) parts.push({ lit: lit });
+    return parts;
+  }
+
+  /* ---------- numeric helpers ---------- */
+  function isNum(v) { return v.t === "int" || v.t === "float" || v.t === "bool"; }
+  function toF(v) { return v.t === "float" ? v.v : v.t === "bool" ? (v.v ? 1 : 0) : Number(v.v); }
+  function toBI(v) { return v.t === "bool" ? BigInt(v.v ? 1 : 0) : v.v; }
+  function truthy(v) {
+    switch (v.t) {
+      case "int": return v.v !== 0n; case "float": return v.v !== 0; case "bool": return v.v; case "str": case "list": case "tuple": case "dict_keys": case "dict_values": case "dict_items": return v.v.length > 0;
+      case "dict": return v.m.size > 0;
+      case "NoneType": return false;
+    }
+    return true;
+  }
+  function floorDivBI(a, b) { var q = a / b; if ((a % b !== 0n) && ((a < 0n) !== (b < 0n))) q -= 1n; return q; }
+  function modBI(a, b) { var r = a % b; if (r !== 0n && ((r < 0n) !== (b < 0n))) r += b; return r; }
+  function fmod(a, b) { var r = a - b * Math.floor(a / b); if (r === 0 && b < 0) return -0; return r; }
+  var OPNAME = { "+": "+", "-": "-", "*": "*", "/": "/", "//": "//", "%": "%", "**": "** or pow()" };
+  function unsupported(op, a, b) { return new PyError("TypeError", "unsupported operand type(s) for " + OPNAME[op] + ": '" + typeName(a) + "' and '" + typeName(b) + "'"); }
+  function binop(op, a, b) {
+    if (isNum(a) && isNum(b)) {
+      var intOp = (a.t !== "float" && b.t !== "float");
+      if (intOp) {
+        var x = toBI(a), y = toBI(b);
+        switch (op) {
+          case "+": return I(x + y); case "-": return I(x - y); case "*": return I(x * y);
+          case "/": if (y === 0n) throw new PyError("ZeroDivisionError", "division by zero"); return F(Number(x) / Number(y));
+          case "//": if (y === 0n) throw new PyError("ZeroDivisionError", "integer division or modulo by zero"); return I(floorDivBI(x, y));
+          case "%": if (y === 0n) throw new PyError("ZeroDivisionError", "integer modulo by zero"); return I(modBI(x, y));
+          case "**":
+            if (y < 0n) { if (x === 0n) throw new PyError("ZeroDivisionError", "0.0 cannot be raised to a negative power"); return F(Math.pow(Number(x), Number(y))); }
+            if (y > 4000n) throw new PyError("OverflowError", "result too large for this lab");
+            return I(x ** y);
+        }
+      } else {
+        var p = toF(a), q = toF(b);
+        switch (op) {
+          case "+": return F(p + q); case "-": return F(p - q); case "*": return F(p * q);
+          case "/": if (q === 0) throw new PyError("ZeroDivisionError", "float division by zero"); return F(p / q);
+          case "//": if (q === 0) throw new PyError("ZeroDivisionError", "float floor division by zero"); return F(Math.floor(p / q));
+          case "%": if (q === 0) throw new PyError("ZeroDivisionError", "float modulo by zero"); return F(fmod(p, q));
+          case "**":
+            if (p === 0 && q < 0) throw new PyError("ZeroDivisionError", "zero to a negative power");
+            var r = Math.pow(p, q); if (r !== r && p < 0) throw new PyError("ValueError", "complex results are not supported in this lab"); if (!isFinite(r)) throw new PyError("OverflowError", "(34, 'Numerical result out of range')"); return F(r);
+        }
+      }
+    }
+    if (op === "+") {
+      if (a.t === "str") { if (b.t !== "str") throw new PyError("TypeError", 'can only concatenate str (not "' + typeName(b) + '") to str'); return S(a.v + b.v); }
+      if (a.t === "list") { if (b.t !== "list") throw new PyError("TypeError", 'can only concatenate list (not "' + typeName(b) + '") to list'); return L(a.v.concat(b.v)); }
+      if (a.t === "tuple" && b.t === "tuple") return T(a.v.concat(b.v));
+    }
+    if (op === "*") {
+      var seq = null, cnt = null;
+      if ((a.t === "str" || a.t === "list" || a.t === "tuple") && (b.t === "int" || b.t === "bool")) { seq = a; cnt = b; }
+      else if ((b.t === "str" || b.t === "list" || b.t === "tuple") && (a.t === "int" || a.t === "bool")) { seq = b; cnt = a; }
+      if (seq) {
+        var k = Number(toBI(cnt)); if (k < 0) k = 0;
+        if (seq.v.length * k > 100000) throw new PyError("MemoryError", "too large for this lab");
+        if (seq.t === "str") return S(seq.v.repeat(k));
+        var out = []; for (var z = 0; z < k; z++) out = out.concat(seq.v);
+        return seq.t === "list" ? L(out) : T(out);
+      }
+      if ((a.t === "str" || a.t === "list") && (b.t === "str" || b.t === "list" || b.t === "float")) throw new PyError("TypeError", "can't multiply sequence by non-int of type '" + typeName(b) + "'");
+      if ((b.t === "str" || b.t === "list") && a.t === "float") throw new PyError("TypeError", "can't multiply sequence by non-int of type '" + typeName(a) + "'");
+    }
+    if (op === "%" && a.t === "str") throw new PyError("TypeError", "this lab does not support % formatting; use an f-string");
+    throw unsupported(op, a, b);
+  }
+  function eq(a, b) {
+    if (isNum(a) && isNum(b)) {
+      if (a.t !== "float" && b.t !== "float") return toBI(a) === toBI(b);
+      return toF(a) === toF(b);
+    }
+    if (a.t !== b.t) return false;
+    if (a.t === "str") return a.v === b.v;
+    if (a.t === "NoneType") return true;
+    if (a.t === "list" || a.t === "tuple") { if (a.v.length !== b.v.length) return false; for (var i = 0; i < a.v.length; i++) if (!eq(a.v[i], b.v[i])) return false; return true; }
+    if (a.t === "dict") { if (a.m.size !== b.m.size) return false; var ok = true; a.m.forEach(function (e, h) { var o = b.m.get(h); if (!o || !eq(e[1], o[1])) ok = false; }); return ok; }
+    return a === b;
+  }
+  function lt(a, b, op) {
+    if (isNum(a) && isNum(b)) { if (a.t !== "float" && b.t !== "float") return toBI(a) < toBI(b); return toF(a) < toF(b); }
+    if (a.t === "str" && b.t === "str") return a.v < b.v;
+    if ((a.t === "list" && b.t === "list") || (a.t === "tuple" && b.t === "tuple")) {
+      for (var i = 0; i < Math.min(a.v.length, b.v.length); i++) { if (!eq(a.v[i], b.v[i])) return lt(a.v[i], b.v[i], "<"); }
+      return a.v.length < b.v.length;
+    }
+    throw new PyError("TypeError", "'" + op + "' not supported between instances of '" + typeName(a) + "' and '" + typeName(b) + "'");
+  }
+  function checkOrder(a, b, op) {
+    var ok = (isNum(a) && isNum(b)) || (a.t === "str" && b.t === "str") || (a.t === "list" && b.t === "list") || (a.t === "tuple" && b.t === "tuple");
+    if (!ok) throw new PyError("TypeError", "'" + op + "' not supported between instances of '" + typeName(a) + "' and '" + typeName(b) + "'");
+  }
+  function compare(op, a, b) {
+    switch (op) {
+      case "==": return eq(a, b); case "!=": return !eq(a, b);
+      case "<": return lt(a, b, "<"); case ">": checkOrder(a, b, ">"); return lt(b, a, ">");
+      case "<=": return lt(a, b, "<=") || eq(a, b); case ">=": checkOrder(a, b, ">="); return lt(b, a, ">=") || eq(a, b);
+      case "in": case "not in":
+        var r;
+        if (b.t === "str") { if (a.t !== "str") throw new PyError("TypeError", "'in <string>' requires string as left operand, not " + typeName(a)); r = b.v.indexOf(a.v) >= 0; }
+        else if (b.t === "list" || b.t === "tuple" || /^dict_/.test(b.t)) r = b.v.some(function (x) { return eq(x, a); });
+        else if (b.t === "dict") r = b.m.has(hashKey(a));
+        else throw new PyError("TypeError", "argument of type '" + typeName(b) + "' is not iterable");
+        return op === "in" ? r : !r;
+      case "is": return a === b || (a.t === "NoneType" && b.t === "NoneType") || (a.t === "bool" && b.t === "bool" && a.v === b.v);
+      case "is not": return !compare("is", a, b);
+    }
+  }
+
+  /* ---------- formatting for f-strings ---------- */
+  function pyFixed(x, p) { if (!isFinite(x)) return floatRepr(x); var r = pyRound(x, p); return (r === 0 && x < 0 ? "-" : "") + Math.abs(r).toFixed(p).replace(/^/, r < 0 ? "-" : ""); }
+  function fmtNumber(v, spec) {
+    var m = /^([<>^]?)(\+?)(0?)(\d*)(,?)(?:\.(\d+))?([fdeg%s]?)$/.exec(spec);
+    if (!m) throw new PyError("ValueError", "Invalid format specifier '" + spec + "' for object of type '" + typeName(v) + "'");
+    var kind = m[7], prec = m[6] === undefined ? null : parseInt(m[6], 10), width = m[4] ? parseInt(m[4], 10) : 0, comma = m[5] === ",";
+    var s;
+    if (kind === "s") { if (v.t !== "str") throw new PyError("ValueError", "Unknown format code 's' for object of type '" + typeName(v) + "'"); s = v.v; }
+    else if (v.t === "str") { if (kind || prec !== null || comma) throw new PyError("ValueError", "Unknown format code '" + (kind || "f") + "' for object of type 'str'"); s = v.v; }
+    else if (kind === "d") { if (v.t === "float") throw new PyError("ValueError", "Unknown format code 'd' for object of type 'float'"); s = toBI(v).toString(); }
+    else if (kind === "%") { s = pyFixed(toF(v) * 100, prec === null ? 6 : prec) + "%"; }
+    else if (kind === "f") { s = pyFixed(toF(v), prec === null ? 6 : prec); }
+    else if (kind === "e") { var e = toF(v).toExponential(prec === null ? 6 : prec); s = e.replace(/e([+-])(\d)$/, "e$10$2"); }
+    else if (prec !== null) { s = Number(toF(v).toPrecision(prec)).toString(); }
+    else s = str(v);
+    if (comma) { var parts = s.split("."); var neg = parts[0][0] === "-"; var ip = neg ? parts[0].slice(1) : parts[0]; ip = ip.replace(/\B(?=(\d{3})+(?!\d))/g, ","); parts[0] = (neg ? "-" : "") + ip; s = parts.join("."); }
+    if (m[2] === "+" && s[0] !== "-" && v.t !== "str") s = "+" + s;
+    if (width && s.length < width) {
+      var align = m[1] || (v.t === "str" ? "<" : ">"), pad = width - s.length, fill = m[3] === "0" ? "0" : " ";
+      if (align === "<") s = s + " ".repeat(pad); else if (align === "^") s = " ".repeat(Math.floor(pad / 2)) + s + " ".repeat(Math.ceil(pad / 2)); else s = fill.repeat(pad) + s;
+    }
+    return s;
+  }
+
+  /* ---------- builtins ---------- */
+  function argc(name, args, lo, hi) {
+    if (args.length < lo || args.length > hi) {
+      if (lo === hi) throw new PyError("TypeError", name + "() takes exactly one argument (" + args.length + " given)");
+      throw new PyError("TypeError", name + " expected at most " + hi + " argument" + (hi > 1 ? "s" : "") + ", got " + args.length);
+    }
+  }
+  function lenOf(v) {
+    if (v.t === "str" || v.t === "list" || v.t === "tuple" || /^dict_/.test(v.t)) return v.v.length;
+    if (v.t === "dict") return v.m.size;
+    throw new PyError("TypeError", "object of type '" + typeName(v) + "' has no len()");
+  }
+  function iter(v) {
+    if (v.t === "str") return Array.from(v.v).map(S);
+    if (v.t === "list" || v.t === "tuple" || /^dict_/.test(v.t)) return v.v.slice();
+    if (v.t === "dict") return dkeys(v);
+    throw new PyError("TypeError", "'" + typeName(v) + "' object is not iterable");
+  }
+  function pyRound(x, nd) {
+    /* correctly rounded on the exact binary value, ties to even (as CPython) */
+    if (!isFinite(x) || nd > 20) return x;
+    var neg = x < 0, a = Math.abs(x);
+    var long = a.toFixed(Math.min(100, nd + 40)), cut = long.indexOf(".") + nd + (nd > 0 ? 1 : 0);
+    if (nd === 0) cut = long.indexOf(".");
+    var rest = long.slice(cut + (nd === 0 ? 1 : 0)), isTie = /^50*$/.test(rest);
+    var r;
+    if (isTie) {
+      var down = Number(long.slice(0, cut)), f = Math.pow(10, nd), step = 1 / f;
+      var lastDigit = parseInt(long[cut - 1] === "." ? long[cut - 2] : long[cut - 1], 10);
+      r = (lastDigit % 2 === 0) ? down : Number((down + step).toFixed(nd));
+    } else r = Number(a.toFixed(nd));
+    return neg ? -r : r;
+  }
+  var KWOK = { print: ["sep", "end"], sorted: ["reverse", "key"], sort: ["reverse", "key"], max: ["key"], min: ["key"] };
+  var BUILTINS = {
+    print: function (args, ctx, kw) {
+      kw = kw || {}; var sep = kw.sep && kw.sep.t !== "NoneType" ? kw.sep.v : " ", end = kw.end && kw.end.t !== "NoneType" ? kw.end.v : "\n";
+      var o = ctx.root || ctx, parts = ((o.pend || "") + args.map(str).join(sep) + end).split("\n");
+      o.pend = parts.pop(); parts.forEach(function (l) { o.out.push(l); }); return NONE;
+    },
+    enumerate: function (args) { argc("enumerate", args, 1, 2); var st = args[1] ? Number(toBI(args[1])) : 0; return L(iter(args[0]).map(function (x, k) { return T([I(k + st), x]); })); },
+    len: function (args) { argc("len", args, 1, 1); return I(lenOf(args[0])); },
+    type: function (args) { argc("type", args, 1, 1); return { t: "type", v: typeName(args[0]) }; },
+    str: function (args) { return S(args.length ? str(args[0]) : ""); },
+    int: function (args) {
+      if (!args.length) return I(0); var v = args[0];
+      if (v.t === "int") return v; if (v.t === "bool") return I(v.v ? 1 : 0);
+      if (v.t === "float") { if (!isFinite(v.v)) throw new PyError("OverflowError", "cannot convert float infinity to integer"); return I(Math.trunc(v.v)); }
+      if (v.t === "str") { var t = v.v.trim().replace(/_/g, ""); if (!/^[+-]?\d+$/.test(t)) throw new PyError("ValueError", "invalid literal for int() with base 10: " + strRepr(v.v)); return I(t); }
+      throw new PyError("TypeError", "int() argument must be a string, a bytes-like object or a real number, not '" + typeName(v) + "'");
+    },
+    float: function (args) {
+      if (!args.length) return F(0); var v = args[0];
+      if (isNum(v)) return F(toF(v));
+      if (v.t === "str") { var t = v.v.trim(); if (!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(t)) throw new PyError("ValueError", "could not convert string to float: " + strRepr(v.v)); return F(parseFloat(t)); }
+      throw new PyError("TypeError", "float() argument must be a string or a real number, not '" + typeName(v) + "'");
+    },
+    bool: function (args) { return B(args.length ? truthy(args[0]) : false); },
+    abs: function (args) { argc("abs", args, 1, 1); var v = args[0]; if (v.t === "float") return F(Math.abs(v.v)); if (isNum(v)) { var x = toBI(v); return I(x < 0n ? -x : x); } throw new PyError("TypeError", "bad operand type for abs(): '" + typeName(v) + "'"); },
+    round: function (args) {
+      var v = args[0]; if (!isNum(v)) throw new PyError("TypeError", "type " + typeName(v) + " doesn't define __round__ method");
+      if (args.length === 1) { if (v.t !== "float") return I(toBI(v)); return I(pyRound(v.v, 0)); }
+      var nd = Number(toBI(args[1])); if (v.t !== "float") return v; return F(pyRound(v.v, nd));
+    },
+    max: function (args, ctx, kw) { return minmax(args, "max", kw, ctx); }, min: function (args, ctx, kw) { return minmax(args, "min", kw, ctx); },
+    sum: function (args) {
+      if (!args.length) throw new PyError("TypeError", "sum() takes at least 1 positional argument (0 given)");
+      var items = iterArg(args[0]), acc = args[1] || I(0);
+      items.forEach(function (x) { if (x.t === "str") throw new PyError("TypeError", "unsupported operand type(s) for +: '" + typeName(acc) + "' and 'str'"); acc = binop("+", acc, x); }); return acc;
+    },
+    list: function (args) { return L(args.length ? iter(args[0]) : []); },
+    tuple: function (args) { return T(args.length ? iter(args[0]) : []); },
+    sorted: function (args, ctx, kw) {
+      argc("sorted", args, 1, 1); var a = iter(args[0]), rev = kw && kw.reverse && truthy(kw.reverse);
+      var keyed = a.map(function (x, i) { return { x: x, k: kw && kw.key && kw.key.t !== "NoneType" ? callValue(kw.key, [x], {}, ctx) : x, i: i }; });
+      keyed.sort(function (p, q) { var c = lt(p.k, q.k, "<") ? -1 : lt(q.k, p.k, "<") ? 1 : 0; if (rev) c = -c; return c || p.i - q.i; });
+      return L(keyed.map(function (p) { return p.x; }));
+    },
+    dict: function (args) { var d = D(); if (args.length) { if (args[0].t === "dict") args[0].m.forEach(function (e) { dset(d, e[0], e[1]); }); else iter(args[0]).forEach(function (pr) { var kv = iter(pr); dset(d, kv[0], kv[1]); }); } return d; },
+    repr: function (args) { argc("repr", args, 1, 1); return S(repr(args[0])); },
+    id: function (args) { argc("id", args, 1, 1); return I(objId(args[0])); },
+    pow: function (args) { if (args.length === 3) { if (args[0].t !== "int" || args[1].t !== "int" || args[2].t !== "int") throw new PyError("TypeError", "pow() 3rd argument not allowed unless all arguments are integers"); return binop("%", binop("**", args[0], args[1]), args[2]); } if (args.length < 2) throw new PyError("TypeError", "pow() missing required argument '" + (args.length ? "exp' (pos 2)" : "base' (pos 1)")); if (args.length > 3) throw new PyError("TypeError", "pow() takes at most 3 arguments (" + args.length + " given)"); return binop("**", args[0], args[1]); },
+    range: function (args) {
+      var nums = args.map(function (a) { if (a.t !== "int" && a.t !== "bool") throw new PyError("TypeError", "'" + typeName(a) + "' object cannot be interpreted as an integer"); return Number(toBI(a)); });
+      var start = 0, stop, step = 1; if (nums.length === 1) stop = nums[0]; else { start = nums[0]; stop = nums[1]; if (nums.length > 2) step = nums[2]; }
+      if (step === 0) throw new PyError("ValueError", "range() arg 3 must not be zero");
+      var out = []; for (var x = start; step > 0 ? x < stop : x > stop; x += step) { out.push(I(x)); if (out.length > 10000) break; }
+      return L(out);
+    },
+    input: function () { throw new PyError("RuntimeError", "input() is not available in this lab; type the value into the code instead"); }
+  };
+  function iterArg(v) { return iter(v); }
+  function minmax(args, nm, kw, ctx) {
+    if (!args.length) throw new PyError("TypeError", nm + " expected at least 1 argument, got 0");
+    var items = args.length === 1 ? iter(args[0]) : args;
+    if (!items.length) throw new PyError("ValueError", nm + "() iterable argument is empty");
+    var kf = function (x) { return kw && kw.key && kw.key.t !== "NoneType" ? callValue(kw.key, [x], {}, ctx) : x; };
+    var best = items[0], bk = kf(best);
+    for (var i = 1; i < items.length; i++) { var x = items[i], xk = kf(x); if (nm === "max" ? lt(bk, xk, "<") : lt(xk, bk, "<")) { best = x; bk = xk; } }
+    return best;
+  }
+  function callValue(f, args, kw, ctx) {
+    kw = kw || {};
+    var fname = f.t === "builtin" ? f.name : f.t === "type" ? f.v : f.t === "boundmethod" ? f.name : "";
+    if (f.t !== "function") Object.keys(kw).forEach(function (k) { if ((KWOK[fname] || []).indexOf(k) < 0) throw new PyError("TypeError", fname.replace(/^math\./, "") + "() got an unexpected keyword argument '" + k + "'"); });
+    if (f.t === "builtin") return (f.fn || BUILTINS[f.name])(args, ctx, kw);
+    if (f.t === "boundmethod") return f.fn(args, kw);
+    if (f.t === "type") { if (BUILTINS[f.v]) return BUILTINS[f.v](args, ctx, kw); throw new PyError("TypeError", "cannot create '" + f.v + "' instances"); }
+    if (f.t === "function") return f.call(args, kw, ctx);
+    throw new PyError("TypeError", "'" + typeName(f) + "' object is not callable");
+  }
+  function stripChars(s, c, side) {
+    var set = c && c.t === "str" ? c.v : null, ws = function (ch) { return set === null ? /\s/.test(ch) : set.indexOf(ch) >= 0; }, a = 0, b = s.length;
+    if (side & 1) while (a < b && ws(s[a])) a++;
+    if (side & 2) while (b > a && ws(s[b - 1])) b--;
+    return s.slice(a, b);
+  }
+  function method(obj, name) {
+    var s = obj.v;
+    var M = null;
+    if (obj.t === "str") M = {
+      lower: function () { return S(s.toLowerCase()); }, upper: function () { return S(s.toUpperCase()); },
+      title: function () { return S(s.toLowerCase().replace(/(^|[^A-Za-z])([a-z])/g, function (m, a, b) { return a + b.toUpperCase(); })); },
+      strip: function (a) { return S(stripChars(s, a[0], 3)); }, lstrip: function (a) { return S(stripChars(s, a[0], 1)); }, rstrip: function (a) { return S(stripChars(s, a[0], 2)); },
+      join: function (a) { var it = iter(a[0]); it.forEach(function (x, k) { if (x.t !== "str") throw new PyError("TypeError", "sequence item " + k + ": expected str instance, " + typeName(x) + " found"); }); return S(it.map(function (x) { return x.v; }).join(s)); },
+      isupper: function () { return B(/[A-Z]/.test(s) && !/[a-z]/.test(s)); }, islower: function () { return B(/[a-z]/.test(s) && !/[A-Z]/.test(s)); }, capitalize: function () { return S(s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()); },
+      split: function (a) { if (a.length) { if (a[0].v === "") throw new PyError("ValueError", "empty separator"); return L(s.split(a[0].v).map(S)); } return L(s.split(/\s+/).filter(function (x) { return x; }).map(S)); },
+      count: function (a) { if (!a.length || a[0].t !== "str") throw new PyError("TypeError", "must be str, not " + (a.length ? typeName(a[0]) : "nothing")); var sub = a[0].v; if (sub === "") return I(s.length + 1); var c = 0, i = 0; while ((i = s.indexOf(sub, i)) >= 0) { c++; i += sub.length; } return I(c); },
+      replace: function (a) { return S(s.split(a[0].v).join(a[1].v)); },
+      startswith: function (a) { return B(s.indexOf(a[0].v) === 0); }, endswith: function (a) { return B(s.length >= a[0].v.length && s.slice(s.length - a[0].v.length) === a[0].v); },
+      find: function (a) { return I(s.indexOf(a[0].v)); },
+      isdigit: function () { return B(/^\d+$/.test(s)); }, isalpha: function () { return B(/^[A-Za-z]+$/.test(s)); }
+    };
+    else if (obj.t === "list") M = {
+      append: function (a) { s.push(a[0]); return NONE; }, pop: function (a) { if (!s.length) throw new PyError("IndexError", "pop from empty list"); var i = a.length ? Number(toBI(a[0])) : s.length - 1; if (i < 0) i += s.length; if (i < 0 || i >= s.length) throw new PyError("IndexError", "pop index out of range"); return s.splice(i, 1)[0]; },
+      insert: function (a) { var i = Number(toBI(a[0])); if (i < 0) i = Math.max(0, s.length + i); s.splice(Math.min(i, s.length), 0, a[1]); return NONE; },
+      remove: function (a) { for (var i = 0; i < s.length; i++) if (eq(s[i], a[0])) { s.splice(i, 1); return NONE; } throw new PyError("ValueError", "list.remove(x): x not in list"); },
+      index: function (a) { for (var i = 0; i < s.length; i++) if (eq(s[i], a[0])) return I(i); throw new PyError("ValueError", repr(a[0]) + " is not in list"); },
+      count: function (a) { return I(s.filter(function (x) { return eq(x, a[0]); }).length); },
+      sort: function (a, kw) { if (kw && kw.key) { var srt = BUILTINS.sorted([obj], null, kw); s.splice.apply(s, [0, s.length].concat(srt.v)); return NONE; } s.sort(function (x, y) { return lt(x, y, "<") ? -1 : lt(y, x, "<") ? 1 : 0; }); if (kw && kw.reverse && truthy(kw.reverse)) s.reverse(); return NONE; },
+      reverse: function () { s.reverse(); return NONE; }, copy: function () { return L(s.slice()); }
+    };
+    else if (obj.t === "dict") M = {
+      get: function (a) { if (!a.length) throw new PyError("TypeError", "get expected at least 1 argument, got 0"); var v = dget(obj, a[0]); return v === undefined ? (a.length > 1 ? a[1] : NONE) : v; },
+      keys: function () { return { t: "dict_keys", v: dkeys(obj) }; }, values: function () { return { t: "dict_values", v: dvals(obj) }; }, items: function () { return { t: "dict_items", v: ditems(obj) }; },
+      pop: function (a) { var h = hashKey(a[0]), e = obj.m.get(h); if (!e) { if (a.length > 1) return a[1]; throw new PyError("KeyError", repr(a[0])); } obj.m.delete(h); return e[1]; },
+      copy: function () { var d = D(); obj.m.forEach(function (e, h) { d.m.set(h, [e[0], e[1]]); }); return d; },
+      update: function (a) { iter(a[0]).forEach(function (k) { dset(obj, k, dget(a[0], k)); }); return NONE; }
+    };
+    if (M && M[name]) return M[name];
+    throw new PyError("AttributeError", "'" + typeName(obj) + "' object has no attribute '" + name + "'");
+  }
+
+  /* ---------- evaluation ---------- */
+  function lev(a, b) { var d = []; for (var i = 0; i <= a.length; i++) { d[i] = [i]; } for (var j = 0; j <= b.length; j++) d[0][j] = j; for (i = 1; i <= a.length; i++) for (j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; }
+  function suggest(name, env) {
+    var best = null, bd = 99;
+    Object.keys(env).forEach(function (k) { var dd = lev(name, k); if (dd < bd && dd <= Math.max(1, Math.floor(name.length / 3))) { bd = dd; best = k; } });
+    return best;
+  }
+  function index(seq, iv) {
+    if (seq.t === "dict") { var dv = dget(seq, iv); if (dv === undefined) throw new PyError("KeyError", repr(iv)); return dv; }
+    if (seq.t === "str" || seq.t === "list" || seq.t === "tuple") {
+      if (iv.t !== "int" && iv.t !== "bool") throw new PyError("TypeError", seq.t === "str" ? "string indices must be integers, not '" + typeName(iv) + "'" : seq.t + " indices must be integers or slices, not " + typeName(iv));
+      var n = seq.v.length, i = Number(toBI(iv)); if (i < 0) i += n;
+      if (i < 0 || i >= n) throw new PyError("IndexError", (seq.t === "str" ? "string" : seq.t) + " index out of range");
+      return seq.t === "str" ? S(seq.v[i]) : seq.v[i];
+    }
+    throw new PyError("TypeError", "'" + typeName(seq) + "' object is not subscriptable");
+  }
+  function sliceIdx(n, av, bv, cv) {
+    function num(v) { if (!v || v.t === "NoneType") return null; if (v.t !== "int" && v.t !== "bool") throw new PyError("TypeError", "slice indices must be integers or None or have an __index__ method"); return Number(toBI(v)); }
+    var a = num(av), b = num(bv), c = num(cv); if (c === null) c = 1;
+    if (c === 0) throw new PyError("ValueError", "slice step cannot be zero");
+    function adj(x, dflt, lo, hi) { if (x === null) return dflt; if (x < 0) { x += n; if (x < lo) x = lo; } else if (x > hi) x = hi; return x; }
+    var out = [], i;
+    if (c > 0) { a = adj(a, 0, 0, n); b = adj(b, n, 0, n); for (i = a; i < b; i += c) out.push(i); }
+    else { a = adj(a, n - 1, -1, n - 1); b = adj(b, -1, -1, n - 1); for (i = a; i > b; i += c) out.push(i); }
+    return out;
+  }
+  function ev(node, ctx) {
+    switch (node.n) {
+      case "const": return node.v;
+      case "name":
+        if (Object.prototype.hasOwnProperty.call(ctx.env, node.id)) return ctx.env[node.id];
+        if (ctx.localNames && ctx.localNames[node.id]) throw new PyError("UnboundLocalError", "cannot access local variable '" + node.id + "' where it is not associated with a value");
+        if (ctx.globals && Object.prototype.hasOwnProperty.call(ctx.globals, node.id)) return ctx.globals[node.id];
+        if (BUILTINS[node.id]) return { t: "builtin", name: node.id };
+        var known = {}; Object.keys(ctx.globals || {}).forEach(function (k) { known[k] = 1; }); Object.keys(ctx.env).forEach(function (k) { known[k] = 1; });
+        var sg = suggest(node.id, known);
+        var e = new PyError("NameError", "name '" + node.id + "' is not defined"); if (sg) e.hint = "Did you mean: '" + sg + "'?"; throw e;
+      case "list": return L(node.items.map(function (x) { return ev(x, ctx); }));
+      case "dict": var dd = D(); node.items.forEach(function (pr) { var kv = ev(pr[0], ctx); dset(dd, kv, ev(pr[1], ctx)); }); return dd;
+      case "tuple": return T(node.items.map(function (x) { return ev(x, ctx); }));
+      case "fstr":
+        return S(node.parts.map(function (p) { if (p.lit !== undefined) return p.lit; var v = ev(p.node, ctx); return p.spec === null ? str(v) : fmtNumber(v, p.spec); }).join(""));
+      case "unary":
+        var u = ev(node.e, ctx);
+        if (node.op === "-") { if (u.t === "float") return F(-u.v); if (isNum(u)) return I(-toBI(u)); throw new PyError("TypeError", "bad operand type for unary -: '" + typeName(u) + "'"); }
+        if (isNum(u)) return u.t === "bool" ? I(toBI(u)) : u; throw new PyError("TypeError", "bad operand type for unary +: '" + typeName(u) + "'");
+      case "not": return B(!truthy(ev(node.e, ctx)));
+      case "bool":
+        var l = ev(node.l, ctx);
+        if (node.op === "and") return truthy(l) ? ev(node.r, ctx) : l;
+        return truthy(l) ? l : ev(node.r, ctx);
+      case "ifexp": return truthy(ev(node.cond, ctx)) ? ev(node.a, ctx) : ev(node.b, ctx);
+      case "bin": return binop(node.op, ev(node.l, ctx), ev(node.r, ctx));
+      case "cmp":
+        var left = ev(node.first, ctx);
+        for (var i = 0; i < node.ops.length; i++) { var right = ev(node.rest[i], ctx); if (!compare(node.ops[i], left, right)) return B(false); left = right; }
+        return B(true);
+      case "index": return index(ev(node.o, ctx), ev(node.i, ctx));
+      case "slice":
+        var o = ev(node.o, ctx); if (o.t !== "str" && o.t !== "list" && o.t !== "tuple") throw new PyError("TypeError", "'" + typeName(o) + "' object is not subscriptable");
+        var seqv = o.t === "str" ? Array.from(o.v) : o.v, idx = sliceIdx(seqv.length, node.a && ev(node.a, ctx), node.b && ev(node.b, ctx), node.c && ev(node.c, ctx));
+        var sl = idx.map(function (k) { return seqv[k]; }); return o.t === "str" ? S(sl.join("")) : o.t === "list" ? L(sl) : T(sl);
+      case "attr":
+        var obj = ev(node.o, ctx);
+        if (obj.t === "module") { if (!Object.prototype.hasOwnProperty.call(obj.attrs, node.name)) throw new PyError("AttributeError", "module '" + obj.name + "' has no attribute '" + node.name + "'"); return obj.attrs[node.name]; }
+        var fn = method(obj, node.name);
+        return { t: "boundmethod", obj: obj, fn: fn, name: node.name };
+      case "call":
+        var f = ev(node.f, ctx), args = node.args.map(function (x) { return ev(x, ctx); }), kw = {};
+        (node.kws || []).forEach(function (k) { kw[k[0]] = ev(k[1], ctx); });
+        return callValue(f, args, kw, ctx);
+    }
+    throw new PyError("SyntaxError", "invalid syntax");
+  }
+
+  /* ---------- statements (one line each) ---------- */
+  function assignTargets(lhs) {
+    var p = new Parser(tokenize(lhs)); var e = p.exprList();
+    if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+    function chk(x) {
+      if (x.n === "name") return x;
+      if (x.n === "tuple") { x.items.forEach(chk); return x; }
+      if (x.n === "index") return x;
+      if (x.n === "const" || x.n === "call" || x.n === "bin") throw new PyError("SyntaxError", "cannot assign to " + (x.n === "const" ? "literal" : x.n === "call" ? "function call" : "expression") + " here. Maybe you meant '==' instead of '='?");
+      throw new PyError("SyntaxError", "cannot assign to expression");
+    }
+    return chk(e);
+  }
+  function bind(target, value, ctx) {
+    if (target.n === "name") { ctx.env[target.id] = value; ctx.changed.push(target.id); return; }
+    if (target.n === "index") {
+      var seq = ev(target.o, ctx), iv = ev(target.i, ctx);
+      if (seq.t === "dict") { dset(seq, iv, value); ctx.changed.push("*"); return; }
+      if (seq.t === "list") { if (iv.t !== "int" && iv.t !== "bool") throw new PyError("TypeError", "list indices must be integers or slices, not " + typeName(iv)); var n = seq.v.length, i = Number(toBI(iv)); if (i < 0) i += n; if (i < 0 || i >= n) throw new PyError("IndexError", "list assignment index out of range"); seq.v[i] = value; ctx.changed.push("*"); return; }
+      throw new PyError("TypeError", "'" + typeName(seq) + "' object does not support item assignment");
+    }
+    var vals = iter(value);
+    if (vals.length !== target.items.length) throw new PyError("ValueError", vals.length > target.items.length ? "too many values to unpack (expected " + target.items.length + ")" : "not enough values to unpack (expected " + target.items.length + ", got " + vals.length + ")");
+    target.items.forEach(function (t, k) { bind(t, vals[k], ctx); });
+  }
+  function splitTopLevelEq(line) {
+    var depth = 0, q = null;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (q) { if (c === "\\") { i++; continue; } if (c === q) q = null; continue; }
+      if (c === "'" || c === '"') { q = c; continue; }
+      if (c === "#") break;
+      if ("([{".indexOf(c) >= 0) depth++; else if (")]}".indexOf(c) >= 0) depth--;
+      else if (depth === 0 && c === "=") {
+        var prev = line[i - 1] || "", nx = line[i + 1] || "";
+        if (nx === "=") { i++; continue; }
+        if ("=!<>".indexOf(prev) >= 0) continue;
+        var aug = "";
+        if ("+-*/%".indexOf(prev) >= 0) { aug = prev; if ((prev === "/" || prev === "*") && line[i - 2] === prev) aug = prev + prev; }
+        return { at: i, aug: aug };
+      }
+    }
+    return null;
+  }
+  function execLine(line, ctx) {
+    ctx.changed = []; ctx.last = undefined;
+    var raw = line.replace(/\s+$/, "");
+    if (!raw.trim() || raw.trim()[0] === "#") return { kind: "blank" };
+    if (/^\s/.test(raw)) throw new PyError("IndentationError", "unexpected indent");
+    var firstWord = (/^[A-Za-z_]\w*/.exec(raw) || [""])[0];
+    if (["if", "elif", "else", "for", "while", "def", "class", "try", "with"].indexOf(firstWord) >= 0)
+      throw new PyError("NotSupported", "This lab runs one-line statements only. Blocks like '" + firstWord + "' are covered in Lecture 3.");
+    if (firstWord === "import" || firstWord === "from") throw new PyError("NotSupported", "Imports are not available in this lab.");
+    var sp = splitTopLevelEq(raw);
+    if (sp) {
+      var lhs = raw.slice(0, sp.at - sp.aug.length).trim(), rhs = raw.slice(sp.at + 1).trim();
+      if (!rhs) throw new PyError("SyntaxError", "invalid syntax");
+      var target = assignTargets(lhs);
+      var p = new Parser(tokenize(rhs)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+      if (sp.aug) {
+        if (target.n === "tuple") throw new PyError("SyntaxError", "'tuple' is an illegal expression for augmented assignment");
+        var cur = ev(target.n === "name" ? { n: "name", id: target.id } : target, ctx), rv = ev(e, ctx), v;
+        if (sp.aug === "+" && cur.t === "list") { var add = iter(rv); Array.prototype.push.apply(cur.v, add); v = cur; }
+        else if (sp.aug === "*" && cur.t === "list" && (rv.t === "int" || rv.t === "bool")) { var rep0 = cur.v.slice(), times = Number(toBI(rv)); cur.v.length = 0; for (var z = 0; z < times; z++) Array.prototype.push.apply(cur.v, rep0); v = cur; }
+        else v = binop(sp.aug, cur, rv);
+        bind(target, v, ctx);
+        return { kind: "assign", targets: target.n === "name" ? [target.id] : ["*"], value: v };
+      }
+      var val = ev(e, ctx); bind(target, val, ctx);
+      return { kind: "assign", targets: ctx.changed.slice(), value: val };
+    }
+    var pp = new Parser(tokenize(raw)); var ex = pp.exprList();
+    if (!pp.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+    var r = ev(ex, ctx);
+    return { kind: "expr", value: r };
+  }
+  function mathFn(name, lo, hi, f) { return { t: "builtin", name: "math." + name, fn: function (args) { if (args.length < lo || args.length > hi) throw new PyError("TypeError", lo === hi ? "math." + name + "() takes exactly " + (lo === 1 ? "one argument" : lo + " arguments") + " (" + args.length + " given)" : name + " expected at most " + hi + " arguments, got " + args.length); return f(args); } }; }
+  function needNum(v) { if (!isNum(v)) throw new PyError("TypeError", "must be real number, not " + typeName(v)); return toF(v); }
+  function needInt(v, fn) { if (v.t !== "int" && v.t !== "bool") throw new PyError("TypeError", "'" + typeName(v) + "' object cannot be interpreted as an integer"); return toBI(v); }
+  function bgcd(a, b) { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) { var t = a % b; a = b; b = t; } return a; }
+  var MODULES = {
+    math: function () {
+      return { t: "module", name: "math", attrs: {
+        pi: F(Math.PI), e: F(Math.E), inf: F(Infinity),
+        sqrt: mathFn("sqrt", 1, 1, function (a) { var x = needNum(a[0]); if (x < 0) throw new PyError("ValueError", "math domain error"); return F(Math.sqrt(x)); }),
+        floor: mathFn("floor", 1, 1, function (a) { return a[0].t === "float" ? I(Math.floor(a[0].v)) : I(toBI(a[0])); }),
+        ceil: mathFn("ceil", 1, 1, function (a) { return a[0].t === "float" ? I(Math.ceil(a[0].v)) : I(toBI(a[0])); }),
+        gcd: { t: "builtin", name: "math.gcd", fn: function (a) { var g = 0n; a.forEach(function (x) { g = bgcd(g, needInt(x)); }); return I(g); } },
+        lcm: { t: "builtin", name: "math.lcm", fn: function (a) { var l = 1n; a.forEach(function (x) { var y = needInt(x); if (y === 0n) { l = 0n; return; } y = y < 0n ? -y : y; l = l === 0n ? 0n : l / bgcd(l, y) * y; }); return I(l); } },
+        fabs: mathFn("fabs", 1, 1, function (a) { return F(Math.abs(needNum(a[0]))); }),
+        pow: mathFn("pow", 2, 2, function (a) { return F(Math.pow(needNum(a[0]), needNum(a[1]))); }),
+        log: mathFn("log", 1, 2, function (a) { var x = needNum(a[0]); if (x <= 0) throw new PyError("ValueError", "math domain error"); return F(a.length > 1 ? Math.log(x) / Math.log(needNum(a[1])) : Math.log(x)); }),
+        log10: mathFn("log10", 1, 1, function (a) { var x = needNum(a[0]); if (x <= 0) throw new PyError("ValueError", "math domain error"); return F(Math.log10(x)); }),
+        factorial: mathFn("factorial", 1, 1, function (a) { var n = needInt(a[0]); if (n < 0n) throw new PyError("ValueError", "factorial() not defined for negative values"); var r = 1n; for (var k = 2n; k <= n; k++) r *= k; return I(r); }),
+        isqrt: mathFn("isqrt", 1, 1, function (a) { var n = needInt(a[0]); if (n < 0n) throw new PyError("ValueError", "isqrt() argument must be nonnegative"); return I(Math.floor(Math.sqrt(Number(n)))); })
+      } };
+    }
+  };
+  function importModule(name) { if (!MODULES[name]) throw new PyError("ModuleNotFoundError", "No module named '" + name + "'"); return MODULES[name](); }
+  function compileLine(line) {
+    var raw = line.trim(); if (!raw || raw[0] === "#") return;
+    var sp = splitTopLevelEq(raw);
+    if (sp) {
+      var lhs = raw.slice(0, sp.at - sp.aug.length).trim(), rhs = raw.slice(sp.at + 1).trim();
+      if (!rhs) throw new PyError("SyntaxError", "invalid syntax");
+      assignTargets(lhs); var p = new Parser(tokenize(rhs)); p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return;
+    }
+    var pp = new Parser(tokenize(raw)); pp.exprList(); if (!pp.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+  }
+  function compileExpr(src) { var p = new Parser(tokenize(src)); p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); }
+  function assignTargetNames(lhs) { var out = []; (function walk(x) { if (x.n === "name") out.push(x.id); else if (x.n === "tuple") x.items.forEach(walk); })(assignTargets(lhs)); return out; }
+  function newCtx() { return { env: {}, out: [], changed: [], pend: "" }; }
+  function assignTo(lhs, value, ctx) { ctx.changed = []; bind(assignTargets(lhs), value, ctx); return ctx.changed.slice(); }
+  function evalIn(src, ctx) { var p = new Parser(tokenize(src)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return ev(e, ctx); }
+  function evalExpr(src, env) { var ctx = { env: env || {}, out: [], changed: [] }; var p = new Parser(tokenize(src)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return { value: ev(e, ctx), out: ctx.out }; }
+  return { PyError: PyError, repr: repr, str: str, typeName: typeName, execLine: execLine, newCtx: newCtx, evalExpr: evalExpr, evalIn: evalIn, assignTo: assignTo, iter: iter, truthy: truthy, D: D, dset: dset, dget: dget, objId: objId, importModule: importModule, compileLine: compileLine, compileExpr: compileExpr, assignTargetNames: assignTargetNames, splitTopLevelEq: splitTopLevelEq, callValue: callValue, eq: eq, I: I, F: F, S: S, B: B, L: L, NONE: NONE };
+})();
+if (typeof module !== "undefined") module.exports = MiniPy;
+
+/* Shared helpers for all labs */
+var Lab = (function () {
+  "use strict";
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var KWS = /\b(and|or|not|in|is|if|elif|else|for|while|def|return|match|case|True|False|None|break|continue|import|from|as|print)\b/g;
+  function hl(line) {
+    // split out comment and strings first, then highlight keywords and numbers in code parts
+    var out = "", i = 0, n = line.length, buf = "";
+    function flush() {
+      out += esc(buf).replace(/\b(\d+\.?\d*)\b/g, '<span class="nu">$1</span>')
+        .replace(/\b(and|or|not|in|is|if|elif|else|for|while|def|return|match|case|True|False|None|break|continue)\b/g, '<span class="kw">$1</span>')
+        .replace(/\b(print|len|type|int|float|str|round|abs|max|min|sum|range|sorted|list)\b(?=\()/g, '<span class="fn">$1</span>');
+      buf = "";
+    }
+    while (i < n) {
+      var c = line[i];
+      if (c === "#") { flush(); out += '<span class="cm">' + esc(line.slice(i)) + "</span>"; return out; }
+      if (c === "'" || c === '"') {
+        var pre = "";
+        if (/[fF]$/.test(buf) && !/\w[fF]$/.test(buf)) { pre = buf.slice(-1); buf = buf.slice(0, -1); }
+        flush();
+        var j = i + 1; while (j < n && line[j] !== c) { if (line[j] === "\\") j++; j++; }
+        out += '<span class="st">' + esc(pre + line.slice(i, j + 1)) + "</span>"; i = j + 1; continue;
+      }
+      buf += c; i++;
+    }
+    flush(); return out;
+  }
+  function renderCode(el, lines, states, annotate) {
+    el.innerHTML = lines.map(function (l, k) {
+      var st = states && states[k] ? " " + states[k] : "";
+      var note = annotate && annotate[k] ? '<span style="margin-left:auto;padding-left:16px">' + annotate[k] + "</span>" : "";
+      return '<div class="ln' + st + '"><span class="no">' + (k + 1) + "</span><span>" + (hl(l) || " ") + "</span>" + note + "</div>";
+    }).join("");
+  }
+  function tabs() {
+    var btns = $$(".tabs button");
+    function show(id) {
+      btns.forEach(function (b) { b.setAttribute("aria-selected", b.dataset.tab === id ? "true" : "false"); });
+      $$(".exp").forEach(function (s) { s.classList.toggle("on", s.id === id); });
+      try { localStorage.setItem(document.title + ":tab", id); } catch (e) { }
+      if (history.replaceState) history.replaceState(null, "", "#" + id);
+    }
+    btns.forEach(function (b) { b.addEventListener("click", function () { show(b.dataset.tab); }); });
+    var start = (location.hash || "").slice(1);
+    if (!start || !$("#" + start)) { try { start = localStorage.getItem(document.title + ":tab"); } catch (e) { start = null; } }
+    show(start && $("#" + start) ? start : btns[0].dataset.tab);
+  }
+  function tryLists() {
+    $$(".try input[type=checkbox]").forEach(function (cb, k) {
+      var key = document.title + ":try" + k;
+      try { cb.checked = localStorage.getItem(key) === "1"; } catch (e) { }
+      function upd() { cb.closest("label").classList.toggle("done", cb.checked); }
+      upd();
+      cb.addEventListener("change", function () { upd(); try { localStorage.setItem(key, cb.checked ? "1" : "0"); } catch (e) { } });
+    });
+  }
+  function chipFor(v) { var t = MiniPy.typeName(v); return '<span class="chip ' + t + '">' + t + "</span>"; }
+  function errHTML(e) {
+    if (e.type === "NotSupported") return '<span class="e">' + esc(e.msg) + "</span>";
+    return '<span class="e">' + esc(e.type + ": " + e.msg) + "</span>" + (e.hint ? '<span class="hint">. ' + esc(e.hint) + "</span>" : "");
+  }
+  function init() { tabs(); tryLists(); }
+  document.addEventListener("DOMContentLoaded", init);
+  return { $: $, $$: $$, esc: esc, hl: hl, renderCode: renderCode, chipFor: chipFor, errHTML: errHTML };
+})();
+
+/* pandas-like helpers: the statistics and printed output students see in Jupyter. Checked by test/pd_check.js. */
+var PD = (function () {
+  "use strict";
+  function sum(a) { var s = 0; for (var i = 0; i < a.length; i++) s += a[i]; return s; }
+  function mean(a) { return a.length ? sum(a) / a.length : NaN; }
+  function sorted(a) { return a.slice().sort(function (x, y) { return x - y; }); }
+  function quantile(a, q) { // pandas / numpy "linear"
+    if (!a.length) return NaN; var s = sorted(a), pos = (s.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
+    return s[lo] + (s[hi] - s[lo]) * (pos - lo);
+  }
+  function median(a) { return quantile(a, 0.5); }
+  function std(a, ddof) { ddof = ddof === undefined ? 1 : ddof; if (a.length - ddof <= 0) return NaN; var m = mean(a), s = 0; for (var i = 0; i < a.length; i++) s += (a[i] - m) * (a[i] - m); return Math.sqrt(s / (a.length - ddof)); }
+  function corr(x, y) { // pandas drops rows where either is missing
+    var px = [], py = []; for (var i = 0; i < x.length; i++) if (x[i] !== null && y[i] !== null && !isNaN(x[i]) && !isNaN(y[i])) { px.push(x[i]); py.push(y[i]); }
+    var mx = mean(px), my = mean(py), sxy = 0, sxx = 0, syy = 0;
+    for (i = 0; i < px.length; i++) { sxy += (px[i] - mx) * (py[i] - my); sxx += (px[i] - mx) * (px[i] - mx); syy += (py[i] - my) * (py[i] - my); }
+    return { r: sxy / Math.sqrt(sxx * syy), n: px.length };
+  }
+  function round(x, d) { // numpy.around: round half to even on the decimal-scaled value
+    var f = Math.pow(10, d), y = x * f, r = Math.round(y);
+    if (Math.abs(y % 1) === 0.5) r = 2 * Math.round(y / 2);
+    return r / f;
+  }
+  function fmtNum(x, dec) { if (x === null || isNaN(x)) return "NaN"; return dec === 0 ? String(Math.round(x)) : x.toFixed(dec); }
+  function decimalsNeeded(vals) { // pandas shows all floats in a column with the same number of decimals (at most 6)
+    var d = 1; vals.forEach(function (v) { if (v === null || isNaN(v)) return; for (var k = 1; k <= 6; k++) { if (Math.abs(round(v, k) - v) < 1e-9 * Math.max(1, Math.abs(v))) { d = Math.max(d, k); return; } } d = 6; });
+    return d;
+  }
+  function series(pairs, opts) { // pairs: [[index, value]]
+    opts = opts || {};
+    var isFloat = opts.dtype === "float64", dec = isFloat ? decimalsNeeded(pairs.map(function (p) { return p[1]; })) : 0;
+    var vals = pairs.map(function (p) { return typeof p[1] === "string" ? p[1] : fmtNum(p[1], dec); });
+    var iw = Math.max.apply(null, pairs.map(function (p) { return String(p[0]).length; })), vw = Math.max.apply(null, vals.map(function (v) { return v.length; }));
+    var out = opts.index ? [opts.index] : [];
+    pairs.forEach(function (p, k) { var ix = String(p[0]); out.push(ix + " ".repeat(iw - ix.length) + "    " + " ".repeat(vw - vals[k].length) + vals[k]); });
+    out.push((opts.name !== undefined ? "Name: " + opts.name + ", " : "") + "dtype: " + (opts.dtype || "int64"));
+    return out.join("\n");
+  }
+  function describe(a) {
+    return [["count", a.length], ["mean", mean(a)], ["std", std(a, 1)], ["min", Math.min.apply(null, a)], ["25%", quantile(a, .25)], ["50%", quantile(a, .5)], ["75%", quantile(a, .75)], ["max", Math.max.apply(null, a)]];
+  }
+  function truncate(s, n) { return s.length > n ? s.slice(0, n - 3) + "..." : s; }
+  return { sum: sum, mean: mean, median: median, quantile: quantile, std: std, corr: corr, round: round, series: series, describe: describe, decimalsNeeded: decimalsNeeded, fmtNum: fmtNum, truncate: truncate, sorted: sorted };
+})();
+
+var LAB_DATA = {"lengths": [111, 29, 155, 49, 61, 147, 77, 160, 157, 154, 109, 136, 155, 196, 35, 149, 26, 81, 56, 155, 41, 47, 52, 88, 57, 144, 30, 134, 75, 64, 130, 189, 29, 84, 158, 122, 47, 28, 27, 155, 82, 142, 172, 19, 72, 32, 45, 31, 67, 148, 58, 124, 80, 289, 120, 76, 161, 34, 22, 40, 108, 48, 25, 56, 110, 152, 122, 159, 78, 34, 46, 29, 45, 42, 20, 43, 73, 50, 42, 76, 22, 32, 32, 36, 14, 55, 121, 144, 42, 41, 58, 195, 141, 137, 107, 158, 33, 51, 178, 31, 57, 81, 76, 160, 183, 44, 95, 43, 82, 115, 30, 40, 31, 96, 158, 143, 156, 152, 72, 86, 144, 156, 53, 156, 52, 38, 20, 244, 22, 107, 28, 9, 39, 25, 125, 162, 38, 34, 46, 155, 85, 33, 27, 156, 42, 25, 48, 159, 84, 33, 30, 45, 59, 25, 160, 384, 28, 27, 157, 124, 145, 115, 64, 85, 152, 155, 51, 156, 74, 67, 59, 50, 94, 33, 105, 61, 65, 26, 146, 66, 126, 159, 23, 65, 24, 26, 152, 34, 147, 55, 88, 72, 185, 37, 111, 92, 28, 28, 64, 131, 40, 28, 84, 174, 24, 25, 63, 156, 28, 86, 39, 73, 26, 23, 23, 31, 58, 48, 41, 32, 159, 25, 161, 22, 119, 142, 69, 137, 30, 165, 34, 109, 37, 33, 48, 157, 50, 65, 38, 145, 145, 51, 45, 83, 155, 37, 78, 30, 31, 146, 150, 44, 179, 27, 179, 38, 97, 43, 36, 154, 72, 3, 85, 51, 121, 26, 35, 47, 159, 47, 133, 53, 147, 155, 37, 31, 8, 38, 30, 47, 56, 22, 141, 29, 7, 121, 58, 4, 148, 160, 152, 37, 55, 21, 22, 50, 159, 67, 153, 51, 67, 88, 157, 91, 24, 146, 57, 26, 71, 138, 55, 156, 133, 119, 142, 41, 26, 119, 46, 157, 23, 51, 62, 107, 157, 30, 32, 31, 79, 32, 86, 22, 76, 128, 232, 158, 45, 57, 26, 22, 41, 28, 151, 29, 34, 52, 33, 85, 31, 111, 78, 50, 63, 148, 129, 45, 202, 150, 148, 168, 85, 38, 15, 31, 88, 160, 50, 165, 129, 26, 31, 129, 34, 54, 162, 157, 23, 53, 131, 36, 143, 300, 59, 42, 41, 149, 22, 31, 30, 155, 47, 25, 80, 22, 115, 56, 102, 118, 221, 204, 114, 156, 39, 36, 48, 77, 60, 168, 51, 22, 152, 75, 30, 95, 24, 49, 35, 29, 106, 66, 159, 48, 162, 24, 136, 248, 25, 27, 37, 68, 150, 24, 80, 157, 25, 73, 89, 58, 36, 76, 47, 104, 38, 69, 22, 119, 94, 70, 73, 42, 17, 13, 45, 57, 105, 162, 47, 115, 158, 79, 142, 62, 71, 175, 29, 29, 148, 83, 37, 44, 45, 161, 50, 298, 159, 125, 51, 28, 34, 46, 81, 28, 90, 18, 54, 55, 45, 146, 40, 107, 50, 120, 160, 32, 34, 32, 16, 67, 55, 43, 23, 149, 20, 23, 40, 169, 117, 62, 166, 24, 136, 99, 45, 23, 25, 147, 26, 146, 89, 168, 117, 46, 26, 28, 32, 144, 57, 158, 42, 111, 36, 146, 50, 33, 15, 177, 160, 63, 84, 84, 57, 96, 169, 76, 47, 130, 23, 149, 32, 22, 101, 281, 54, 120, 138, 127, 66, 40, 40, 70, 160, 26, 32, 51, 159, 146, 103, 45, 142, 92, 26, 134, 37, 22, 22, 33, 69, 109, 35, 99, 140, 50, 46, 149, 63, 95, 69, 110, 51, 27, 34, 126, 142, 148, 24, 147, 24, 29, 86, 87, 38, 104, 59, 38, 38, 22, 25, 135, 87, 19, 66, 140, 156, 22, 107, 65, 145, 137, 25, 59, 103, 37, 58, 87, 58, 123, 67, 66, 102, 130, 148, 35, 8, 62, 56, 143, 20, 100, 49, 36, 53, 88, 133, 36, 37, 123, 92, 80, 136, 35, 97, 66, 119, 65, 26, 28, 45, 157, 36, 94, 59, 140, 22, 56, 43, 61, 56, 54, 37, 25, 21, 36, 93, 153, 153, 46, 34, 80, 69, 24, 108, 46, 29, 22, 158, 86, 30, 143, 169, 42, 111, 18, 109, 76, 73, 92, 36, 54, 76, 29, 40, 28, 22, 77, 109, 75, 76, 30, 49, 155, 160, 316, 195, 37, 125, 48, 39, 161, 121, 145, 162, 29, 38, 25, 40, 226, 70, 140, 47, 63, 17, 101, 41, 80, 137, 103, 29, 51, 148, 25, 149, 38, 62, 179, 34, 47, 40, 110, 131, 101, 42, 102, 65, 27, 31, 82, 23, 59, 133, 33, 95, 95, 135, 159, 151, 73, 149, 103, 22, 51, 137, 58, 89, 81, 57, 26, 32, 145, 118, 143, 23, 136, 94, 8, 99, 65, 71, 117, 129, 157, 28, 150, 31, 71, 70, 94, 48, 160, 94, 31, 39, 152, 71, 162, 141, 25, 22, 48, 33, 44, 47, 26, 112, 148, 19, 133, 48, 107, 38, 27, 124, 131, 23, 156, 161, 25, 42, 27, 22, 98, 89, 147, 129, 152, 215, 26, 66, 149, 372, 155, 160, 81, 73, 76, 153, 24, 231, 87, 72, 105, 158, 54, 58, 54, 114, 88, 144, 29, 136, 23, 39, 35, 24, 95, 73, 45, 160, 159, 149, 134, 154, 92, 102, 31, 77, 139, 156, 44, 136, 132, 143, 127, 276, 78, 27, 79, 24, 52, 68, 24, 44, 24, 55, 62, 104, 87, 148, 49, 154, 56, 158, 126, 43, 77, 49, 84, 49, 162, 79, 31, 155, 146, 23, 160, 62, 39, 67, 73, 148, 88, 37, 23, 56, 53, 73, 80, 44, 92, 35, 23, 139, 106, 103, 34, 77, 158, 26, 47, 24, 148, 133, 126, 78, 132, 116, 221, 59, 137, 143, 24, 38, 42, 24, 157, 47, 41, 122, 126, 26, 114, 7, 34, 156, 92, 90, 22, 85, 63, 220, 41, 60, 88, 31, 37, 28, 24, 118, 22, 210, 50, 49, 87, 61, 141, 54, 28, 49, 53, 145, 160, 53, 12, 142, 71, 129, 33, 47, 72, 148, 104, 41, 23, 147, 104, 45, 26, 37, 150, 132, 63, 108, 93, 43, 45, 56, 37, 124, 158, 38, 53, 31, 224, 156, 24, 24, 52, 48, 28, 43, 49, 26, 58, 17, 26, 127, 103, 157, 34, 128, 155, 51, 60, 30, 41, 102, 101, 19, 112, 104, 77, 135, 41, 46, 136, 46, 157, 24, 17, 20, 84, 152, 63, 155, 122, 143, 50, 25, 44, 65, 134, 21, 47, 156, 90, 135, 39, 83, 44, 28, 24, 67, 67, 33, 24, 119, 910, 158, 35, 24, 152, 53, 146, 72, 19, 188, 71, 23, 141, 160, 73, 106, 80, 105, 42, 68, 159, 32, 159, 140, 101, 31, 23, 58, 37, 61, 60, 54, 69, 69, 72, 156, 40, 153, 36, 35, 34, 156, 79, 121, 104, 64, 25, 22, 35, 156, 58, 31, 120, 24, 17, 152, 41, 158, 80, 85, 115, 115, 25, 45, 70, 22, 43, 22, 22, 139, 72, 91, 70, 140, 31, 52, 40, 23, 155, 145, 54, 43, 30, 39, 71, 146, 73, 159, 23, 25, 59, 150, 167, 26, 66, 35, 26, 26, 49, 38, 36, 18, 48, 68, 73, 49, 13, 63, 133, 154, 13, 49, 74, 48, 138, 164, 40, 20, 61, 61, 145, 130, 148, 37, 31, 27, 41, 49, 52, 124, 63, 83, 50, 70, 55, 119, 143, 22, 43, 46, 145, 75, 159, 42, 122, 31, 76, 51, 27, 34, 125, 136, 24, 33, 63, 96, 53, 59, 52, 45, 34, 53, 111, 60, 152, 55, 84, 81, 87, 84, 26, 58, 46, 43, 24, 97, 70, 179, 120, 54, 26, 154, 123, 48, 146, 40, 81, 116, 5, 66, 81, 20, 13, 37, 64, 69, 55, 45, 159, 25, 28, 40, 156, 138, 24, 70, 61, 86, 174, 48, 48, 25, 54, 38, 44, 64, 133, 36, 132, 51, 48, 62, 163, 155, 46, 39, 103, 83, 84, 39, 122, 154, 36, 138, 5, 30, 57, 54, 34, 84, 139, 35, 31, 125, 48, 94, 27, 28, 41, 42, 150, 162, 82, 44, 56, 41, 23, 112, 38, 159, 32, 47, 82, 25, 51, 154, 22, 30, 121, 53, 84, 24, 81, 152, 131, 327, 49, 65, 29, 207, 114, 101, 49, 106, 36, 32, 50, 78, 141, 151, 153, 23, 40, 159, 25, 143, 22, 153, 72, 203, 324, 115, 27, 139, 46, 115, 155, 35, 82, 7, 36, 73, 24, 49, 48, 155, 93, 99, 155, 48, 42, 24, 163, 30, 44, 24, 34, 144, 179, 143, 52, 82, 39, 80, 35, 78, 41, 27, 150, 32, 33, 41, 5, 126, 166, 71, 141, 122, 38, 63, 47, 22, 115, 71, 34, 72, 132, 26, 38, 140, 25, 27, 159, 103, 141, 13, 25, 64, 33, 23, 52, 159, 104, 153, 149, 81, 144, 51, 152, 111, 131, 158, 174, 42, 160, 151, 37, 61, 72, 93, 141, 85, 78, 33, 90, 147, 33, 32, 5, 149, 22, 132, 154, 31, 51, 18, 172, 130, 76, 78, 112, 58, 158, 60, 154, 154, 34, 122, 26, 31, 26, 64, 121, 179, 56, 148, 90, 110, 458, 36, 28, 33, 51, 157, 45, 37, 158, 39, 96, 15, 29, 32, 152, 29, 36, 54, 29, 47, 172, 32, 22, 150, 91, 53, 24, 121, 36, 212, 25, 156, 59, 155, 37, 79, 24, 50, 75, 41, 8, 36, 31, 73, 127, 14, 97, 123, 92, 63, 58, 46, 26, 143, 29, 31, 156, 37, 63, 33, 145, 149, 104, 58, 62, 184, 611, 61, 62, 64, 47, 92, 22, 338, 86, 159, 30, 105, 148, 30, 52, 136, 152, 43, 145, 143, 35, 47, 25, 127, 25, 143, 128, 24, 43, 99, 152, 37, 32, 3, 153, 28, 55, 28, 121, 29, 115, 39, 154, 148, 132, 42, 71, 156, 25, 146, 41, 83, 45, 73, 158, 47, 161, 159, 165, 155, 37, 160, 41, 136, 24, 35, 25, 31, 36, 130, 156, 30, 118, 82, 122, 145, 73, 22, 90, 61, 146, 28, 42, 75, 159, 27, 13, 129, 73, 88, 27, 147, 11, 23, 157, 73, 25, 144, 50, 40, 156, 122, 18, 6, 126, 46, 30, 35, 172, 114, 32, 23, 125, 42, 99, 96, 72, 72, 76, 60, 148, 5, 31, 77, 33, 25, 126, 68, 75, 68, 144, 59, 60, 49, 66, 145, 24, 58, 107, 138, 53, 73, 149, 136, 63, 157, 39, 67, 127, 24, 136, 34, 27, 55, 27, 223, 39, 36, 23, 51, 34, 34, 158, 74, 142, 32, 155, 159, 86, 32, 166, 22, 26, 92, 37, 46, 62, 39, 50, 35, 21, 107, 38, 205, 158, 67, 142, 121, 162, 26, 68, 123, 61, 33, 156, 41, 50, 41, 33, 154, 151, 162, 154, 22, 53, 62, 159, 34, 151, 26, 27, 52, 100, 161, 132, 39, 32, 158, 120, 42, 46, 44, 123, 24, 28, 34, 29, 47, 155, 47, 114, 37, 64, 82, 120, 24, 89, 67, 44, 33, 28, 37, 76, 150, 45, 84, 24, 119, 332, 80, 24, 151, 34, 65, 27, 24, 53, 28, 22, 23, 161, 191, 75, 23, 25, 37, 40, 93, 107, 158, 52, 71, 53, 51, 154, 98, 89, 50, 163, 135, 32, 41, 58, 50, 790, 34, 35, 100, 44, 183, 71, 30, 34, 75, 55, 115, 84, 155, 33, 97, 33, 132, 64, 22, 32, 128, 45, 62, 155, 152, 85, 32, 89, 63, 163, 28, 156, 41, 110, 53, 31, 27, 79, 22, 40, 143, 59, 54, 84, 15, 106, 30, 108, 92, 87, 16, 158, 51, 50, 63, 34, 160, 29, 41, 68, 91, 2, 66, 135, 30, 144, 141, 35, 35, 25, 23, 32, 76, 64, 133, 55, 159, 124, 160, 46, 120, 72, 56, 54, 49, 51, 29, 37, 67, 41, 92, 30, 68, 46, 87, 95, 23, 156, 34, 74, 59, 158, 73, 76, 65, 58, 131, 14, 27, 141, 53, 52, 31, 39, 103, 83, 34, 22, 89, 61, 150, 153, 123, 24, 32, 22, 49, 108, 119, 129, 34, 38, 26, 32, 149, 117, 45, 55, 38, 143, 80, 54, 62, 52, 81, 36, 431, 62, 375, 158, 118, 52, 138, 42, 63, 22, 38, 50, 83, 157, 84, 39, 74, 53, 94, 38, 38, 75, 62, 59, 23, 37, 45, 51, 24, 43, 123, 43, 35, 46, 155, 35, 59, 32, 50, 27, 40, 37, 84, 152, 125, 45, 32, 52, 39, 32, 52, 40, 96, 31, 158, 276, 50, 26, 36, 99, 162, 149, 44, 23, 161, 63, 60, 41, 133, 30, 27, 42, 40, 17, 81, 38, 48, 35, 136, 155, 363, 40, 47, 154, 159, 144, 31, 11, 44, 88, 159, 47, 64, 24, 95, 134, 23, 32, 175, 154, 38, 35, 147, 157, 51, 161, 107, 38, 60, 159, 37, 157, 185, 28, 169, 157, 79, 40, 113, 30, 42, 41, 113, 137, 382, 87, 49, 27, 28, 26, 49, 39, 38, 31, 161, 154, 161, 25, 154, 22, 34, 45, 70, 77, 32, 50, 30, 114, 588, 114, 147, 114, 50, 141, 158, 56, 29, 39, 32, 37, 156, 159, 29, 48, 59, 29, 24, 31, 37, 193, 45, 154, 3, 32, 131, 52, 142, 104, 43, 152, 72, 105, 54, 108, 77, 42, 130, 42, 22, 30, 38, 54, 54, 66, 65, 93, 132, 158, 112, 159, 22, 68, 119, 58, 60, 54, 45, 66, 67, 77, 154, 76, 77, 175, 156, 76, 102, 39, 32, 30, 108, 141, 130, 58, 28, 77, 158, 88, 127, 110, 51, 30, 25, 96, 64, 23, 70, 181, 159, 31, 156, 113, 110, 36, 28, 23, 155, 54, 39, 154, 36, 155, 64, 36, 160, 71, 51, 121, 17, 33, 22, 26, 144, 63, 22, 89, 42, 28, 135, 78, 33, 26, 52, 29, 33, 23, 85, 101, 110, 27, 159, 58, 44, 26, 91, 48, 125, 183, 25, 69, 160, 71, 48, 28, 66, 127, 62, 26, 145, 160, 78, 151, 157, 114, 23, 85, 34, 41, 134, 25, 30, 45, 5, 23, 93, 7, 24, 129, 166, 45, 65, 48, 18, 24, 33, 25, 51, 92, 69, 25, 107, 51, 65, 160, 141, 7, 41, 67, 30, 37, 47, 36, 119, 29, 82, 36, 281, 27, 52, 66, 149, 121, 56, 92, 161, 66, 43, 158, 127, 43, 446, 99, 88, 103, 157, 24, 95, 74, 109, 158, 482, 53, 119, 31, 22, 22, 161, 38, 22, 89, 66, 191, 27, 67, 104, 96, 38, 40, 25, 24, 26, 39, 152, 54, 73, 80, 21, 148, 444, 41, 99, 33, 27, 158, 116, 24, 75, 47, 81, 115, 152, 52, 83, 41, 22, 46, 57, 157, 45, 67, 152, 26, 100, 53, 629, 235, 26, 114, 121, 45, 78, 51, 82, 28, 85, 46, 183, 22, 105, 28, 25, 23, 74, 50, 28, 44, 88, 25, 29, 39, 46, 64, 15, 126, 105, 49, 30, 23, 84, 67, 14, 68, 37, 159, 25, 84, 29, 22, 201, 137, 116, 167, 33, 101, 45, 124, 84, 42, 78, 70, 121, 81, 42, 245, 66, 139, 149, 167, 51, 55, 30, 36, 28, 306, 202, 160, 36, 20, 6, 5, 150, 73, 19, 153, 158, 45, 54, 22, 22, 67, 42, 179, 22, 80, 22, 99, 163, 46, 158, 32, 71, 34, 104, 9, 95, 29, 155, 24, 41, 106, 32, 112, 47, 27, 30, 289, 80, 70, 101, 122, 59, 58, 20, 27, 34, 31, 156, 66, 70, 65, 95, 32, 23, 36, 55, 140, 144, 30, 28, 83, 40, 32, 53, 116, 160, 153, 36, 36, 37, 54, 46, 133, 65, 130, 37, 39, 44, 82, 23, 155, 153, 153, 44, 117, 55, 124, 136, 109, 65, 16, 50, 46, 4, 35, 95, 57, 132, 56, 62, 25, 38, 46, 154, 32, 49, 243, 42, 41, 51, 81, 173, 9, 136, 9, 25, 27, 106, 45, 115, 65, 139, 28, 153, 30, 53, 59, 44, 26, 85, 23, 27, 47, 146, 49, 126, 32, 22, 107, 46, 96, 157, 50, 63, 29, 87, 27, 33, 33, 27, 26, 5, 33, 34, 130, 165, 29, 30, 140, 34, 162, 130, 117, 45, 27, 153, 41, 136, 56, 64, 50, 136, 444, 27, 106, 66, 54, 157, 88, 4, 54, 56, 153, 27, 158, 95, 95, 52, 80, 63, 24, 73, 165, 169, 57, 56, 156, 113, 50, 160, 23, 24, 118, 179, 101, 54, 96, 59, 166, 14, 135, 46, 9, 46, 84, 71, 19, 44, 46, 35, 151, 165, 28, 53, 82, 25, 48, 29, 41, 99, 55, 22, 15, 158, 119, 154, 25, 28, 29, 28, 89, 56, 53, 37, 26, 129, 69, 21, 89, 37, 37, 102, 42, 63, 50, 163, 200, 41, 155, 38, 26, 141, 29, 16, 23, 124, 46, 31, 28, 118, 123, 29, 63, 106, 121, 44, 22, 22, 116, 78, 57, 43, 126, 116, 57, 45, 142, 32, 69, 79, 149, 63, 155, 29, 145, 33, 22, 32, 10, 158, 61, 57, 36, 52, 163, 133, 55, 57, 68, 160, 123, 111, 136, 37, 152, 74, 47, 157, 9, 149, 44, 160, 23, 26, 35, 110, 29, 131, 28, 23, 52, 53, 131, 11, 27, 88, 166, 42, 32, 157, 588, 151, 74, 39, 26, 57, 53, 94, 276, 82, 160, 151, 60, 51, 52, 138, 104, 75, 29, 142, 40, 166, 152, 130, 15, 31, 52, 234, 50, 103, 140, 25, 152, 49, 47, 27, 77, 27, 34, 22, 95, 22, 54, 67, 73, 56, 32, 25, 163, 65, 43, 121, 55, 139, 122, 27, 141, 109, 109, 6, 142, 136, 46, 32, 89, 64, 148, 77, 47, 42, 29, 37, 85, 47, 33, 23, 67, 32, 31, 25, 11, 128, 33, 30, 183, 156, 47, 32, 135, 101, 59, 43, 48, 95, 142, 38, 100, 327, 29, 36, 87, 35, 62, 32, 24, 119, 112, 57, 26, 110, 147, 147, 32, 151, 40, 30, 135, 94, 28, 164, 38, 46, 23, 316, 65, 24, 42, 45, 54, 26, 60, 159, 141, 151, 35, 32, 143, 59, 106, 96, 30, 147, 126, 122, 41, 30, 157, 71, 112, 43, 14, 49, 47, 134, 42, 26, 110, 23, 30, 108, 162, 110, 119, 37, 75, 152, 46, 51, 461, 127, 44, 34, 72, 30, 27, 48, 90, 50, 47, 22, 41, 37, 173, 95, 69, 27, 47, 93, 32, 46, 63, 73, 295, 39, 120, 42, 169, 101, 32, 150, 40, 85, 2, 131, 49, 32, 29, 152, 24, 74, 141, 242, 40, 66, 25, 147, 26, 27, 121, 23, 38, 33, 55, 46, 22, 42, 35, 53, 112, 39, 38, 129, 67, 147, 61, 38, 82, 15, 153, 42, 155, 50, 52, 140, 54, 49, 67, 139, 110, 37, 40, 25, 113, 28, 48, 58, 66, 26, 297, 148, 149, 154, 112, 78, 35, 31, 70, 32, 35, 23, 76, 24, 41, 48, 143, 59, 53, 139, 19, 51, 122, 53, 22, 156, 155, 25, 39, 119, 104, 45, 18, 19, 144, 30, 91, 156, 45, 42, 116, 113, 136, 38, 43, 29, 145, 61, 160, 5, 33, 41, 60, 44, 32, 87, 66, 151, 148, 56, 101, 148, 55, 35, 31, 38, 59, 114, 27, 158, 54, 30, 33, 92, 59, 160, 130, 111, 52, 65, 59, 23, 153, 41, 136, 146, 35, 69, 68, 68, 49, 96, 46, 47, 50, 28, 110, 97, 46, 90, 13, 41, 65, 134, 145, 131, 33, 14, 105, 42, 158, 40, 47, 80, 72, 157, 150, 33, 33, 32, 281, 44, 136, 142, 102, 34, 73, 149, 19, 22, 92, 86, 28, 40, 132, 47, 66, 63, 147, 47, 151, 37, 41, 32, 24, 27, 50, 35, 38, 41, 118, 57, 115, 156, 51, 82, 29, 23, 72, 173, 72, 33, 111, 34, 86, 50, 121, 61, 14, 120, 78, 50, 27, 444, 79, 83, 62, 33, 68, 107, 37, 132, 139, 105, 69, 83, 38, 114, 151, 79, 80, 157, 134, 158, 35, 40, 165, 42, 153, 320, 93, 148, 50, 71, 55, 158, 54, 113, 70, 146, 77, 72, 33, 32, 91, 22, 148, 145, 126, 28, 52, 36, 126, 47, 27, 41, 128, 140, 83, 41, 28, 34, 39, 54, 90, 35, 34, 91, 52, 45, 54, 77, 22, 22, 368, 28, 82, 54, 68, 29, 115, 67, 96, 78, 25, 104, 44, 18, 47, 22, 31, 39, 40, 69, 79, 117, 38, 65, 23, 3, 151, 58, 24, 31, 33, 149, 54, 60, 160, 9, 71, 28, 41, 29, 81, 34, 31, 11, 129, 11, 126, 28, 47, 59, 152, 31, 141, 44, 62, 22, 80, 158, 157, 120, 131, 40, 52, 34, 23, 29, 48, 38, 136, 157, 152, 64, 160, 157, 160, 31, 86, 34, 54, 193, 34, 124, 106, 152, 65, 101, 51, 29, 25, 78, 30, 139, 153, 135, 44, 89, 142, 49, 54, 19, 34, 107, 24, 274, 118, 158, 28, 127, 52, 153, 131, 155, 101, 73, 8, 57, 106, 156, 56, 49, 27, 176, 90, 31, 38, 156, 66, 180, 63, 59, 25, 24, 148, 149, 165, 63, 32, 29, 35, 22, 105, 3, 126, 31, 140, 161, 75, 121, 75, 95, 156, 114, 26, 48, 25, 38, 7, 125, 189, 124, 55, 38, 29, 46, 62, 32, 192, 287, 37, 42, 70, 77, 114, 15, 49, 53, 159, 33, 149, 157, 87, 36, 134, 22, 26, 24, 97, 153, 139, 45, 69, 40, 29, 40, 84, 25, 138, 152, 123, 85, 69, 23, 25, 24, 30, 161, 28, 43, 39, 156, 83, 68, 73, 130, 47, 322, 59, 133, 42, 31, 144, 30, 36, 149, 29, 59, 154, 47, 85, 126, 128, 12, 53, 41, 142, 176, 155, 99, 72, 123, 69, 39, 17, 22, 157, 48, 38, 114, 30, 38, 25, 28, 46, 72, 41, 31, 59, 28, 30, 131, 55, 32, 138, 125, 12, 81, 155, 74, 34, 166, 84, 190, 42, 37, 38, 87, 43, 73, 65, 36, 156, 38, 27, 21, 73, 191, 100, 34, 152, 31, 154, 155, 98, 107, 27, 155, 59, 57, 136, 56, 77, 44, 46, 53, 32, 31, 55, 40, 51, 39, 43, 35, 133, 158, 48, 37, 169, 135, 33, 52, 29, 29, 103, 55, 150, 24, 53, 43, 177, 23, 51, 40, 153, 82, 26, 38, 82, 38, 26, 25, 24, 58, 46, 90, 128, 70, 30, 157, 44, 67, 41, 21, 158, 127, 38, 47, 65, 36, 114, 36, 37, 31, 18, 84, 159, 92, 39, 28, 66, 197, 35, 37, 38, 34, 156, 34, 30, 45, 137, 24, 51, 293, 28, 37, 33, 30, 49, 263, 50, 26, 39, 13, 58, 62, 70, 50, 38, 61, 152, 147, 158, 45, 22, 26, 101, 43, 48, 109, 48, 162, 30, 110, 158, 34, 65, 137, 23, 35, 22, 96, 75, 81, 37, 71, 21, 126, 25, 158, 301, 86, 23, 198, 31, 30, 39, 98, 14, 27, 155, 69, 157, 156, 54, 39, 76, 45, 144, 180, 165, 61, 158, 39, 41, 74, 204, 88, 158, 74, 37, 39, 35, 43, 42, 37, 30, 82, 32, 28, 118, 55, 67, 244, 24, 159, 159, 70, 57, 161, 139, 40, 86, 116, 3, 53, 42, 54, 32, 30, 70, 92, 62, 72, 142, 85, 66, 32, 55, 161, 58, 16, 71, 38, 44, 77, 148, 151, 32, 85, 22, 138, 38, 109, 32, 106, 198, 102, 44, 42, 61, 43, 46, 76, 61, 74, 46, 61, 22, 50, 44, 257, 159, 58, 76, 95, 96, 29, 63, 53, 34, 33, 151, 65, 150, 30, 153, 19, 120, 36, 40, 62, 4, 50, 28, 57, 128, 145, 32, 38, 86, 37, 116, 77, 86, 17, 156, 37, 13, 88, 63, 205, 157, 112, 78, 121, 25, 46, 27, 126, 46, 23, 83, 72, 30, 22, 48, 24, 46, 86, 158, 30, 25, 100, 35, 106, 48, 60, 97, 36, 71, 83, 153, 38, 82, 114, 94, 52, 84, 33, 42, 24, 54, 23, 137, 45, 37, 28, 44, 134, 73, 202, 138, 146, 13, 29, 51, 132, 35, 160, 96, 73, 18, 55, 60, 83, 111, 40, 141, 63, 104, 133, 137, 26, 53, 70, 67, 22, 63, 95, 143, 33, 158, 74, 60, 144, 220, 55, 127, 27, 162, 112, 161, 147, 30, 3, 61, 73, 39, 103, 44, 158, 34, 37, 89, 31, 21, 36, 23, 45, 42, 38, 28, 84, 52, 78, 54, 158, 23, 93, 24, 51, 22, 147, 23, 65, 21, 29, 45, 156, 66, 32, 34, 153, 23, 32, 69, 180, 255, 31, 59, 154, 158, 138, 67, 37, 122, 29, 97, 149, 140, 75, 84, 56, 106, 36, 84, 128, 114, 96, 35, 46, 276, 25, 46, 153, 74, 154, 27, 148, 63, 147, 135, 154, 70, 157, 24, 85, 48, 26, 46, 35, 24, 166, 49, 132, 48, 80, 39, 122, 29, 32, 75, 141, 25, 60, 154, 230, 27, 92, 87, 116, 126, 28, 160, 60, 153, 55, 157, 22, 42, 36, 34, 153, 147, 152, 55, 54, 34, 22, 103, 159, 87, 153, 67, 146, 48, 57, 157, 139, 160, 158, 90, 28, 22, 159, 38, 144, 92, 84, 74, 40, 63, 154, 134, 35, 35, 112, 54, 27, 157, 111, 157, 124, 22, 77, 37, 71, 74, 28, 34, 34, 67, 41, 143, 33, 83, 38, 61, 32, 62, 79, 22, 158, 37, 23, 43, 149, 108, 158, 155, 147, 23, 81, 154, 84, 54, 157, 22, 34, 68, 74, 102, 22, 72, 32, 76, 26, 29, 52, 60, 44, 77, 263, 65, 31, 73, 127, 131, 31, 24, 71, 23, 79, 24, 97, 71, 157, 159, 38, 44, 88, 155, 36, 135, 7, 71, 27, 49, 105, 74, 46, 23, 183, 118, 92, 38, 156, 87, 152, 29, 154, 45, 24, 69, 141, 114, 132, 85, 75, 32, 37, 122, 136, 19, 106, 67, 51, 40, 40, 28, 163, 157, 152, 17, 138, 60, 28, 142, 139, 80, 34, 290, 25, 5, 63, 74, 155, 81, 138, 160, 153, 104, 82, 74, 15, 77, 37, 129, 54, 63, 66, 134, 329, 40, 86, 82, 24, 111, 156, 36, 35, 112, 72, 61, 27, 30, 46, 32, 43, 161, 154, 55, 27, 35, 38, 70, 115, 68, 29, 27, 34, 66, 20, 139, 150, 49, 19, 40, 145, 113, 43, 51, 156, 33, 157, 163, 32, 46, 142, 126, 35, 117, 90, 52, 180, 39, 87, 47, 70, 121, 14, 135, 142, 132, 23, 64, 145, 144, 25, 45, 36, 99, 38, 142, 51, 163, 156, 146, 27, 41, 25, 151, 85, 30, 72, 60, 74, 61, 22, 408, 56, 31, 45, 138, 22, 38, 53, 132, 93, 283, 81, 36, 60, 36, 154, 103, 65, 149, 200, 26, 122, 31, 64, 39, 83, 42, 35, 23, 41, 72, 66, 43, 46, 116, 56, 55, 137, 166, 29, 96, 36, 49, 61, 39, 141, 30, 29, 31, 73, 25, 159, 29, 379, 69, 26, 36, 324, 116, 50, 89, 149, 237, 236, 95, 85, 44, 95, 23, 145, 26, 160, 97, 39, 47, 24, 65, 33, 76, 49, 15, 22, 51, 28, 69, 159, 44, 24, 20, 126, 41, 40, 162, 171, 28, 62, 71, 109, 135, 2, 123, 158, 17, 21, 25, 23, 74, 73, 26, 148, 24, 29, 62, 132, 43, 51, 42, 58, 161, 125, 94, 104, 94, 39, 26, 60, 21, 158, 162, 58, 120, 47, 110, 205, 73, 160, 31, 29, 152, 42, 48, 137, 105, 155, 143, 45, 35, 77, 159, 124, 49, 73, 161, 50, 137, 120, 54, 151, 23, 52, 90, 23, 24, 156, 25, 73, 34, 158, 208, 56, 112, 35, 156, 119, 30, 142, 24, 45, 115, 159, 152, 34, 142, 75, 95, 126, 77, 158, 158, 79, 229, 44, 117, 155, 70, 53, 106, 30, 86, 38, 67, 39, 97, 144, 153, 73, 35, 72, 134, 106, 35, 22, 31, 18, 54, 29, 101, 108, 21, 89, 75, 34, 27, 34, 37, 170, 52, 24, 54, 137, 165, 56, 41, 89, 34, 43, 43, 42, 26, 55, 66, 55, 49, 7, 143, 27, 28, 33, 155, 157, 38, 159, 135, 156, 22, 48, 32, 80, 26, 136, 106, 51, 56, 13, 33, 30, 31, 35, 24, 26, 49, 159, 59, 64, 152, 107, 25, 160, 23, 36, 55, 36, 66, 25, 37, 44, 160, 63, 33, 17, 40, 43, 10, 51, 154, 113, 147, 154, 50, 62, 26, 9, 132, 22, 10, 124, 32, 24, 95, 35, 59, 73, 88, 77, 64, 74, 54, 26, 112, 77, 53, 102, 77, 42, 59, 32, 153, 70, 70, 143, 124, 21, 77, 25, 35, 75, 154, 36, 48, 175, 237, 23, 101, 62, 37, 52, 18, 106, 42, 79, 133, 91, 99, 160, 62, 155, 34, 40, 157, 133, 143, 138, 56, 89, 31, 26, 83, 76, 22, 89, 42, 120, 62, 24, 158, 46, 61, 156, 53, 73, 87, 74, 58, 80, 32, 147, 51, 146, 45, 28, 157, 56, 68, 22, 22, 84, 43, 62, 135, 158, 46, 47, 151, 240, 45, 30, 110, 32, 43, 153, 110, 201, 151, 86, 46, 41, 84, 28, 98, 86, 15, 37, 69, 42, 151, 7, 111, 42, 29, 68, 62, 69, 139, 38, 46, 152, 29, 121, 33, 42, 89, 74, 135, 71, 45, 37, 135, 33, 54, 69, 43, 81, 53, 76, 22, 27, 109, 12, 44, 58, 5, 121, 152, 22, 159, 95, 58, 40, 297, 39, 92, 158, 82, 35, 65, 27, 32, 85, 137, 126, 147, 75, 92, 27, 35, 145, 113, 31, 22, 148, 166, 276, 171, 76, 158, 22, 24, 132, 44, 51, 44, 47, 145, 44, 134, 32, 415, 181, 32, 22, 40, 24, 160, 80, 27, 155, 237, 134, 33, 153, 80, 45, 48, 148, 156, 38, 49, 38, 48, 22, 96, 159, 124, 149, 37, 22, 33, 83, 24, 38, 129, 85, 45, 87, 106, 95, 86, 107, 40, 118, 137, 33, 146, 136, 140, 100, 64, 73, 146, 39, 32, 65, 41, 152, 9, 34, 153, 66, 159, 135, 133, 125, 132, 44, 42, 142, 62, 54, 54, 54, 89, 111, 22, 22, 57, 24, 138, 38, 32, 70, 25, 96, 175, 95, 27, 150, 42, 61, 51, 28, 22, 26, 78, 51, 42, 166, 247, 81, 15, 28, 28, 78, 60, 154, 59, 59, 146, 73, 46, 154, 152, 31, 66, 19, 57, 100, 22, 44, 146, 133, 67, 126, 84, 48, 43, 69, 27, 72, 149, 28, 133, 98, 135, 70, 109, 41, 111, 97, 89, 31, 89, 155, 43, 46, 111, 27, 159, 175, 42, 138, 50, 145, 30, 49, 91, 36, 30, 63, 119, 131, 26, 82, 160, 23, 135, 53, 66, 130, 62, 74, 158, 93, 350, 256, 50, 21, 51, 85, 94, 22, 31, 24, 46, 65, 32, 120, 36, 71, 70, 149, 166, 32, 41, 153, 98, 446, 150, 47, 57, 154, 33, 47, 27, 159, 91, 39, 156, 53, 88, 28, 43, 44, 32, 69, 30, 154, 107, 101, 31, 49, 281, 37, 70, 114, 116, 47, 27, 87, 162, 88, 228, 102, 162, 133, 88, 36, 77, 104, 155, 87, 28, 130, 79, 184, 53, 31, 85, 77, 23, 76, 28, 30, 75, 36, 23, 160, 31, 99, 24, 65, 24, 84, 28, 46, 4, 55, 93, 70, 86, 119, 101, 157, 49, 25, 35, 48, 43, 27, 18, 4, 142, 156, 22, 69, 37, 39, 134, 150, 83, 116, 42, 151, 162, 40, 23, 61, 160, 43, 109, 30, 329, 91, 31, 29, 22, 136, 40, 29, 38, 41, 51, 35, 89, 51, 40, 108, 141, 45, 71, 146, 35, 29, 143, 158, 48, 21, 98, 136, 155, 32, 43, 48, 25, 19, 133, 66, 58, 119, 53, 38, 45, 126, 99, 77, 55, 23, 21, 33, 46, 23, 82, 127, 74, 23, 65, 324, 26, 152, 44, 80, 145, 51, 45, 152, 42, 101, 29, 63, 168, 143, 109, 35, 38, 49, 31, 24, 155, 40, 113, 119, 50, 23, 47, 154, 38, 155, 51, 32, 125, 36, 55, 23, 35, 87, 71, 94, 95, 51, 23, 162, 82, 32, 146, 121, 40, 156, 27, 28, 97, 159, 28, 36, 64, 30, 26, 189, 160, 26, 29, 24, 29, 47, 72, 37, 125, 52, 192, 126, 39, 25, 35, 33, 38, 156, 77, 38, 16, 130, 133, 40, 11, 45, 67, 40, 82, 96, 145, 30, 2, 125, 133, 56, 42, 70, 50, 112, 106, 155, 135, 156, 46, 139, 38, 46, 44, 212, 51, 116, 90, 159, 80, 48, 42, 64, 88, 159, 147, 24, 101, 40, 36, 26, 23, 59, 104, 41, 50, 40, 29, 49, 45, 157, 86, 129, 40, 69, 28, 34, 160, 23, 39, 82, 36, 80, 81, 10, 90, 112, 40, 72, 82, 37, 40, 39, 22, 84, 40, 45, 106, 32, 97, 102, 34, 22, 51, 59, 33, 26, 28, 32, 44, 45, 90, 99, 162, 70, 68, 104, 37, 51, 70, 23, 251, 40, 38, 44, 101, 108, 27, 22, 120, 157, 51, 147, 17, 49, 87, 83, 155, 142, 7, 26, 3, 79, 34, 122, 54, 74, 50, 25, 61, 35, 31, 148, 79, 169, 135, 33, 145, 23, 43, 23, 65, 160, 65, 155, 118, 58, 158, 34, 45, 155, 148, 36, 82, 40, 127, 149, 38, 58, 61, 24, 37, 25, 69, 33, 245, 139, 166, 122, 56, 32, 35, 35, 23, 152, 103, 134, 68, 49, 25, 64, 60, 40, 113, 28, 329, 54, 90, 158, 26, 158, 21, 40, 38, 154, 45, 42, 160, 34, 87, 43, 51, 91, 27, 98, 153, 63, 273, 22, 66, 33, 70, 96, 19, 67, 12, 147, 160, 36, 57, 125, 26], "labels": "hhshhshhsshsshhshhhshhhhhhhhhhhhhhshhhhhhhshhhhhhhhhhhshshhhhhhhhshsshhhhhhhhhhhhhhhhhhhhhhhhshshhhhhhhhhhhhhhhhhhshhshhsshshhhhhhhhhhsshhhshhhhhhhshhhhhhhhhhhsshhhsshshhhhhhhhhhhhhhhhhhhhshhshhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhshshhhhhhhshhhhshhhhhhhhhshhhhhhhhshhhhshhhshshhshhhhhhhhhhhhhhhhhhhhhhshhhhhhhhshhhshhshhhhhhshhhhhhhhhhhhhshshhhhhhhhhhhhhshhhhhhhsshhhhhhhhsshhhhhhshhhhhhhhhshhhshhhhhhhhhhhshhhhhhhhhhhhhshhshshshshhhhhhhhshhhhhhhhhhhhhhhhhhhhhshhhhhhhshhhhhhhshhshhhhhhhhhhhhshhhhshhhhhhhhhhhhshhhhhhhhhshsshhhhhhshshshshhhhhhhhhshhhhhhhhhhhhhhhhhhhhhhshhhhhhhhhhhshhshhhshhhhhhhssshhhhshhhhhhhhshhhshhhhhhhhhhhhhhhhhsshhhhshhhhhhhhhhhhshshhhhhhhhhshhhhhhhhhhhsshhhhhhhhhhshhhhhshhhhhhhhhhhhhhhhhhsshhshhhshshhhhhhhhhhhshhhhhhshhhhhhhhhshhsshhhhhhhhshshhshhhhhhhhhhhhhhhhhshhhsshhhhhhhshhhshsshhhhhhhhshshhhhhhhsshhhhhhshshhhshsshhhshhhhhshhhhhshhhhhhhhhshssshhhhhshsssshhhhhhhhhhhhhhhhhhshhhhhhshhshhhhhhhhhhhhhhhhhhhshhhhshhhshhhshhhshhhhhhhshhhhhhshhhhhhhhhhhhhhhhhhhhshhhhhhhhhhhhhhhhhhshhhhshhhhhhhhhshhhhshhhhhhhhhhhhhhhhhhhhhhshhshshhhhhhhhhshhhshhhhshhsshhhhhhhhhhhhhhhshshhhhhshhhhhhhshhhhhhhhhhhhshshshhhshhshhhhhhhshhhhshhhshhhhhhhshhhhhhhhshhhhhhhhshhhhhhhhhhhhhhhhhhhhhshshhhhhhhhshshhhhhhhhhshhhshhhshshshhhhhhhhhhhhhhhhhhhhhhshhhhhhhhhhshhhhhshhhhshhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhsshhhhhhhhhshhhhhhhhhshhhhhhhhhhhhhhhhhhhhhshhhhhhhhhhhhhhhshhhhhhhsshhshshhhhhhhhhhhhhhhhhhhhhhhhhhshhhhhhshhhhhhhhshhhhhhshhhhhhhhhhhhhshhhhshhhhhhshshshhshhshhshhhhhhhhhhhhhhhhhhhhhhshhhhhhhshshhhhshhhhhhhhhhshhshhhhhhhhhhhhhhshhhhhhhshhhhhhhhhhhhhhhhhhhhhhhhhhhhsshhhhhhhhhhhhhhhhhhhshhsshhhhhhhhhhhhhhshhhhhhhhhshshhshhhhhhshhshshhhhhhhhhhhhshhhhhshhhshhhhhhhhhsshhhhhhhhhhhhsshhshhhhhhhshhhhhhhhhhhhhhshhhshhhhhhhhhhhhhhhshhhhhhshhhshhhhhhhhhhhhhhhhhhhshshhhhhhhhhsshsshhhhhhhhhhhshhhhhhhhhhhhhshhhhhhhhhhhhhhhhhhhhhhshhhhhhhhshhhhhhhhshhhhshhhhhhhhhhhhhhhhhhhhssshhhshhhhhhsshhhhshshhhhhhhhshhhhhhhhhhshhhhhhhhhhhhhsshhhhhhhhhshshhhhhhhhhhhhhhhhhhshshhhhhhshhhhhhhshhhhhhshhhhhhhshhhhhhhhhshhhhhhhhhhshhhhhhhhshhhhhhhhhhhhhhhhhhhhshhhhhhhhshhhhhhhhhhshhhhhsshhshhhhshhhhhhhhhshhhhsshhhhshhhhhhhhshhhshshhhshhhhshhhhhhhhshhhhhhhhhhhsshhhhhhhhhhhhhshhhhhhhhhshhhhhhhhhhhhhhhhhhshhhhhhhhhhhhhhhhhshshhhhhhhhhhshhhshhhhhhhhhhhhhhhhhhhhhhsshshhhhhhhhhhshhshhshshhhhhhhhhhhhhhhhhhhhshhhhshshhshhhhhhhsshssshhhhhhhhhhhhhhshhhhhhhhhhhhhhshhhhhhhhshshhhhhshhhshhshhhhhhshhhshhhhhhhshhhhhhhhhhhhhhhshhhhhhhhhhshhhhhhshhhhhhshhshhhhhhhshhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhshhhhhhsshhhhhhhhhhhhhhshhhhhhhhhhhhhhhhhshhhhhhhhhhshhhhhhhhhhhhhhhhhhhhhhshhhhhhhshshhhhhhhhhhhhhhhsshhhhhshshhhhhhshhhhhshhhhhhhhhhhhhhhshhhhhhhshhhhhshhhhhshhhhhhhhhshhhhhhhhhhhhhhhhhhhhsshhhhsshhhhhhhhhshhhhhshhhhshshhhhhshhhhhshhshhshhhhhhhshhhhhhhhhsshhhhhhhhhhhshhhhhhhhhhhhhhhhhhhhhhhhshhshhhshhhhshhhhhhhhhhhshhhhhhhhhhhhshhhshhhhhhhhhshhshshhshhhshhhshhhhhhhhhhhhhshshhhhhhhhhhhhshhhhhhhshhhhhhhshshhhhhhhhhhhhhhhshhhhshhhhhhhshhhhshhhhhhhhhhhhhhhhhhhhhhhhhshhhshhhhhhhhshhhhshhhhhshhhhhhhhhhhhhhshhhhhhshhshshhhhhhhhhshhshhhsshhhshhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhshhshhhhshhshhhhhhhhhhhhhhhhhhhhhhhhshhhhhhhhhhhhhhhhhhshhhhhhhhhhhshhshhhhhshhhhhhhhshhhhhhhhhhhshshhhhhhhhshhshhhhhhshshhhhhhhhhhhhshhshhhhhhhhhhhhhhhhhhhhhhhhshhhhshhhhhhsshhhhhhhhhhhhhhhhhhhhhhhhhhhhhshhhhhshhhhhshhhhhhhhhhhhhhhhsshhhhhhhsshhshhhhhhhhhhhhhshhhhhhhhhhhhhhhhhshhhhhhhhhhhhhhhhhhhhhhhhhshhhhhhhhhhhhhhhhhhhhhshhshhhhhshhhhhshhhshhhhhhhshhhhhhhhhssssssshhhhhhhshhhhhhhhsshhhhhhhhhhhhhhhhshhshhhhshhhhhhhhhhhhhhshhhhhhhhhhhsshhhhshhhhhhhhhhhhhhhhhhhhhhhhhhhsshhhhhhhhhhhhhhhhhshhhhhhhshhhshshshhhshhshhshhhhhhhhhhshshhhhhhhshhshhhhhhhhhhhhhhhhhhhhhshhhhhhhhhhshhhhhhhshhshhhshhhhhhhhhhhhhhhhhhhhhhhhhhhhshhhshhhhhhhhhhhhhhhhhhshhhhhhhhhhshhhhhhhhhhshhhhshhhhhhhhhhhhhhhhshhhhhhhshhhhshhshhhhshhshhhhhhhhhhhshshhhhhhhhshhshhhhhhhhshhhhhshhhhhhhhhhhshhhhhhhhshhhhhhhhhhhhhhhhhhhshhhhhhhshhhshshshhhhhhhhhhhhhhhhhhhhshhhhhshshshshhhhhhhsshhhhhhshhhhhhhshhhhhhhhhhhhhhhhhhhhshhhhhhhhhhhshhhhhhhhshhhhshhhshhhhhshhshhhhhhshhshhhhhhsshshhhhhhhhhsshhhshhhshhhhhhhhhhhhhhhshhhhhshhhhsshhhhhhhhhhhsshhhhhhsshhhshhhshhhhhhhhshshhshhhhhhhhhhshshhhshhhshhhhhhhhhhhhhhshhhhhhshhhhhhhhhshhhhshhhhshshhhhhshhhshhshhhhhhhhhhhhhshhhhhhhhhhhhshssshhhhhshhhhhhshhhhhhhhhhhhhhhhhhhhhhsshhhhhshhhhsshhhhhhshshhhhhhhhhhhhhshhhhhhhsshhhhhhhhhhhhhssssshhhhhhhhhhhshhhhhhhhhhhhhhhhhshhhhhhhhhhhhhhhhhhshhhhhhshhhshhhhhhhhhhhshshhsshhhhhhhhshhhhhhhshhhhhhhhhhhhshhshhhhhhhhhhhhhhhhhhhhhhhhhshhhhhhhhhhhhhshhhhhhhhhshhhhhhhhhhhhshshhhhhhhhhhhhhhhhhhhhhhhsshhhhhshhhhhhhshhshhhhhhhhhshhhhhhshhhhhhhhshhhhhhhhhhhhhhhhhhhhhhhhhhhshhshhssshhhhshsshhhhshhhhhhhhhshhhhhhhhhhhhhshhhhhhhhhhhsshhhhhhhhhhhhhshhhshhhhshhhhhshhhhhhhhhhhhhhshhshhhhhhhhhhhhhhhhhhhshhhhshhhhhhhhhhhhhhhhhhhhhhhshhshhhhhhshhhhhhhhhhshhhhhshshhhhsshhhhhhhshhhhhhhhhhhhhhhhhshhhhhhhhhhsshhhhhhhhhshhhhhhhhhhhhshshhhhhhhhhhshhhhhhshhhshhhhhhhhhhhhhhhhhsshhhhhhhhhhhhshshhhhhhhhshhhhhhhshhhhshshhshhhhhhhshhhshhhhhhhhhhhsshhhhhhhhhhhhhhhhsshhhshhhhhhhhhhhshsshhhhhhhhhhhhhhhhshhhhhshhhhhhhhhhhhshhhhhhhshhhhhshhhhhhhhsshshhhhhhshhhshshhhhhhhhhhhshhhhshhhhhhhshhshshhshhshhhhhhhhhhhhhhhhhhshhhshhhhhhhshshhshhhhshhhhhhhhhhhhhhhhshhhshhhhhshhhhhhhhhhhhhhhhshhhhhhhhhhhhhshhhhhhhhhhsshhhhhshhhsshhhshhhhhhhhshhhhhhhhhhhhhshhhshhhhshhhhhhhhhhhhshhhhhhhhhhhhhhhhhhshhhhhhhhshhhhhhshhhhhhshshhhhhhhhhhhhhhhhhhhshhhhhhhhhhhhhhhhhhhhhhhhhhhshhhhhhhhhhhhhhhhhhhhhssshshshhhhhhsshhshhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhshhhhhhhhhhhhhhhshhhhhshhhhhhshhhshshhhssshhhhhhhhhhhhhshhhhshhhhshhhhshhhshhhhhhhhhhhhhhhhhhhhhhshshhhhhhhhhhshhshhhhhhshhhhhhhhhhhhhhhhhhsshhhh", "dup": [103, 154, 207, 223, 326, 339, 357, 444, 533, 655, 658, 702, 768, 769, 775, 781, 790, 825, 850, 900, 963, 965, 1002, 1003, 1043, 1132, 1133, 1134, 1140, 1152, 1163, 1164, 1198, 1225, 1236, 1250, 1251, 1304, 1319, 1356, 1380, 1403, 1413, 1427, 1459, 1467, 1483, 1485, 1508, 1569, 1585, 1655, 1680, 1691, 1700, 1721, 1738, 1779, 1780, 1785, 1826, 1829, 1876, 1877, 1894, 1902, 1949, 1957, 1964, 1974, 1981, 1984, 1988, 1989, 1996, 2044, 2095, 2109, 2124, 2125, 2135, 2146, 2163, 2170, 2176, 2216, 2234, 2265, 2266, 2277, 2300, 2308, 2322, 2327, 2344, 2345, 2351, 2363, 2385, 2413, 2447, 2473, 2477, 2509, 2518, 2519, 2522, 2524, 2526, 2564, 2565, 2596, 2611, 2618, 2644, 2646, 2660, 2681, 2688, 2712, 2719, 2721, 2728, 2740, 2742, 2761, 2762, 2764, 2797, 2799, 2813, 2827, 2829, 2831, 2843, 2849, 2860, 2866, 2870, 2881, 2899, 2912, 2944, 2959, 2968, 2972, 2982, 2991, 2992, 3004, 3005, 3009, 3036, 3040, 3051, 3056, 3090, 3101, 3123, 3125, 3136, 3153, 3155, 3156, 3165, 3167, 3168, 3176, 3188, 3202, 3228, 3229, 3243, 3250, 3272, 3280, 3300, 3311, 3316, 3324, 3349, 3359, 3366, 3392, 3394, 3401, 3404, 3408, 3416, 3446, 3455, 3458, 3468, 3471, 3476, 3486, 3489, 3492, 3534, 3549, 3585, 3586, 3594, 3610, 3625, 3628, 3629, 3649, 3675, 3680, 3681, 3693, 3709, 3710, 3730, 3733, 3741, 3755, 3757, 3758, 3763, 3770, 3776, 3787, 3799, 3833, 3834, 3848, 3882, 3883, 3899, 3901, 3913, 3915, 3922, 3944, 3966, 3978, 3987, 3992, 4004, 4011, 4012, 4014, 4040, 4042, 4076, 4083, 4103, 4104, 4117, 4128, 4129, 4140, 4154, 4162, 4169, 4173, 4184, 4191, 4196, 4198, 4199, 4201, 4222, 4233, 4235, 4237, 4244, 4259, 4260, 4281, 4296, 4299, 4300, 4311, 4325, 4348, 4352, 4356, 4372, 4391, 4392, 4414, 4421, 4437, 4450, 4456, 4465, 4468, 4498, 4504, 4517, 4537, 4549, 4556, 4566, 4584, 4587, 4591, 4592, 4628, 4633, 4638, 4645, 4650, 4655, 4660, 4685, 4694, 4699, 4701, 4719, 4735, 4743, 4744, 4746, 4759, 4773, 4776, 4803, 4815, 4848, 4859, 4864, 4869, 4879, 4884, 4888, 4890, 4895, 4898, 4918, 4923, 4930, 4948, 4962, 4963, 4978, 5031, 5037, 5046, 5050, 5055, 5075, 5091, 5104, 5105, 5108, 5129, 5141, 5164, 5171, 5175, 5176, 5182, 5188, 5191, 5201, 5203, 5206, 5214, 5215, 5216, 5225, 5226, 5232, 5236, 5241, 5247, 5257, 5264, 5279, 5284, 5285, 5301, 5314, 5315, 5346, 5357, 5365, 5374, 5375, 5386, 5389, 5423, 5425, 5457, 5458, 5460, 5467, 5469, 5471, 5477, 5488, 5490, 5497, 5510, 5524, 5535, 5539, 5553, 5558], "students": {"hours": [null, null, 9.3, 2.7, 3.6, 10.5, 0.1, 9.9, 9.6, 5.6, 3.6, 3.3, 3.1, 5.3, 6.1, 6.6, 11.9, 9.5, 7.5, 11.9, 2.6, 1.9, 7.4, 0.5, 0.4, 6.2, 5.6, 11.0, 7.6, 6.2, 6.0, 3.0, 0.1, 2.3, 8.3, 2.4, 4.4, 0.0, 10.0, 1.9, 3.2, 10.6, 6.1, 10.2, 7.7, 8.9, 1.1, 6.5, 6.1, 10.5, 4.3, 7.2, 0.7, 4.7, 3.9, 1.8, 9.8, 4.6, 11.7, 7.1, 7.3, 7.7, 8.1, 1.8, null, 2.9, 4.8, 1.2, 11.6, 2.6, 8.1, 3.6, null, 7.9, 1.6, 10.1, 11.3, 10.8, null, 1.7, 2.3, 11.1, 6.6, 2.2, 10.6, 7.7, 6.8, 4.5, 4.9, 2.9, 0.5, 10.5, 5.6, 6.6, 3.9, 9.0, 0.3, 4.5, 0.4, 1.5, 11.6, 7.9, 5.1, 6.3, 10.5, 4.1, 7.1, 8.2, 4.3, 6.2, 9.2, 10.9, 1.8, 11.2, 0.1, 9.0, 9.7, 1.6, 5.0, 9.8, 0.2, 7.5, 9.5, 6.2, null, 2.7, null, 4.4, 2.2, 4.2, 11.4, 6.9, 4.1, 3.3, 11.4, 5.3, 11.8, null, 6.3, 10.8, 8.9, 7.0, 5.1, 10.5, 4.9, 11.1, 0.8, 5.2, 6.2, 11.4], "attendance": [55, 88, 81, 83, 78, 98, 60, 64, 52, 43, 53, 95, 90, 47, 76, 69, 76, 80, 58, 98, 68, 78, 78, 51, 44, 65, 86, 89, 84, 47, 95, 88, 93, 71, 95, 43, 42, 41, 55, 55, 51, 74, 42, 75, 50, 81, 41, 59, 96, 72, 89, 79, 77, 51, 74, 42, 88, 98, 91, 43, 60, 59, 47, 78, 88, 59, 92, 88, 48, 86, 93, 52, 74, 78, 77, 46, 80, 78, 89, 88, 60, 83, 92, 94, 50, 42, 79, 53, 74, 97, 63, 55, 67, 79, 46, 63, 48, 80, 90, 63, 62, 72, 53, 55, 60, 67, 45, 85, 75, 58, 45, 86, 48, 48, 48, 45, 94, 56, 58, 90, 77, 51, 66, 93, 63, 83, 46, 84, 87, 90, 80, 62, 44, 71, 85, 51, 56, 72, 85, 94, 48, 51, 88, 79, 83, 100, 96, 91, 87, 64], "prior_gpa": [3.28, 2.37, 3.52, 3.52, 3.44, 2.89, 2.76, 2.84, 2.07, 3.69, 3.08, 2.78, 3.1, 3.44, 2.76, 3.66, 3.84, 2.77, 2.28, 3.52, 3.99, 2.3, 3.43, 3.65, 3.84, 2.25, 2.18, 3.98, 2.23, 2.35, 3.15, 2.89, 3.5, 2.38, 3.83, 2.43, 3.54, 2.14, null, 2.07, 2.63, 2.62, null, 2.91, 2.11, 3.99, 3.78, 3.83, 2.49, 2.79, 2.45, 2.25, 2.07, 3.01, 2.25, 2.35, 3.72, 2.97, 2.37, 3.34, 2.53, 3.05, 2.57, null, 3.26, 3.07, 2.79, 3.58, 3.75, null, 2.27, 2.23, 3.96, 3.88, 2.46, 3.94, 2.42, 3.01, 2.99, 3.83, 2.08, 2.63, 3.2, 2.13, 2.47, 2.93, 3.76, 3.52, 3.66, 3.52, 3.42, 3.7, 3.36, 3.47, 2.6, 2.34, 3.51, 2.33, 3.84, 3.19, 2.66, 3.87, 2.31, 3.03, 2.18, 3.93, 3.15, 3.61, 2.56, 3.6, 3.41, 3.29, 3.9, 2.87, 2.83, 3.38, 3.67, 2.67, 3.34, null, 3.1, 3.54, 2.13, 3.46, 2.03, 3.92, 2.94, 2.82, 3.44, 3.05, 3.46, 2.17, 3.13, 3.12, 3.86, 2.08, 2.91, 3.26, 3.1, 2.15, 3.19, 2.44, 2.39, 3.76, 2.4, 2.91, null, 3.41, 3.11, 3.61], "dept": ["CSE", "EEE", "Math", "EEE", "CSE", "Math", "EEE", "Math", "EEE", "EEE", "EEE", "EEE", "CSE", "EEE", "CSE", "EEE", "CSE", "Math", "Math", "EEE", "EEE", "EEE", "CSE", "Math", "Math", "EEE", "CSE", "EEE", "CSE", "Math", "Math", "EEE", "EEE", "Math", "CSE", "Math", "Math", "EEE", "Math", "Math", "Math", "CSE", "Math", "EEE", "Math", "Math", "CSE", "EEE", "EEE", "EEE", "Math", "EEE", "Math", "Math", "CSE", "EEE", "EEE", "EEE", "CSE", "CSE", "EEE", "CSE", "EEE", "CSE", "CSE", "EEE", "EEE", "Math", "EEE", "EEE", "CSE", "EEE", "Math", "EEE", "CSE", "EEE", "Math", "Math", "CSE", "Math", "Math", "EEE", "EEE", "CSE", "CSE", "Math", "CSE", "EEE", "Math", "Math", "CSE", "CSE", "CSE", "Math", "CSE", "CSE", "EEE", "EEE", "CSE", "CSE", "Math", "EEE", "CSE", "Math", "EEE", "Math", "CSE", "EEE", "Math", "Math", "Math", "EEE", "Math", "EEE", "EEE", "EEE", "CSE", "CSE", "EEE", "CSE", "EEE", "Math", "Math", "Math", "EEE", "CSE", "CSE", "Math", "EEE", "Math", "EEE", "EEE", "CSE", "CSE", "CSE", "Math", "EEE", "CSE", "EEE", "EEE", "EEE", "EEE", "CSE", "EEE", "Math", "CSE", "CSE", "EEE", "CSE", "EEE"], "passed": ["yes", "yes", "yes", "no", "no", "yes", "no", "yes", "no", "yes", "no", "no", "no", "yes", "no", "yes", "yes", "yes", "no", "yes", "no", "no", "yes", "no", "no", "no", "no", "yes", "no", "no", "yes", "no", "no", "no", "yes", "no", "yes", "no", "yes", "no", "no", "yes", "yes", "yes", "no", "yes", "no", "yes", "no", "yes", "no", "no", "no", "yes", "no", "no", "yes", "yes", "yes", "no", "no", "no", "no", "no", "yes", "no", "no", "yes", "yes", "no", "no", "no", "yes", "yes", "no", "yes", "yes", "yes", "yes", "yes", "no", "yes", "yes", "no", "yes", "no", "yes", "yes", "yes", "yes", "no", "yes", "no", "yes", "no", "no", "no", "no", "no", "no", "yes", "yes", "no", "yes", "yes", "yes", "yes", "yes", "no", "yes", "yes", "yes", "yes", "yes", "no", "yes", "yes", "no", "yes", "yes", "no", "yes", "no", "yes", "yes", "no", "no", "no", "no", "no", "yes", "no", "no", "no", "yes", "no", "yes", "no", "no", "yes", "yes", "no", "no", "yes", "no", "yes", "no", "yes", "yes", "yes"]}};
+(function () {
+  "use strict";
+  var $ = Lab.$, esc = Lab.esc, D = LAB_DATA, P = MiniPy, ST = D.students;
+  function f(x, d) { if (x === null || isNaN(x)) return "NaN"; var s = (+x).toFixed(d === undefined ? 2 : d); return s.indexOf(".") >= 0 ? s.replace(/0+$/, "").replace(/\.$/, "") : s; }
+  function pyF(x) { return P.repr(P.F(x)); }
+  function code(el, text) { Lab.renderCode(el, text.split("\n")); }
+  function ticks(lo, hi, n) { var span = hi - lo || 1, step = Math.pow(10, Math.floor(Math.log10(span / n))), err = span / n / step; step *= err >= 7.5 ? 10 : err >= 3.5 ? 5 : err >= 1.5 ? 2 : 1; var out = []; for (var t = Math.ceil(lo / step) * step; t <= hi + 1e-9; t += step) out.push(+t.toFixed(10)); return out; }
+  function rng(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function gauss(r) { var u = 1 - r(), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function col(name) { return ST[name].filter(function (v) { return v !== null; }); }
+
+  /* ================= 1. Mean, median, spread ================= */
+  var MPRE = [["2, 4, 4, 4, 5, 5, 7, 9", "slide 4"], ["55, 62, 68, 70, 71, 74, 78, 99", "marks"], ["55, 62, 68, 70, 71, 74, 78, 300", "marks with 300"], ["3, 5, 7, 9, 11", "homework 7.1"], ["120, 150, 150, 180, 200, 220, 250", "7 prices"]];
+  $("#m-presets").innerHTML = MPRE.map(function (p, k) { return '<button class="btn alt sm" data-k="' + k + '">' + esc(p[1]) + "</button>"; }).join("");
+  function mDraw() {
+    var raw = $("#m-vals").value.split(/[\s,]+/).filter(Boolean), vals = raw.map(Number), st = $("#m-note");
+    if (!vals.length || vals.some(isNaN)) { st.className = "status bad"; st.innerHTML = "Type numbers separated by commas."; return; }
+    var t = +$("#m-big").value / 100, med0 = PD.median(vals), imax = vals.indexOf(Math.max.apply(null, vals));
+    if (t > 0) vals[imax] = +(med0 + (vals[imax] - med0) * (1 + 9 * t)).toFixed(1);
+    $("#m-big-v").textContent = f(vals[imax], 1);
+    var n = vals.length, mean = PD.mean(vals), med = PD.median(vals), sd1 = PD.std(vals, 1), sd0 = PD.std(vals, 0);
+    $("#m-mean").textContent = f(mean, 3); $("#m-med").textContent = f(med, 3); $("#m-std").textContent = f(sd1, 2);
+    var sq = 0, rows = vals.map(function (v) { var d = v - mean; sq += d * d; return '<tr><td class="m">' + f(v, 3) + '</td><td class="m">' + f(d, 3) + '</td><td class="m">' + f(d * d, 3) + "</td></tr>"; }).join("");
+    $("#m-table").innerHTML = "<tr><th>value</th><th>value − mean</th><th>(value − mean)²</th></tr>" + rows + '<tr class="hi"><td class="m"><b>sum = ' + f(PD.sum(vals), 3) + '</b></td><td class="m">0</td><td class="m"><b>sum = ' + f(sq, 3) + "</b></td></tr>";
+    st.className = "status";
+    st.innerHTML = "mean = " + f(PD.sum(vals), 3) + " / " + n + " = <b>" + f(mean, 3) + "</b>. Variance = " + f(sq, 3) + " / " + n + " = " + f(sq / n, 3) + ", so the by-hand standard deviation = √" + f(sq / n, 3) + " = <b>" + f(sd0, 3) + "</b> (this is <code>np.std(values)</code>).<br>pandas divides by n − 1 = " + (n - 1) + ": " + f(sq, 3) + " / " + (n - 1) + " = " + f(sq / (n - 1), 3) + ", √ = <b>" + f(sd1, 3) + "</b>.";
+    var src = "[" + vals.map(function (v) { return Number.isInteger(v) ? String(v) : pyF(v); }).join(", ") + "]";
+    code($("#m-code"), "import pandas as pd\nvalues = pd.Series(" + src + ")\nprint(values.mean(), values.median())\nprint(values.std().round(2))\nprint(values.describe().round(2))");
+    $("#m-out").textContent = pyF(mean) + " " + pyF(med) + "\n" + pyF(PD.round(sd1, 2)) + "\n" + PD.series(PD.describe(vals).map(function (p) { return [p[0], PD.round(p[1], 2)]; }), { dtype: "float64" });
+    // dot plot
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals), pad = (hi - lo || 1) * 0.08, X = function (v) { return 30 + (v - lo + pad) / (hi - lo + 2 * pad) * 540; }, stack = {}, svg = "";
+    svg += '<rect x="' + X(mean - sd1) + '" y="20" width="' + Math.max(0, X(mean + sd1) - X(mean - sd1)) + '" height="100" fill="#FBE3CC" opacity=".7"/><text x="' + X(mean + sd1) + '" y="16" text-anchor="end" font-size="11" fill="#A4520C">mean ± 1 std</text>';
+    svg += '<line x1="20" y1="120" x2="580" y2="120" stroke="#15213A"/>';
+    ticks(lo - pad, hi + pad, 8).forEach(function (t) { svg += '<line x1="' + X(t) + '" y1="120" x2="' + X(t) + '" y2="126" stroke="#15213A"/><text x="' + X(t) + '" y="140" text-anchor="middle" font-size="11" fill="#5D6573">' + t + "</text>"; });
+    vals.forEach(function (v) { var k = String(v); stack[k] = (stack[k] || 0) + 1; svg += '<circle cx="' + X(v) + '" cy="' + (112 - (stack[k] - 1) * 15) + '" r="6.5" fill="#2459C4"/>'; });
+    svg += '<line x1="' + X(mean) + '" y1="24" x2="' + X(mean) + '" y2="120" stroke="#E07A1F" stroke-width="3"/><text x="' + X(mean) + '" y="160" text-anchor="middle" font-size="12" font-weight="700" fill="#A4520C">mean</text>';
+    svg += '<line x1="' + X(med) + '" y1="24" x2="' + X(med) + '" y2="120" stroke="#1F8A7A" stroke-width="3" stroke-dasharray="6 3"/><text x="' + X(med) + '" y="' + (Math.abs(X(med) - X(mean)) < 40 ? 34 : 160) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#17695D">median</text>';
+    $("#m-svg").innerHTML = svg;
+  }
+  $("#m-presets").addEventListener("click", function (e) { var b = e.target.closest("[data-k]"); if (b) { $("#m-vals").value = MPRE[+b.dataset.k][0]; $("#m-big").value = 0; mDraw(); } });
+  ["#m-vals", "#m-big"].forEach(function (id) { $(id).addEventListener("input", mDraw); });
+
+  /* ================= 2. Histogram ================= */
+  function histo(vals, bins, lo, hi) { // matplotlib / numpy: equal-width bins; the last bin includes its right edge
+    if (lo === undefined) { lo = Math.min.apply(null, vals); hi = Math.max.apply(null, vals); }
+    if (lo === hi) { lo -= 0.5; hi += 0.5; }
+    var w = (hi - lo) / bins, c = new Array(bins).fill(0);
+    vals.forEach(function (v) { var b = Math.floor((v - lo) / w); if (b >= bins) b = bins - 1; if (b >= 0) c[b]++; });
+    return { lo: lo, hi: hi, w: w, c: c };
+  }
+  function hDraw() {
+    var which = $("#h-data").value, bins = +$("#h-bins").value, same = $("#h-same").checked, dedup = $("#h-dedup").checked, groups;
+    $("#h-bins-v").textContent = bins; $("#h-sms-opts").hidden = which !== "sms";
+    var note = "";
+    if (which === "sms") {
+      var dup = new Set(D.dup), ham = [], spam = [];
+      D.lengths.forEach(function (L, i) { if (dedup && dup.has(i)) return; (D.labels[i] === "s" ? spam : ham).push(L); });
+      var all = ham.concat(spam), lo = Math.min.apply(null, all), hi = Math.max.apply(null, all);
+      groups = [{ n: "ham", v: ham, c: "#2459C4", h: same ? histo(ham, bins, lo, hi) : histo(ham, bins) }, { n: "spam", v: spam, c: "#E07A1F", h: same ? histo(spam, bins, lo, hi) : histo(spam, bins) }];
+      code($("#h-code"), 'df = pd.read_csv("sms.tsv", sep="\\t", header=None,\n                 names=["label", "message"])' + (dedup ? "\ndf = df.drop_duplicates()" : "") + '\ndf["length"] = df["message"].str.len()\nham = df[df["label"] == "ham"]["length"]\nspam = df[df["label"] == "spam"]["length"]\n' + (same ? "edges = np.linspace(df[\"length\"].min(), df[\"length\"].max(), " + (bins + 1) + ")\nplt.hist(ham, bins=edges, alpha=0.6, label=\"ham\")\nplt.hist(spam, bins=edges, alpha=0.6, label=\"spam\")" : "plt.hist(ham, bins=" + bins + ', alpha=0.6, label="ham")\nplt.hist(spam, bins=' + bins + ', alpha=0.6, label="spam")') + '\nplt.xlabel("message length (characters)")\nplt.ylabel("number of messages")\nplt.legend()\nplt.show()');
+      note = same ? "Both groups share the same bin edges, so the bars line up and can be compared directly." : "Each <code>plt.hist</code> call picks its own bins: ham's bins are " + f(groups[0].h.w, 1) + " characters wide, spam's only " + f(groups[1].h.w, 1) + ". Tick \"same bin edges\" for a fair comparison.";
+      $("#h-title").textContent = "Message length by label";
+    } else {
+      var v = col(which), miss = ST[which].length - v.length;
+      groups = [{ n: which, v: v, c: "#1F8A7A", h: histo(v, bins) }];
+      code($("#h-code"), 'st = pd.read_csv("students.csv")\nprint(st["' + which + '"].isna().sum())\nplt.hist(st["' + which + '"], bins=' + bins + ')\nplt.xlabel("' + which + '")\nplt.ylabel("number of students")\nplt.show()');
+      note = (miss ? "<b>" + miss + " missing values</b> (NaN) were skipped without any warning. " : "No missing values. ") + "Bins are " + f(groups[0].h.w, 3) + " wide.";
+      $("#h-title").textContent = "students.csv: " + which;
+    }
+    $("#h-note").className = "status"; $("#h-note").innerHTML = note;
+    var lo2 = Math.min.apply(null, groups.map(function (g) { return g.h.lo; })), hi2 = Math.max.apply(null, groups.map(function (g) { return g.h.hi; })), top = Math.max.apply(null, groups.map(function (g) { return Math.max.apply(null, g.h.c); }));
+    var X = function (v) { return 50 + (v - lo2) / (hi2 - lo2) * 550; }, Y = function (c) { return 250 - c / top * 225; }, svg = "";
+    groups.forEach(function (g, gi) { g.h.c.forEach(function (c, b) { var x0 = X(g.h.lo + b * g.h.w), x1 = X(g.h.lo + (b + 1) * g.h.w); svg += '<rect class="hb" data-t="' + esc(g.n + ": " + f(g.h.lo + b * g.h.w, 2) + " to " + f(g.h.lo + (b + 1) * g.h.w, 2) + " → " + c + " values") + '" x="' + x0 + '" y="' + Y(c) + '" width="' + Math.max(0.6, x1 - x0 - 0.6) + '" height="' + (250 - Y(c)) + '" fill="' + g.c + '" fill-opacity="' + (groups.length > 1 ? 0.6 : 0.85) + '"><title>' + esc(g.n) + ": " + c + "</title></rect>"; }); });
+    svg += '<line x1="50" y1="250" x2="600" y2="250" stroke="#15213A"/><line x1="50" y1="20" x2="50" y2="250" stroke="#15213A"/>';
+    ticks(lo2, hi2, 8).forEach(function (t) { svg += '<text x="' + X(t) + '" y="266" text-anchor="middle" font-size="11" fill="#5D6573">' + t + "</text>"; });
+    ticks(0, top, 5).forEach(function (t) { svg += '<text x="44" y="' + (Y(t) + 4) + '" text-anchor="end" font-size="11" fill="#5D6573">' + t + '</text><line x1="50" y1="' + Y(t) + '" x2="600" y2="' + Y(t) + '" stroke="#EEF1F6"/>'; });
+    if (groups.length > 1) svg += groups.map(function (g, k) { return '<rect x="' + (480 + k * 60) + '" y="24" width="12" height="12" fill="' + g.c + '" fill-opacity=".7"/><text x="' + (496 + k * 60) + '" y="35" font-size="12">' + g.n + "</text>"; }).join("");
+    $("#h-svg").innerHTML = svg;
+  }
+  $("#h-svg").addEventListener("mouseover", function (e) { var r = e.target.closest(".hb"); if (r) $("#h-hover").textContent = r.getAttribute("data-t"); });
+  ["#h-data", "#h-bins", "#h-same", "#h-dedup"].forEach(function (id) { $(id).addEventListener("input", hDraw); $(id).addEventListener("change", hDraw); });
+
+  /* ================= 3. Scatter and correlation ================= */
+  function scatter(svgEl, pts, opts) {
+    opts = opts || {}; var W = opts.w || 560, H = opts.h || 420, xs = pts.map(function (p) { return p[0]; }), ys = pts.map(function (p) { return p[1]; });
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys), px = (x1 - x0 || 1) * 0.06, py = (y1 - y0 || 1) * 0.08;
+    x0 -= px; x1 += px; y0 -= py; y1 += py;
+    var X = function (v) { return 50 + (v - x0) / (x1 - x0) * (W - 70); }, Y = function (v) { return H - 40 - (v - y0) / (y1 - y0) * (H - 60); }, s = "";
+    ticks(x0, x1, 6).forEach(function (t) { s += '<line x1="' + X(t) + '" y1="20" x2="' + X(t) + '" y2="' + (H - 40) + '" stroke="#EEF1F6"/><text x="' + X(t) + '" y="' + (H - 24) + '" text-anchor="middle" font-size="11" fill="#5D6573">' + t + "</text>"; });
+    ticks(y0, y1, 6).forEach(function (t) { s += '<line x1="50" y1="' + Y(t) + '" x2="' + (W - 20) + '" y2="' + Y(t) + '" stroke="#EEF1F6"/><text x="44" y="' + (Y(t) + 4) + '" text-anchor="end" font-size="11" fill="#5D6573">' + t + "</text>"; });
+    s += '<line x1="50" y1="' + (H - 40) + '" x2="' + (W - 20) + '" y2="' + (H - 40) + '" stroke="#15213A"/><line x1="50" y1="20" x2="50" y2="' + (H - 40) + '" stroke="#15213A"/>';
+    if (opts.fit) { var mx = PD.mean(xs), my = PD.mean(ys), sxy = 0, sxx = 0; xs.forEach(function (x, k) { sxy += (x - mx) * (ys[k] - my); sxx += (x - mx) * (x - mx); }); var b = sxx ? sxy / sxx : 0, a = my - b * mx; s += '<line x1="' + X(x0) + '" y1="' + Y(a + b * x0) + '" x2="' + X(x1) + '" y2="' + Y(a + b * x1) + '" stroke="#E07A1F" stroke-width="2.5" stroke-dasharray="7 4"/>'; }
+    pts.forEach(function (p) { s += '<circle cx="' + X(p[0]) + '" cy="' + Y(p[1]) + '" r="' + (p[3] ? 8 : 5) + '" fill="' + (p[2] || "#2459C4") + '" fill-opacity=".75"' + (p[3] ? ' stroke="#15213A" stroke-width="2"' : "") + "/>"; });
+    if (opts.xl) s += '<text x="' + (W - 20) + '" y="' + (H - 6) + '" text-anchor="end" font-size="12" font-weight="700" fill="#5D6573">' + esc(opts.xl) + '</text><text x="54" y="14" font-size="12" font-weight="700" fill="#5D6573">' + esc(opts.yl) + "</text>";
+    svgEl.innerHTML = s;
+  }
+  function genPts(n, slope, noise, seed, outlier) {
+    var r = rng(seed), pts = []; for (var i = 0; i < n; i++) { var x = r() * 10; pts.push([x, slope * x + noise * gauss(r)]); }
+    if (outlier) { var ys = pts.map(function (p) { return p[1]; }), lo = Math.min.apply(null, ys), hi = Math.max.apply(null, ys), rg = (hi - lo) || 5; pts.push([9.5, slope >= 0 ? lo - rg * 0.6 : hi + rg * 0.6, "#B4432A", true]); }
+    return pts;
+  }
+  function cDraw() {
+    var src = $("#c-src").value, st = $("#c-note"); $("#c-gen").hidden = src !== "gen"; $("#c-st").hidden = src !== "st";
+    if (src === "gen") {
+      var slope = +$("#c-slope").value / 10, noise = +$("#c-noise").value / 10, n = +$("#c-n").value, out = $("#c-out").checked;
+      $("#c-slope-v").textContent = slope.toFixed(1); $("#c-noise-v").textContent = noise.toFixed(1); $("#c-n-v").textContent = n;
+      var pts = genPts(n, slope, noise, 7, out), c = PD.corr(pts.map(function (p) { return p[0]; }), pts.map(function (p) { return p[1]; }));
+      scatter($("#c-svg"), pts, { fit: true, xl: "x", yl: "y" });
+      $("#c-r").textContent = isNaN(c.r) ? "nan" : c.r.toFixed(3); $("#c-used").textContent = c.n;
+      code($("#c-code"), "import numpy as np\nrng = np.random.default_rng(0)\nx = rng.uniform(0, 10, " + n + ")\ny = " + slope.toFixed(1) + " * x + rng.normal(0, " + noise.toFixed(1) + ", " + n + ")\nr = np.corrcoef(x, y)[0, 1]\nprint(round(r, 3))");
+      var without = out ? PD.corr(pts.slice(0, -1).map(function (p) { return p[0]; }), pts.slice(0, -1).map(function (p) { return p[1]; })).r : null;
+      st.className = "status"; st.innerHTML = (isNaN(c.r) ? "With slope 0 and no noise every y is equal, so r cannot be computed (nan)." : describeR(c.r)) + (out ? "<br>Without the red outlier r would be <b>" + without.toFixed(3) + "</b>." : "") + "<br><span class=\"small muted\">The browser draws its own random numbers, so the exact r in Colab will differ; the pattern will not.</span>";
+    } else {
+      var xn = $("#c-x").value, yn = $("#c-y").value, colr = $("#c-col").checked, pts2 = [];
+      ST[xn].forEach(function (x, i) { var y = ST[yn][i]; if (x !== null && y !== null) pts2.push([x, y, colr ? (ST.passed[i] === "yes" ? "#1F8A7A" : "#B4432A") : "#2459C4"]); });
+      var c2 = PD.corr(ST[xn], ST[yn]);
+      scatter($("#c-svg"), pts2, { fit: true, xl: xn, yl: yn });
+      $("#c-r").textContent = c2.r.toFixed(3); $("#c-used").textContent = c2.n + " of " + ST[xn].length;
+      code($("#c-code"), 'st = pd.read_csv("students.csv")\nplt.scatter(st["' + xn + '"], st["' + yn + '"])\nplt.xlabel("' + xn + '")\nplt.ylabel("' + yn + '")\nplt.show()\nprint(round(st["' + xn + '"].corr(st["' + yn + '"]), 3))');
+      st.className = "status"; st.innerHTML = describeR(c2.r) + " Rows with a missing value in either column are left out (" + (ST[xn].length - c2.n) + " here)." + (colr ? "<br>Colours: <b style=\"color:var(--tink)\">passed</b>, <b style=\"color:var(--red)\">not passed</b>." : "");
+    }
+  }
+  function describeR(r) { var a = Math.abs(r), w = a > 0.8 ? "a strong" : a > 0.5 ? "a moderate" : a > 0.2 ? "a weak" : "almost no"; return "r = <b>" + r.toFixed(3) + "</b>: " + w + (a > 0.2 ? (r > 0 ? " positive" : " negative") : "") + " straight-line pattern."; }
+  ["#c-src", "#c-slope", "#c-noise", "#c-n", "#c-out", "#c-x", "#c-y", "#c-col"].forEach(function (id) { $(id).addEventListener("input", cDraw); $(id).addEventListener("change", cDraw); });
+  // guessing game
+  var game = { seed: 101, r: 0, rounds: 0, errs: 0, done: false };
+  function gNew() {
+    var r0 = rng(game.seed++), slope = (r0() * 2 - 1) * 2, noise = 0.2 + r0() * 6, pts = genPts(50, slope, noise, game.seed * 13, false);
+    game.r = PD.corr(pts.map(function (p) { return p[0]; }), pts.map(function (p) { return p[1]; })).r; game.done = false;
+    scatter($("#g-svg"), pts, { w: 420, h: 300 }); $("#g-res").className = "status"; $("#g-res").innerHTML = "Move the slider to your guess, then press <b>Check</b>.";
+  }
+  $("#g-guess").addEventListener("input", function () { $("#g-guess-v").textContent = (+$("#g-guess").value / 100).toFixed(2); });
+  $("#g-check").addEventListener("click", function () {
+    if (game.done) return; var g = +$("#g-guess").value / 100, e = Math.abs(g - game.r); game.done = true; game.rounds++; game.errs += e;
+    $("#g-res").className = "status " + (e < 0.1 ? "good" : e < 0.25 ? "" : "bad"); $("#g-res").innerHTML = "The true r is <b>" + game.r.toFixed(2) + "</b>; you were off by " + e.toFixed(2) + ". " + (e < 0.1 ? "Excellent eye." : e < 0.25 ? "Close." : "Look at how tightly the points hug a line, not at how steep it is.");
+    $("#g-n").textContent = game.rounds; $("#g-err").textContent = (game.errs / game.rounds).toFixed(2);
+  });
+  $("#g-new").addEventListener("click", gNew);
+
+  /* ================= 4. Box plot ================= */
+  function boxStats(v, whis) { // matplotlib.cbook.boxplot_stats
+    var s = PD.sorted(v), q1 = PD.quantile(s, .25), med = PD.quantile(s, .5), q3 = PD.quantile(s, .75), iqr = q3 - q1, lo = q1 - whis * iqr, hi = q3 + whis * iqr;
+    var inside = s.filter(function (x) { return x >= lo && x <= hi; }), wl = inside.length ? inside[0] : q1, wh = inside.length ? inside[inside.length - 1] : q3;
+    return { n: s.length, min: s[0], max: s[s.length - 1], q1: q1, med: med, q3: q3, wl: Math.min(wl, q1), wh: Math.max(wh, q3), fl: s.filter(function (x) { return x < Math.min(wl, q1) || x > Math.max(wh, q3); }), v: s };
+  }
+  function bGroups(which) {
+    if (which === "sms") { var h = [], s = []; D.lengths.forEach(function (L, i) { (D.labels[i] === "s" ? s : h).push(L); }); return { g: [["ham", h], ["spam", s]], y: "message length (characters)", code: 'plt.boxplot([ham, spam], tick_labels=["ham", "spam"])\nplt.ylabel("message length (characters)")\nplt.show()\nprint(ham.median(), spam.median())' }; }
+    var colName = which === "gpa" ? "prior_gpa" : which === "dept" ? "hours" : which, by = which === "dept" ? "dept" : "passed", keys = by === "dept" ? ["CSE", "EEE", "Math"] : ["no", "yes"];
+    var g = keys.map(function (k) { return [by === "passed" ? "passed = " + k : k, ST[colName].filter(function (v, i) { return v !== null && ST[by][i] === k; })]; });
+    return { g: g, y: colName, custom: by, keys: keys, col: colName };
+  }
+  function bDraw() {
+    var which = $("#b-data").value, whis = +$("#b-whis").value / 10, pts = $("#b-pts").checked, G = bGroups(which); $("#b-whis-v").textContent = whis.toFixed(1);
+    if (G.custom) code($("#b-code"), 'st = pd.read_csv("students.csv")\ngroups = [st[st["' + G.custom + '"] == k]["' + G.col + '"].dropna()\n          for k in [' + G.keys.map(function (k) { return '"' + k + '"'; }).join(", ") + "]]\nplt.boxplot(groups, tick_labels=[" + G.keys.map(function (k) { return '"' + k + '"'; }).join(", ") + "]" + (whis !== 1.5 ? ", whis=" + whis : "") + ')\nplt.ylabel("' + G.col + '")\nplt.show()');
+    else code($("#b-code"), 'ham = df[df["label"] == "ham"]["length"]\nspam = df[df["label"] == "spam"]["length"]\nplt.boxplot([ham, spam], tick_labels=["ham", "spam"]' + (whis !== 1.5 ? ", whis=" + whis : "") + ')\nplt.ylabel("message length (characters)")\nplt.show()\nprint(ham.median(), spam.median())');
+    var S = G.g.map(function (g) { return [g[0], boxStats(g[1], whis)]; });
+    $("#b-table").innerHTML = "<tr><th></th>" + S.map(function (s) { return "<th>" + esc(s[0]) + "</th>"; }).join("") + "</tr>" + [["values", "n"], ["min", "min"], ["Q1 (25%)", "q1"], ["median", "med"], ["Q3 (75%)", "q3"], ["max", "max"], ["lower whisker", "wl"], ["upper whisker", "wh"]].map(function (r) { return "<tr><td>" + r[0] + "</td>" + S.map(function (s) { return '<td class="m">' + f(s[1][r[1]], 2) + "</td>"; }).join("") + "</tr>"; }).join("") + "<tr><td>outliers (dots)</td>" + S.map(function (s) { return '<td class="m" style="font-weight:700">' + s[1].fl.length + "</td>"; }).join("") + "</tr>";
+    var all = []; S.forEach(function (s) { all = all.concat([s[1].min, s[1].max]); });
+    var y0 = Math.min.apply(null, all), y1 = Math.max.apply(null, all), pad = (y1 - y0) * 0.06; y0 -= pad; y1 += pad;
+    var Y = function (v) { return 380 - (v - y0) / (y1 - y0) * 350; }, n = S.length, slot = 480 / n, svg = "", r = rng(5);
+    ticks(y0, y1, 7).forEach(function (t) { svg += '<line x1="60" y1="' + Y(t) + '" x2="550" y2="' + Y(t) + '" stroke="#EEF1F6"/><text x="54" y="' + (Y(t) + 4) + '" text-anchor="end" font-size="11" fill="#5D6573">' + t + "</text>"; });
+    svg += '<line x1="60" y1="20" x2="60" y2="380" stroke="#15213A"/><text x="64" y="14" font-size="12" font-weight="700" fill="#5D6573">' + esc(G.y) + "</text>";
+    var COL = ["#2459C4", "#E07A1F", "#1F8A7A"];
+    S.forEach(function (s, k) {
+      var cx = 70 + slot * (k + 0.5), bw = Math.min(110, slot * 0.5), st = s[1], c = COL[k % 3];
+      if (pts) st.v.forEach(function (v) { svg += '<circle cx="' + (cx + (r() - 0.5) * bw * 1.4) + '" cy="' + Y(v) + '" r="2.4" fill="' + c + '" fill-opacity=".35"/>'; });
+      svg += '<line x1="' + cx + '" y1="' + Y(st.wh) + '" x2="' + cx + '" y2="' + Y(st.q3) + '" stroke="#15213A" stroke-width="1.5"/><line x1="' + cx + '" y1="' + Y(st.q1) + '" x2="' + cx + '" y2="' + Y(st.wl) + '" stroke="#15213A" stroke-width="1.5"/>';
+      svg += '<line x1="' + (cx - bw / 4) + '" y1="' + Y(st.wh) + '" x2="' + (cx + bw / 4) + '" y2="' + Y(st.wh) + '" stroke="#15213A" stroke-width="2"/><line x1="' + (cx - bw / 4) + '" y1="' + Y(st.wl) + '" x2="' + (cx + bw / 4) + '" y2="' + Y(st.wl) + '" stroke="#15213A" stroke-width="2"/>';
+      svg += '<rect x="' + (cx - bw / 2) + '" y="' + Y(st.q3) + '" width="' + bw + '" height="' + Math.max(1, Y(st.q1) - Y(st.q3)) + '" fill="' + c + '" fill-opacity="' + (pts ? 0.25 : 0.45) + '" stroke="#15213A" stroke-width="2"/>';
+      svg += '<line x1="' + (cx - bw / 2) + '" y1="' + Y(st.med) + '" x2="' + (cx + bw / 2) + '" y2="' + Y(st.med) + '" stroke="#E07A1F" stroke-width="3.5"/>';
+      st.fl.forEach(function (v) { svg += '<circle cx="' + cx + '" cy="' + Y(v) + '" r="3.5" fill="none" stroke="#15213A" stroke-width="1.3"/>'; });
+      svg += '<text x="' + cx + '" y="400" text-anchor="middle" font-size="13" font-weight="700" fill="#15213A">' + esc(s[0]) + "</text>";
+      svg += '<text x="' + (cx + bw / 2 + 6) + '" y="' + (Y(st.med) + 4) + '" font-size="11" fill="#A4520C">median ' + f(st.med, 2) + "</text>";
+    });
+    $("#b-svg").innerHTML = svg;
+  }
+  ["#b-data", "#b-whis", "#b-pts"].forEach(function (id) { $(id).addEventListener("input", bDraw); $(id).addEventListener("change", bDraw); });
+
+  document.addEventListener("DOMContentLoaded", function () { mDraw(); hDraw(); cDraw(); gNew(); bDraw(); });
+})();
+</script></body></html>

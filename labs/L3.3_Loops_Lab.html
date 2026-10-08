@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loops Lab · Lecture 3.3</title>
+<style>:root{
+  --navy:#15213A; --navy2:#1E2D4D; --blue:#2459C4; --bsoft:#E3EAF8; --orange:#E07A1F; --oink:#A4520C; --osoft:#FBE3CC;
+  --teal:#1F8A7A; --tink:#17695D; --tsoft:#E3F2EF; --red:#B4432A; --rsoft:#F8E1DB; --ink:#15213A; --muted:#5D6573;
+  --panel:#F3F5F9; --line:#D5DBE6; --bg:#EEF1F6; --card:#FFFFFF; --code:#1B2742; --codefg:#E8ECF4; --hl:#FFE3B8;
+  --sans:"Segoe UI",Calibri,Carlito,"Helvetica Neue",Arial,sans-serif; --mono:Consolas,"Courier New","Liberation Mono",monospace;
+  box-sizing:border-box;
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+code,.mono{font-family:var(--mono)}
+.top{background:var(--navy);color:#fff;padding:18px 28px 16px;display:flex;gap:24px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.top .kicker{color:var(--orange);font-weight:700;letter-spacing:.12em;font-size:13px;text-transform:uppercase}
+.top h1{margin:2px 0 2px;font-size:30px;line-height:1.15;font-family:Arial,"Helvetica Neue",sans-serif}
+.top p{margin:0;color:#D9DEE8;font-size:16px}
+.top .meta{text-align:right;color:#B9C1D0;font-size:13px;line-height:1.5}
+.tabs{display:flex;gap:6px;padding:10px 28px 0;background:var(--navy);flex-wrap:wrap}
+.tabs button{background:#22335A;color:#D9DEE8;border:0;border-radius:10px 10px 0 0;padding:10px 16px;cursor:pointer;font-weight:600;font-size:15px}
+.tabs button .n{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#33477A;color:#fff;align-items:center;justify-content:center;font-size:12px;margin-right:8px}
+.tabs button[aria-selected="true"]{background:var(--bg);color:var(--ink)}
+.tabs button[aria-selected="true"] .n{background:var(--orange)}
+.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+main{max-width:1320px;margin:0 auto;padding:20px 28px 40px}
+.exp{display:none}.exp.on{display:block}
+.exp-head h2{margin:0 0 4px;font-size:24px;font-family:Arial,"Helvetica Neue",sans-serif}
+.exp-head p{margin:0 0 16px;color:var(--muted);max-width:90ch}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:18px;align-items:start}
+.grid.even{grid-template-columns:1fr 1fr}
+.grid.wide-right{grid-template-columns:minmax(0,4fr) minmax(0,7fr)}
+@media (max-width:900px){.grid,.grid.even,.grid.wide-right{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.panel h3{margin:0 0 10px;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:0;border-radius:9px;padding:9px 16px;cursor:pointer;font-weight:700;background:var(--navy);color:#fff}
+.btn.alt{background:var(--bsoft);color:var(--ink)}.btn.warm{background:var(--orange);color:var(--navy)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:6px 12px;font-size:14px}
+select,input[type=text],input[type=number],textarea{border:2px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff}
+input[type=number]{width:92px}
+input[type=range]{width:100%;accent-color:var(--orange)}
+label.lab{font-weight:700;font-size:14px;color:var(--muted)}
+.code{background:var(--code);color:var(--codefg);border-radius:12px;padding:12px 0;font-family:var(--mono);font-size:17px;overflow:auto}
+.code .ln{display:flex;padding:1px 14px 1px 0;white-space:pre;min-height:1.5em;border-left:5px solid transparent}
+.code .ln .no{width:38px;text-align:right;padding-right:12px;color:#7F8BA6;flex:none;user-select:none}
+.code .ln.cur{background:rgba(224,122,31,.28);border-left-color:var(--orange)}
+.code .ln.done{color:#B9C3D8}
+.code .ln.skip{color:#6E7891;text-decoration:line-through;text-decoration-color:#6E7891}
+.code .ln.err{background:rgba(180,67,42,.45);border-left-color:#F08A70}
+.code .kw{color:#F5AD69}.code .st{color:#A8D8A8}.code .nu{color:#9FC1E6}.code .cm{color:#7F8BA6;font-style:italic}.code .fn{color:#E8C27A}
+textarea.editor{width:100%;min-height:210px;font-family:var(--mono);font-size:17px;line-height:1.5;background:var(--code);color:var(--codefg);border:2px solid var(--code);border-radius:12px;padding:12px 14px;resize:vertical;tab-size:4}
+.out{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-family:var(--mono);font-size:16px;min-height:52px;white-space:pre-wrap;word-break:break-word}
+.out .e{color:var(--red);font-weight:700}.out .hint{color:var(--oink)}
+.out .label{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--muted);display:block;margin-bottom:2px}
+.status{border-left:6px solid var(--blue);background:var(--bsoft);padding:9px 14px;border-radius:0 10px 10px 0;margin:12px 0;min-height:46px}
+.status.bad{border-left-color:var(--red);background:var(--rsoft)}.status.good{border-left-color:var(--teal);background:var(--tsoft)}
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+@media (max-width:900px){.notes{grid-template-columns:1fr}}
+.notice{background:var(--osoft);border-radius:14px;padding:14px 18px}
+.notice h4,.try h4{margin:0 0 6px;font-size:16px}
+.notice ul{margin:0;padding-left:20px}
+.try{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.try label{display:flex;gap:10px;align-items:flex-start;margin:6px 0;cursor:pointer}
+.try input{margin-top:5px;accent-color:var(--teal);width:18px;height:18px;flex:none}
+.try label.done span{color:var(--muted);text-decoration:line-through}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 11px;font-size:13px;font-weight:700;background:var(--panel);border:1px solid var(--line);white-space:nowrap}
+.chip.t{background:var(--tsoft);color:var(--tink);border-color:#B9DCD5}.chip.f{background:var(--rsoft);color:var(--red);border-color:#EBC2B8}.chip.n{color:var(--muted)}
+.chip.int{background:var(--bsoft);color:var(--blue);border-color:#C3D2EF}.chip.float{background:#EDE3F7;color:#6B3FA0;border-color:#D7C5EC}.chip.str{background:var(--tsoft);color:var(--tink);border-color:#B9DCD5}.chip.bool{background:var(--osoft);color:var(--oink);border-color:#F1CDA9}.chip.list,.chip.tuple,.chip.NoneType{background:var(--panel);color:var(--muted)}
+table.t{border-collapse:collapse;width:100%;font-size:16px}
+table.t th{background:var(--navy);color:#fff;text-align:left;padding:7px 10px;font-size:14px}
+table.t td{border-bottom:1px solid var(--line);padding:7px 10px;vertical-align:middle}
+table.t tr.hi td{background:var(--hl)}
+table.t td.m{font-family:var(--mono)}
+.muted{color:var(--muted)}.small{font-size:14px}
+.big{font-size:34px;font-weight:700;font-family:Arial,sans-serif}
+.foot{max-width:1320px;margin:0 auto;padding:0 28px 30px;color:var(--muted);font-size:13px}
+@keyframes flash{0%{background:var(--hl)}100%{background:transparent}}
+.flash{animation:flash 1.2s ease-out}
+@media (prefers-reduced-motion:reduce){.flash{animation:none}*{transition:none!important}}
+[hidden]{display:none!important}
+</style></head><body>
+<header class="top"><div><div class="kicker">Lecture 3.3 · Interactive lab</div><h1>Loops Lab</h1><p>Step through loops round by round, explore range(), and watch a spam filter check every word</p></div>
+<div class="meta">Introduction to Data Science and Machine Learning<br>Md Mahbub E Noor · University of Barishal<br><a href="START_HERE.html" style="color:#F5AD69">All labs</a></div></header>
+<nav class="tabs" role="tablist"><button role="tab" data-tab="t1"><span class="n">1</span>Loop stepper</button><button role="tab" data-tab="t2"><span class="n">2</span>range() explorer</button><button role="tab" data-tab="t3"><span class="n">3</span>Nested loop grid</button><button role="tab" data-tab="t4"><span class="n">4</span>Predict the loop</button></nav>
+<main><section class="exp" id="t1">
+  <div class="exp-head"><h2>Loop stepper: watch every round</h2>
+  <p>Pick an example from the lecture, or write your own. Step forwards and backwards; the trace table fills in exactly like the ones on the slides.</p></div>
+  <div id="step-root"></div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>The <code>for</code> line runs once per round, and once more to find there is nothing left.</li>
+      <li>Lines before the loop run once; lines inside run every round; lines after run once at the end.</li>
+      <li>A <code>while</code> condition is checked <b>before</b> every round, including the last, False one.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>In <b>Accumulator</b>, predict <code>total</code> after round 3 before stepping there.</span></label>
+      <label><input type="checkbox"><span>Open <b>Infinite loop</b> and explain why it never stops. Then edit it so it prints 3, 2, 1.</span></label>
+      <label><input type="checkbox"><span>In <b>break</b>, move the <code>print("OK:", msg)</code> line above the <code>if</code>. What changes?</span></label>
+      <label><input type="checkbox"><span>In <b>Primes</b>, count how many rounds the inner loop runs for n = 9 with and without <code>break</code>.</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t2">
+  <div class="exp-head"><h2>range() explorer: the numbers a loop will visit</h2>
+  <p><code>range(start, stop, step)</code> starts at <i>start</i>, adds <i>step</i> each time, and stops <b>before</b> reaching <i>stop</i>.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <div class="row"><label class="lab" style="width:60px">start</label><label class="small"><input type="checkbox" id="r-a-on" checked> use</label><input type="range" id="r-a" min="-10" max="20" value="2" style="flex:1"><b class="mono" id="r-a-v" style="width:36px"></b></div>
+      <div class="row"><label class="lab" style="width:60px">stop</label><span class="small muted" style="width:44px">always</span><input type="range" id="r-b" min="-10" max="20" value="11" style="flex:1"><b class="mono" id="r-b-v" style="width:36px"></b></div>
+      <div class="row"><label class="lab" style="width:60px">step</label><label class="small"><input type="checkbox" id="r-c-on" checked> use</label><input type="range" id="r-c" min="-5" max="5" value="3" style="flex:1"><b class="mono" id="r-c-v" style="width:36px"></b></div>
+      <div class="row" id="r-presets" style="margin-top:10px"></div>
+      <div class="status" id="r-why"></div>
+    </div>
+    <div>
+      <div class="panel"><div class="out" style="font-size:19px"><span class="label">Python</span><span id="r-code"></span></div>
+        <div class="out" style="font-size:19px;margin-top:10px"><span class="label">Python gives</span><span id="r-res"></span></div></div>
+      <div class="panel" style="margin-top:14px"><h3>In a for loop</h3><div class="code" id="r-loop" style="font-size:15px"></div><div class="out" id="r-loop-out" style="margin-top:8px;max-height:150px;overflow:auto"></div></div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:16px"><h3>On the number line</h3><svg id="r-svg" viewBox="0 0 900 150" width="100%" role="img" aria-label="Number line with the numbers range gives"></svg></div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li><code>range(5)</code> is 0, 1, 2, 3, 4: five numbers, and 5 is not one of them.</li>
+      <li>To include N, write <code>range(1, N + 1)</code>.</li>
+      <li>With a positive step and start ≥ stop, the range is empty: the loop body never runs.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Make the range 10, 8, 6, 4, 2.</span></label>
+      <label><input type="checkbox"><span>Find a range with exactly one number in it.</span></label>
+      <label><input type="checkbox"><span>Predict <code>len(range(0, 100, 10))</code>, then build it here (move stop to 20 and think).</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t3">
+  <div class="exp-head"><h2>Nested loop grid: every message against every word</h2>
+  <p>The outer loop takes one message; the inner loop checks it against every suspicious word. Each cell is one check. Watch the order they happen in.</p></div>
+  <div class="grid">
+    <div class="panel">
+      <label class="lab" for="g-words">spam_words (comma separated)</label><input type="text" id="g-words" class="mono" style="width:100%" value="free, win, prize, cash">
+      <label class="lab" for="g-msgs" style="display:block;margin-top:10px">inbox (one message per line)</label>
+      <textarea id="g-msgs" class="mono" style="width:100%;min-height:130px">Win a free phone
+Class moved to room 305
+Claim your cash prize
+See you at the library
+Claim your FR33 g1ft now
+Free lunch after the seminar</textarea>
+      <label class="lab" style="display:flex;gap:8px;margin-top:8px"><input type="checkbox" id="g-break"> Add <code>break</code> after the first match (stop checking that message)</label>
+      <div class="code" id="g-code" style="margin-top:10px;font-size:15px"></div>
+    </div>
+    <div>
+      <div class="panel">
+        <div class="row"><button class="btn warm" id="g-step">▶ Next check</button><button class="btn" id="g-play">⏵ Play</button><button class="btn" id="g-all">Run to end</button><button class="btn alt" id="g-reset">↺ Start again</button></div>
+        <div class="row" style="margin-top:12px;gap:24px">
+          <div><div class="small muted">Checks done</div><div class="big" id="g-done">0</div></div>
+          <div><div class="small muted">Checks without break</div><div class="big" id="g-max" style="color:var(--muted)">0</div></div>
+          <div><div class="small muted">Flagged as spam</div><div class="big" id="g-spam" style="color:var(--red)">0</div></div>
+        </div>
+        <div style="overflow-x:auto;margin-top:10px"><table class="t" id="g-grid"></table></div>
+        <div class="status" id="g-status"></div>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>The inner loop finishes <b>all</b> its rounds before the outer loop moves to the next message.</li>
+      <li>Total checks = messages × words. Double the words and the work doubles.</li>
+      <li><code>break</code> only leaves the <b>inner</b> loop; the outer loop carries on.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Turn on <code>break</code>. How many checks are saved, and does any label change?</span></label>
+      <label><input type="checkbox"><span>Add the word <code>claim</code>. Which normal message is now wrongly flagged?</span></label>
+      <label><input type="checkbox"><span>Find a word list that flags the FR33 g1ft message without flagging the seminar message.</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="t4">
+  <div class="exp-head"><h2>Predict the loop: what will it print?</h2>
+  <p>Read the code, choose the output, then step through it to see why. The correct answers come from running the code.</p></div>
+  <div class="row" style="justify-content:space-between;margin-bottom:12px">
+    <div class="row" id="q-dots"></div>
+    <div class="row"><span class="chip t" id="q-score"></span><button class="btn alt sm" id="q-restart">Start over</button></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><h3 id="q-title"></h3><div class="code" id="q-code"></div>
+      <p style="margin:14px 0 8px"><b>What does it print?</b></p><div class="grid even" id="q-opts" style="gap:10px"></div></div>
+    <div>
+      <div class="status" id="q-fb" style="display:none;margin-top:0"></div>
+      <div class="panel" id="q-trace-panel" hidden><h3>How it runs</h3><div style="max-height:320px;overflow:auto"><table class="t" id="q-trace"></table></div>
+        <div class="row" style="margin-top:10px"><button class="btn sm" id="q-open">Open in the Loop stepper</button></div></div>
+      <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn warm" id="q-next">Next ▶</button></div>
+    </div>
+  </div>
+  <div class="notes">
+    <div class="notice"><h4>What to notice</h4><ul>
+      <li>Is the <code>print</code> inside the loop (indented) or after it? That decides how many lines appear.</li>
+      <li><code>range</code> is worked out once, when the loop starts. Changing a variable inside does not change it.</li>
+    </ul></div>
+    <div class="try"><h4>Try this</h4>
+      <label><input type="checkbox"><span>Get all 8 right on the first try.</span></label>
+      <label><input type="checkbox"><span>For each one you missed, open it in the Loop stepper and write the trace table by hand.</span></label>
+    </div>
+  </div>
+</section>
+</main>
+<p class="foot">Works offline: no internet needed. The Python shown here runs in your browser with the same rules as Python 3, so results and error messages match what you will see in Jupyter.</p>
+<script>/* minipy: a small, faithful subset of Python 3 for teaching labs.
+   Values: int (BigInt), float, bool, str, NoneType, list, tuple, dict, builtin, module, function (hook).
+   Statements: assignment, augmented assignment, tuple unpacking, expression statements.
+   Errors mirror CPython 3.12 messages. */
+var MiniPy = (function () {
+  "use strict";
+  function PyError(type, msg) { this.type = type; this.msg = msg; }
+  PyError.prototype.toString = function () { return this.type + (this.msg ? ": " + this.msg : ""); };
+
+  var NONE = { t: "NoneType" };
+  function I(n) { return { t: "int", v: BigInt(n) }; }
+  function F(x) { return { t: "float", v: x }; }
+  function B(b) { return { t: "bool", v: !!b }; }
+  function S(s) { return { t: "str", v: s }; }
+  function L(a) { return { t: "list", v: a }; }
+  function T(a) { return { t: "tuple", v: a }; }
+  function D() { return { t: "dict", m: new Map() }; }
+  function hashKey(v) {
+    switch (v.t) {
+      case "int": return "n:" + v.v.toString();
+      case "bool": return "n:" + (v.v ? "1" : "0");
+      case "float": return Number.isInteger(v.v) ? "n:" + BigInt(v.v).toString() : "f:" + v.v;
+      case "str": return "s:" + v.v;
+      case "NoneType": return "N";
+      case "tuple": return "t:(" + v.v.map(hashKey).join(",") + ")";
+    }
+    if (v.t === "list" || v.t === "dict") throw new PyError("TypeError", "unhashable type: '" + v.t + "'");
+    return "o:" + objId(v);
+  }
+  var ids = new WeakMap(), idNext = 0;
+  function objId(v) { if (!ids.has(v)) ids.set(v, 140601564316704 + 48 * (idNext++)); return ids.get(v); }
+  function dget(d, k) { var e = d.m.get(hashKey(k)); return e ? e[1] : undefined; }
+  function dset(d, k, v) { var h = hashKey(k), e = d.m.get(h); if (e) e[1] = v; else d.m.set(h, [k, v]); }
+  function dkeys(d) { return Array.from(d.m.values()).map(function (e) { return e[0]; }); }
+  function dvals(d) { return Array.from(d.m.values()).map(function (e) { return e[1]; }); }
+  function ditems(d) { return Array.from(d.m.values()).map(function (e) { return T([e[0], e[1]]); }); }
+
+  /* ---------- repr / str ---------- */
+  function floatRepr(x) {
+    if (x !== x) return "nan";
+    if (x === Infinity) return "inf";
+    if (x === -Infinity) return "-inf";
+    if (x === 0) return (1 / x < 0) ? "-0.0" : "0.0";
+    var e = x.toExponential(); // shortest round-trip digits
+    var m = e.split("e"), mant = m[0], exp = parseInt(m[1], 10);
+    var neg = mant[0] === "-"; if (neg) mant = mant.slice(1);
+    var digits = mant.replace(".", "");
+    var out;
+    if (exp >= -4 && exp < 16) {
+      if (exp >= 0) {
+        if (digits.length <= exp + 1) out = digits + "0".repeat(exp + 1 - digits.length) + ".0";
+        else out = digits.slice(0, exp + 1) + "." + digits.slice(exp + 1);
+      } else out = "0." + "0".repeat(-exp - 1) + digits;
+    } else {
+      var mm = digits.length > 1 ? digits[0] + "." + digits.slice(1) : digits;
+      var es = Math.abs(exp) < 10 ? "0" + Math.abs(exp) : String(Math.abs(exp));
+      out = mm + "e" + (exp < 0 ? "-" : "+") + es;
+    }
+    return (neg ? "-" : "") + out;
+  }
+  function strRepr(s) {
+    var q = (s.indexOf("'") >= 0 && s.indexOf('"') < 0) ? '"' : "'";
+    var body = s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/\t/g, "\\t");
+    if (q === "'") body = body.replace(/'/g, "\\'");
+    return q + body + q;
+  }
+  function repr(v) {
+    switch (v.t) {
+      case "int": return v.v.toString();
+      case "float": return floatRepr(v.v);
+      case "bool": return v.v ? "True" : "False";
+      case "str": return strRepr(v.v);
+      case "NoneType": return "None";
+      case "list": return "[" + v.v.map(repr).join(", ") + "]";
+      case "tuple": return v.v.length === 1 ? "(" + repr(v.v[0]) + ",)" : "(" + v.v.map(repr).join(", ") + ")";
+      case "type": return "<class '" + v.v + "'>";
+      case "builtin": return "<built-in function " + v.name.replace(/^math\./, "") + ">";
+      case "dict": return "{" + Array.from(v.m.values()).map(function (e) { return repr(e[0]) + ": " + repr(e[1]); }).join(", ") + "}";
+      case "dict_keys": case "dict_values": case "dict_items": return v.t + "([" + v.v.map(repr).join(", ") + "])";
+      case "function": return "<function " + v.name + " at 0x" + objId(v).toString(16) + ">";
+      case "module": return "<module '" + v.name + "' (built-in)>";
+      case "boundmethod": return "<built-in method " + v.name + " of " + typeName(v.obj) + " object>";
+    }
+    return "?";
+  }
+  function str(v) { return v.t === "str" ? v.v : repr(v); }
+  function typeName(v) { return v.t === "builtin" || v.t === "boundmethod" ? "builtin_function_or_method" : v.t; }
+
+  /* ---------- tokenizer ---------- */
+  var KW = { and: 1, or: 1, not: 1, "in": 1, is: 1, None: 1, True: 1, False: 1, "if": 1, "else": 1, elif: 1, "for": 1, "while": 1, def: 1, "return": 1, lambda: 1, "import": 1, from: 1, "class": 1, pass: 1, "break": 1, "continue": 1 };
+  var OPS = ["**=", "//=", "**", "//", "==", "!=", "<=", ">=", "+=", "-=", "*=", "/=", "%=", "+", "-", "*", "/", "%", "<", ">", "=", "(", ")", "[", "]", "{", "}", ",", ":", "."];
+  function tokenize(src) {
+    var toks = [], i = 0, n = src.length;
+    while (i < n) {
+      var c = src[i];
+      if (c === " " || c === "\t") { i++; continue; }
+      if (c === "#") break;
+      var start = i;
+      if (/[0-9]/.test(c) || (c === "." && /[0-9]/.test(src[i + 1] || ""))) {
+        var m = /^(\d[\d_]*\.?[\d_]*([eE][+-]?\d+)?|\.\d[\d_]*([eE][+-]?\d+)?)/.exec(src.slice(i));
+        var txt = m[0].replace(/_/g, "");
+        var isF = /[.eE]/.test(txt);
+        toks.push({ k: "num", v: isF ? F(parseFloat(txt)) : I(txt), p: start });
+        i += m[0].length;
+        if (/[A-Za-z_]/.test(src[i] || "")) throw new PyError("SyntaxError", "invalid decimal literal");
+        continue;
+      }
+      var fpre = /^([fFrRbB]{0,2})(['"])/.exec(src.slice(i));
+      if (fpre && (fpre[1] === "" || /^[fFrR]{1,2}$/.test(fpre[1])) && (fpre[1] !== "" || c === "'" || c === '"')) {
+        var pref = fpre[1].toLowerCase(), q = fpre[2];
+        i += fpre[0].length;
+        var s = "", closed = false;
+        while (i < n) {
+          var ch = src[i];
+          if (ch === "\\" && pref.indexOf("r") < 0) {
+            var nx = src[i + 1]; var map = { n: "\n", t: "\t", "\\": "\\", "'": "'", '"': '"' };
+            s += (nx in map) ? map[nx] : "\\" + nx; i += 2; continue;
+          }
+          if (ch === q) { closed = true; i++; break; }
+          s += ch; i++;
+        }
+        if (!closed) throw new PyError("SyntaxError", "unterminated string literal (detected at line 1)");
+        toks.push({ k: pref.indexOf("f") >= 0 ? "fstr" : "str", v: s, p: start });
+        continue;
+      }
+      if (/[A-Za-z_]/.test(c)) {
+        var mm = /^[A-Za-z_]\w*/.exec(src.slice(i))[0];
+        toks.push({ k: KW[mm] ? "kw" : "name", v: mm, p: start }); i += mm.length; continue;
+      }
+      var op = null;
+      for (var j = 0; j < OPS.length; j++) if (src.substr(i, OPS[j].length) === OPS[j]) { op = OPS[j]; break; }
+      if (!op) {
+        if (c === "!") throw new PyError("SyntaxError", "invalid syntax");
+        throw new PyError("SyntaxError", "invalid character '" + c + "'");
+      }
+      toks.push({ k: "op", v: op, p: start }); i += op.length;
+    }
+    toks.push({ k: "end", v: "", p: n });
+    return toks;
+  }
+
+  /* ---------- parser (Pratt) ---------- */
+  function Parser(toks) { this.t = toks; this.i = 0; }
+  Parser.prototype.peek = function () { return this.t[this.i]; };
+  Parser.prototype.next = function () { return this.t[this.i++]; };
+  Parser.prototype.is = function (k, v) { var t = this.t[this.i]; return t.k === k && (v === undefined || t.v === v); };
+  Parser.prototype.eat = function (k, v) { if (this.is(k, v)) return this.next(); return null; };
+  Parser.prototype.expect = function (k, v) {
+    var t = this.peek();
+    if (t.k === k && (v === undefined || t.v === v)) return this.next();
+    if (v === ")" || v === "]") throw new PyError("SyntaxError", t.k === "end" ? "'" + (v === ")" ? "(" : "[") + "' was never closed" : "invalid syntax");
+    throw new PyError("SyntaxError", "invalid syntax");
+  };
+  Parser.prototype.exprList = function () { // for tuple without parens
+    var first = this.expr();
+    if (!this.is("op", ",")) return first;
+    var items = [first];
+    while (this.eat("op", ",")) { if (this.is("end") || this.is("op", "=") || this.is("op", ")")) break; items.push(this.expr()); }
+    return { n: "tuple", items: items };
+  };
+  Parser.prototype.expr = function () { return this.ternary(); };
+  Parser.prototype.ternary = function () {
+    var body = this.or();
+    if (this.eat("kw", "if")) { var cond = this.or(); this.expect("kw", "else"); var other = this.ternary(); return { n: "ifexp", cond: cond, a: body, b: other }; }
+    return body;
+  };
+  Parser.prototype.or = function () { var l = this.and(); while (this.eat("kw", "or")) l = { n: "bool", op: "or", l: l, r: this.and() }; return l; };
+  Parser.prototype.and = function () { var l = this.not(); while (this.eat("kw", "and")) l = { n: "bool", op: "and", l: l, r: this.not() }; return l; };
+  Parser.prototype.not = function () { if (this.eat("kw", "not")) return { n: "not", e: this.not() }; return this.cmp(); };
+  Parser.prototype.cmp = function () {
+    var first = this.arith(), ops = [], rest = [];
+    for (;;) {
+      var t = this.peek(), op = null;
+      if (t.k === "op" && ["<", ">", "==", "!=", "<=", ">="].indexOf(t.v) >= 0) { this.next(); op = t.v; }
+      else if (this.is("kw", "in")) { this.next(); op = "in"; }
+      else if (this.is("kw", "not") && this.t[this.i + 1].k === "kw" && this.t[this.i + 1].v === "in") { this.i += 2; op = "not in"; }
+      else if (this.is("kw", "is")) { this.next(); op = this.eat("kw", "not") ? "is not" : "is"; }
+      if (!op) break;
+      ops.push(op); rest.push(this.arith());
+    }
+    return ops.length ? { n: "cmp", first: first, ops: ops, rest: rest } : first;
+  };
+  Parser.prototype.arith = function () {
+    var l = this.term();
+    while (this.is("op", "+") || this.is("op", "-")) { var op = this.next().v; l = { n: "bin", op: op, l: l, r: this.term() }; }
+    return l;
+  };
+  Parser.prototype.term = function () {
+    var l = this.unary();
+    while (this.is("op", "*") || this.is("op", "/") || this.is("op", "//") || this.is("op", "%")) { var op = this.next().v; l = { n: "bin", op: op, l: l, r: this.unary() }; }
+    return l;
+  };
+  Parser.prototype.unary = function () {
+    if (this.is("op", "-") || this.is("op", "+")) { var op = this.next().v; return { n: "unary", op: op, e: this.unary() }; }
+    return this.power();
+  };
+  Parser.prototype.power = function () {
+    var b = this.postfix();
+    if (this.eat("op", "**")) return { n: "bin", op: "**", l: b, r: this.unary() };
+    return b;
+  };
+  Parser.prototype.postfix = function () {
+    var e = this.atom();
+    for (;;) {
+      if (this.eat("op", "(")) {
+        var args = [], kws = [];
+        if (!this.is("op", ")")) { do {
+          if (this.is("op", ")")) break;
+          if (this.is("name") && this.t[this.i + 1].k === "op" && this.t[this.i + 1].v === "=") { var kn = this.next().v; this.next(); kws.push([kn, this.expr()]); }
+          else { if (kws.length) throw new PyError("SyntaxError", "positional argument follows keyword argument"); args.push(this.expr()); }
+        } while (this.eat("op", ",")); }
+        this.expect("op", ")"); e = { n: "call", f: e, args: args, kws: kws };
+      } else if (this.eat("op", "[")) {
+        var a = null, b = null, isSlice = false;
+        if (!this.is("op", ":")) a = this.expr();
+        var c = null;
+        if (this.eat("op", ":")) { isSlice = true; if (!this.is("op", "]") && !this.is("op", ":")) b = this.expr(); if (this.eat("op", ":")) { if (!this.is("op", "]")) c = this.expr(); } }
+        this.expect("op", "]");
+        e = isSlice ? { n: "slice", o: e, a: a, b: b, c: c } : { n: "index", o: e, i: a };
+      } else if (this.eat("op", ".")) {
+        var nm = this.next(); if (nm.k !== "name") throw new PyError("SyntaxError", "invalid syntax");
+        e = { n: "attr", o: e, name: nm.v };
+      } else break;
+    }
+    return e;
+  };
+  Parser.prototype.atom = function () {
+    var t = this.next();
+    if (t.k === "num") return { n: "const", v: t.v };
+    if (t.k === "str") { var s = t.v; while (this.is("str")) s += this.next().v; return { n: "const", v: S(s) }; }
+    if (t.k === "fstr") return { n: "fstr", parts: parseF(t.v) };
+    if (t.k === "name") return { n: "name", id: t.v, p: t.p };
+    if (t.k === "kw" && t.v === "None") return { n: "const", v: NONE };
+    if (t.k === "kw" && t.v === "True") return { n: "const", v: B(true) };
+    if (t.k === "kw" && t.v === "False") return { n: "const", v: B(false) };
+    if (t.k === "op" && t.v === "(") {
+      if (this.eat("op", ")")) return { n: "tuple", items: [] };
+      var e = this.expr();
+      if (this.is("op", ",")) { var items = [e]; while (this.eat("op", ",")) { if (this.is("op", ")")) break; items.push(this.expr()); } this.expect("op", ")"); return { n: "tuple", items: items }; }
+      this.expect("op", ")"); return e;
+    }
+    if (t.k === "op" && t.v === "[") {
+      var its = [];
+      if (!this.is("op", "]")) { do { if (this.is("op", "]")) break; its.push(this.expr()); } while (this.eat("op", ",")); }
+      this.expect("op", "]"); return { n: "list", items: its };
+    }
+    if (t.k === "op" && t.v === "{") {
+      var pairs = [];
+      if (!this.is("op", "}")) { do {
+        if (this.is("op", "}")) break;
+        var kk = this.expr();
+        if (!this.eat("op", ":")) throw new PyError("NotSupported", "Sets are not part of this lab. A dictionary needs key: value pairs.");
+        pairs.push([kk, this.expr()]);
+      } while (this.eat("op", ",")); }
+      this.expect("op", "}"); return { n: "dict", items: pairs };
+    }
+    if (t.k === "end") throw new PyError("SyntaxError", "invalid syntax");
+    throw new PyError("SyntaxError", "invalid syntax");
+  };
+  function parseF(s) {
+    var parts = [], i = 0, lit = "";
+    while (i < s.length) {
+      if (s[i] === "{" && s[i + 1] === "{") { lit += "{"; i += 2; continue; }
+      if (s[i] === "}" && s[i + 1] === "}") { lit += "}"; i += 2; continue; }
+      if (s[i] === "{") {
+        if (lit) { parts.push({ lit: lit }); lit = ""; }
+        var depth = 1, j = i + 1, inner = "";
+        while (j < s.length && depth) { if (s[j] === "{") depth++; if (s[j] === "}") depth--; if (depth) inner += s[j]; j++; }
+        if (depth) throw new PyError("SyntaxError", "f-string: expecting '}'");
+        var spec = null, colon = -1, d2 = 0;
+        for (var k = 0; k < inner.length; k++) { var ch = inner[k]; if ("([{".indexOf(ch) >= 0) d2++; if (")]}".indexOf(ch) >= 0) d2--; if (ch === ":" && d2 === 0) { colon = k; break; } }
+        var src = inner; if (colon >= 0) { src = inner.slice(0, colon); spec = inner.slice(colon + 1); }
+        if (!src.trim()) throw new PyError("SyntaxError", "f-string: valid expression required before '}'");
+        var p = new Parser(tokenize(src)); var node = p.expr(); if (!p.is("end")) throw new PyError("SyntaxError", "f-string: invalid syntax");
+        parts.push({ node: node, spec: spec, src: src.trim() });
+        i = j; continue;
+      }
+      if (s[i] === "}") throw new PyError("SyntaxError", "f-string: single '}' is not allowed");
+      lit += s[i]; i++;
+    }
+    if (lit) parts.push({ lit: lit });
+    return parts;
+  }
+
+  /* ---------- numeric helpers ---------- */
+  function isNum(v) { return v.t === "int" || v.t === "float" || v.t === "bool"; }
+  function toF(v) { return v.t === "float" ? v.v : v.t === "bool" ? (v.v ? 1 : 0) : Number(v.v); }
+  function toBI(v) { return v.t === "bool" ? BigInt(v.v ? 1 : 0) : v.v; }
+  function truthy(v) {
+    switch (v.t) {
+      case "int": return v.v !== 0n; case "float": return v.v !== 0; case "bool": return v.v; case "str": case "list": case "tuple": case "dict_keys": case "dict_values": case "dict_items": return v.v.length > 0;
+      case "dict": return v.m.size > 0;
+      case "NoneType": return false;
+    }
+    return true;
+  }
+  function floorDivBI(a, b) { var q = a / b; if ((a % b !== 0n) && ((a < 0n) !== (b < 0n))) q -= 1n; return q; }
+  function modBI(a, b) { var r = a % b; if (r !== 0n && ((r < 0n) !== (b < 0n))) r += b; return r; }
+  function fmod(a, b) { var r = a - b * Math.floor(a / b); if (r === 0 && b < 0) return -0; return r; }
+  var OPNAME = { "+": "+", "-": "-", "*": "*", "/": "/", "//": "//", "%": "%", "**": "** or pow()" };
+  function unsupported(op, a, b) { return new PyError("TypeError", "unsupported operand type(s) for " + OPNAME[op] + ": '" + typeName(a) + "' and '" + typeName(b) + "'"); }
+  function binop(op, a, b) {
+    if (isNum(a) && isNum(b)) {
+      var intOp = (a.t !== "float" && b.t !== "float");
+      if (intOp) {
+        var x = toBI(a), y = toBI(b);
+        switch (op) {
+          case "+": return I(x + y); case "-": return I(x - y); case "*": return I(x * y);
+          case "/": if (y === 0n) throw new PyError("ZeroDivisionError", "division by zero"); return F(Number(x) / Number(y));
+          case "//": if (y === 0n) throw new PyError("ZeroDivisionError", "integer division or modulo by zero"); return I(floorDivBI(x, y));
+          case "%": if (y === 0n) throw new PyError("ZeroDivisionError", "integer modulo by zero"); return I(modBI(x, y));
+          case "**":
+            if (y < 0n) { if (x === 0n) throw new PyError("ZeroDivisionError", "0.0 cannot be raised to a negative power"); return F(Math.pow(Number(x), Number(y))); }
+            if (y > 4000n) throw new PyError("OverflowError", "result too large for this lab");
+            return I(x ** y);
+        }
+      } else {
+        var p = toF(a), q = toF(b);
+        switch (op) {
+          case "+": return F(p + q); case "-": return F(p - q); case "*": return F(p * q);
+          case "/": if (q === 0) throw new PyError("ZeroDivisionError", "float division by zero"); return F(p / q);
+          case "//": if (q === 0) throw new PyError("ZeroDivisionError", "float floor division by zero"); return F(Math.floor(p / q));
+          case "%": if (q === 0) throw new PyError("ZeroDivisionError", "float modulo by zero"); return F(fmod(p, q));
+          case "**":
+            if (p === 0 && q < 0) throw new PyError("ZeroDivisionError", "zero to a negative power");
+            var r = Math.pow(p, q); if (r !== r && p < 0) throw new PyError("ValueError", "complex results are not supported in this lab"); if (!isFinite(r)) throw new PyError("OverflowError", "(34, 'Numerical result out of range')"); return F(r);
+        }
+      }
+    }
+    if (op === "+") {
+      if (a.t === "str") { if (b.t !== "str") throw new PyError("TypeError", 'can only concatenate str (not "' + typeName(b) + '") to str'); return S(a.v + b.v); }
+      if (a.t === "list") { if (b.t !== "list") throw new PyError("TypeError", 'can only concatenate list (not "' + typeName(b) + '") to list'); return L(a.v.concat(b.v)); }
+      if (a.t === "tuple" && b.t === "tuple") return T(a.v.concat(b.v));
+    }
+    if (op === "*") {
+      var seq = null, cnt = null;
+      if ((a.t === "str" || a.t === "list" || a.t === "tuple") && (b.t === "int" || b.t === "bool")) { seq = a; cnt = b; }
+      else if ((b.t === "str" || b.t === "list" || b.t === "tuple") && (a.t === "int" || a.t === "bool")) { seq = b; cnt = a; }
+      if (seq) {
+        var k = Number(toBI(cnt)); if (k < 0) k = 0;
+        if (seq.v.length * k > 100000) throw new PyError("MemoryError", "too large for this lab");
+        if (seq.t === "str") return S(seq.v.repeat(k));
+        var out = []; for (var z = 0; z < k; z++) out = out.concat(seq.v);
+        return seq.t === "list" ? L(out) : T(out);
+      }
+      if ((a.t === "str" || a.t === "list") && (b.t === "str" || b.t === "list" || b.t === "float")) throw new PyError("TypeError", "can't multiply sequence by non-int of type '" + typeName(b) + "'");
+      if ((b.t === "str" || b.t === "list") && a.t === "float") throw new PyError("TypeError", "can't multiply sequence by non-int of type '" + typeName(a) + "'");
+    }
+    if (op === "%" && a.t === "str") throw new PyError("TypeError", "this lab does not support % formatting; use an f-string");
+    throw unsupported(op, a, b);
+  }
+  function eq(a, b) {
+    if (isNum(a) && isNum(b)) {
+      if (a.t !== "float" && b.t !== "float") return toBI(a) === toBI(b);
+      return toF(a) === toF(b);
+    }
+    if (a.t !== b.t) return false;
+    if (a.t === "str") return a.v === b.v;
+    if (a.t === "NoneType") return true;
+    if (a.t === "list" || a.t === "tuple") { if (a.v.length !== b.v.length) return false; for (var i = 0; i < a.v.length; i++) if (!eq(a.v[i], b.v[i])) return false; return true; }
+    if (a.t === "dict") { if (a.m.size !== b.m.size) return false; var ok = true; a.m.forEach(function (e, h) { var o = b.m.get(h); if (!o || !eq(e[1], o[1])) ok = false; }); return ok; }
+    return a === b;
+  }
+  function lt(a, b, op) {
+    if (isNum(a) && isNum(b)) { if (a.t !== "float" && b.t !== "float") return toBI(a) < toBI(b); return toF(a) < toF(b); }
+    if (a.t === "str" && b.t === "str") return a.v < b.v;
+    if ((a.t === "list" && b.t === "list") || (a.t === "tuple" && b.t === "tuple")) {
+      for (var i = 0; i < Math.min(a.v.length, b.v.length); i++) { if (!eq(a.v[i], b.v[i])) return lt(a.v[i], b.v[i], "<"); }
+      return a.v.length < b.v.length;
+    }
+    throw new PyError("TypeError", "'" + op + "' not supported between instances of '" + typeName(a) + "' and '" + typeName(b) + "'");
+  }
+  function checkOrder(a, b, op) {
+    var ok = (isNum(a) && isNum(b)) || (a.t === "str" && b.t === "str") || (a.t === "list" && b.t === "list") || (a.t === "tuple" && b.t === "tuple");
+    if (!ok) throw new PyError("TypeError", "'" + op + "' not supported between instances of '" + typeName(a) + "' and '" + typeName(b) + "'");
+  }
+  function compare(op, a, b) {
+    switch (op) {
+      case "==": return eq(a, b); case "!=": return !eq(a, b);
+      case "<": return lt(a, b, "<"); case ">": checkOrder(a, b, ">"); return lt(b, a, ">");
+      case "<=": return lt(a, b, "<=") || eq(a, b); case ">=": checkOrder(a, b, ">="); return lt(b, a, ">=") || eq(a, b);
+      case "in": case "not in":
+        var r;
+        if (b.t === "str") { if (a.t !== "str") throw new PyError("TypeError", "'in <string>' requires string as left operand, not " + typeName(a)); r = b.v.indexOf(a.v) >= 0; }
+        else if (b.t === "list" || b.t === "tuple" || /^dict_/.test(b.t)) r = b.v.some(function (x) { return eq(x, a); });
+        else if (b.t === "dict") r = b.m.has(hashKey(a));
+        else throw new PyError("TypeError", "argument of type '" + typeName(b) + "' is not iterable");
+        return op === "in" ? r : !r;
+      case "is": return a === b || (a.t === "NoneType" && b.t === "NoneType") || (a.t === "bool" && b.t === "bool" && a.v === b.v);
+      case "is not": return !compare("is", a, b);
+    }
+  }
+
+  /* ---------- formatting for f-strings ---------- */
+  function pyFixed(x, p) { if (!isFinite(x)) return floatRepr(x); var r = pyRound(x, p); return (r === 0 && x < 0 ? "-" : "") + Math.abs(r).toFixed(p).replace(/^/, r < 0 ? "-" : ""); }
+  function fmtNumber(v, spec) {
+    var m = /^([<>^]?)(\+?)(0?)(\d*)(,?)(?:\.(\d+))?([fdeg%s]?)$/.exec(spec);
+    if (!m) throw new PyError("ValueError", "Invalid format specifier '" + spec + "' for object of type '" + typeName(v) + "'");
+    var kind = m[7], prec = m[6] === undefined ? null : parseInt(m[6], 10), width = m[4] ? parseInt(m[4], 10) : 0, comma = m[5] === ",";
+    var s;
+    if (kind === "s") { if (v.t !== "str") throw new PyError("ValueError", "Unknown format code 's' for object of type '" + typeName(v) + "'"); s = v.v; }
+    else if (v.t === "str") { if (kind || prec !== null || comma) throw new PyError("ValueError", "Unknown format code '" + (kind || "f") + "' for object of type 'str'"); s = v.v; }
+    else if (kind === "d") { if (v.t === "float") throw new PyError("ValueError", "Unknown format code 'd' for object of type 'float'"); s = toBI(v).toString(); }
+    else if (kind === "%") { s = pyFixed(toF(v) * 100, prec === null ? 6 : prec) + "%"; }
+    else if (kind === "f") { s = pyFixed(toF(v), prec === null ? 6 : prec); }
+    else if (kind === "e") { var e = toF(v).toExponential(prec === null ? 6 : prec); s = e.replace(/e([+-])(\d)$/, "e$10$2"); }
+    else if (prec !== null) { s = Number(toF(v).toPrecision(prec)).toString(); }
+    else s = str(v);
+    if (comma) { var parts = s.split("."); var neg = parts[0][0] === "-"; var ip = neg ? parts[0].slice(1) : parts[0]; ip = ip.replace(/\B(?=(\d{3})+(?!\d))/g, ","); parts[0] = (neg ? "-" : "") + ip; s = parts.join("."); }
+    if (m[2] === "+" && s[0] !== "-" && v.t !== "str") s = "+" + s;
+    if (width && s.length < width) {
+      var align = m[1] || (v.t === "str" ? "<" : ">"), pad = width - s.length, fill = m[3] === "0" ? "0" : " ";
+      if (align === "<") s = s + " ".repeat(pad); else if (align === "^") s = " ".repeat(Math.floor(pad / 2)) + s + " ".repeat(Math.ceil(pad / 2)); else s = fill.repeat(pad) + s;
+    }
+    return s;
+  }
+
+  /* ---------- builtins ---------- */
+  function argc(name, args, lo, hi) {
+    if (args.length < lo || args.length > hi) {
+      if (lo === hi) throw new PyError("TypeError", name + "() takes exactly one argument (" + args.length + " given)");
+      throw new PyError("TypeError", name + " expected at most " + hi + " argument" + (hi > 1 ? "s" : "") + ", got " + args.length);
+    }
+  }
+  function lenOf(v) {
+    if (v.t === "str" || v.t === "list" || v.t === "tuple" || /^dict_/.test(v.t)) return v.v.length;
+    if (v.t === "dict") return v.m.size;
+    throw new PyError("TypeError", "object of type '" + typeName(v) + "' has no len()");
+  }
+  function iter(v) {
+    if (v.t === "str") return Array.from(v.v).map(S);
+    if (v.t === "list" || v.t === "tuple" || /^dict_/.test(v.t)) return v.v.slice();
+    if (v.t === "dict") return dkeys(v);
+    throw new PyError("TypeError", "'" + typeName(v) + "' object is not iterable");
+  }
+  function pyRound(x, nd) {
+    /* correctly rounded on the exact binary value, ties to even (as CPython) */
+    if (!isFinite(x) || nd > 20) return x;
+    var neg = x < 0, a = Math.abs(x);
+    var long = a.toFixed(Math.min(100, nd + 40)), cut = long.indexOf(".") + nd + (nd > 0 ? 1 : 0);
+    if (nd === 0) cut = long.indexOf(".");
+    var rest = long.slice(cut + (nd === 0 ? 1 : 0)), isTie = /^50*$/.test(rest);
+    var r;
+    if (isTie) {
+      var down = Number(long.slice(0, cut)), f = Math.pow(10, nd), step = 1 / f;
+      var lastDigit = parseInt(long[cut - 1] === "." ? long[cut - 2] : long[cut - 1], 10);
+      r = (lastDigit % 2 === 0) ? down : Number((down + step).toFixed(nd));
+    } else r = Number(a.toFixed(nd));
+    return neg ? -r : r;
+  }
+  var KWOK = { print: ["sep", "end"], sorted: ["reverse", "key"], sort: ["reverse", "key"], max: ["key"], min: ["key"] };
+  var BUILTINS = {
+    print: function (args, ctx, kw) {
+      kw = kw || {}; var sep = kw.sep && kw.sep.t !== "NoneType" ? kw.sep.v : " ", end = kw.end && kw.end.t !== "NoneType" ? kw.end.v : "\n";
+      var o = ctx.root || ctx, parts = ((o.pend || "") + args.map(str).join(sep) + end).split("\n");
+      o.pend = parts.pop(); parts.forEach(function (l) { o.out.push(l); }); return NONE;
+    },
+    enumerate: function (args) { argc("enumerate", args, 1, 2); var st = args[1] ? Number(toBI(args[1])) : 0; return L(iter(args[0]).map(function (x, k) { return T([I(k + st), x]); })); },
+    len: function (args) { argc("len", args, 1, 1); return I(lenOf(args[0])); },
+    type: function (args) { argc("type", args, 1, 1); return { t: "type", v: typeName(args[0]) }; },
+    str: function (args) { return S(args.length ? str(args[0]) : ""); },
+    int: function (args) {
+      if (!args.length) return I(0); var v = args[0];
+      if (v.t === "int") return v; if (v.t === "bool") return I(v.v ? 1 : 0);
+      if (v.t === "float") { if (!isFinite(v.v)) throw new PyError("OverflowError", "cannot convert float infinity to integer"); return I(Math.trunc(v.v)); }
+      if (v.t === "str") { var t = v.v.trim().replace(/_/g, ""); if (!/^[+-]?\d+$/.test(t)) throw new PyError("ValueError", "invalid literal for int() with base 10: " + strRepr(v.v)); return I(t); }
+      throw new PyError("TypeError", "int() argument must be a string, a bytes-like object or a real number, not '" + typeName(v) + "'");
+    },
+    float: function (args) {
+      if (!args.length) return F(0); var v = args[0];
+      if (isNum(v)) return F(toF(v));
+      if (v.t === "str") { var t = v.v.trim(); if (!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(t)) throw new PyError("ValueError", "could not convert string to float: " + strRepr(v.v)); return F(parseFloat(t)); }
+      throw new PyError("TypeError", "float() argument must be a string or a real number, not '" + typeName(v) + "'");
+    },
+    bool: function (args) { return B(args.length ? truthy(args[0]) : false); },
+    abs: function (args) { argc("abs", args, 1, 1); var v = args[0]; if (v.t === "float") return F(Math.abs(v.v)); if (isNum(v)) { var x = toBI(v); return I(x < 0n ? -x : x); } throw new PyError("TypeError", "bad operand type for abs(): '" + typeName(v) + "'"); },
+    round: function (args) {
+      var v = args[0]; if (!isNum(v)) throw new PyError("TypeError", "type " + typeName(v) + " doesn't define __round__ method");
+      if (args.length === 1) { if (v.t !== "float") return I(toBI(v)); return I(pyRound(v.v, 0)); }
+      var nd = Number(toBI(args[1])); if (v.t !== "float") return v; return F(pyRound(v.v, nd));
+    },
+    max: function (args, ctx, kw) { return minmax(args, "max", kw, ctx); }, min: function (args, ctx, kw) { return minmax(args, "min", kw, ctx); },
+    sum: function (args) {
+      if (!args.length) throw new PyError("TypeError", "sum() takes at least 1 positional argument (0 given)");
+      var items = iterArg(args[0]), acc = args[1] || I(0);
+      items.forEach(function (x) { if (x.t === "str") throw new PyError("TypeError", "unsupported operand type(s) for +: '" + typeName(acc) + "' and 'str'"); acc = binop("+", acc, x); }); return acc;
+    },
+    list: function (args) { return L(args.length ? iter(args[0]) : []); },
+    tuple: function (args) { return T(args.length ? iter(args[0]) : []); },
+    sorted: function (args, ctx, kw) {
+      argc("sorted", args, 1, 1); var a = iter(args[0]), rev = kw && kw.reverse && truthy(kw.reverse);
+      var keyed = a.map(function (x, i) { return { x: x, k: kw && kw.key && kw.key.t !== "NoneType" ? callValue(kw.key, [x], {}, ctx) : x, i: i }; });
+      keyed.sort(function (p, q) { var c = lt(p.k, q.k, "<") ? -1 : lt(q.k, p.k, "<") ? 1 : 0; if (rev) c = -c; return c || p.i - q.i; });
+      return L(keyed.map(function (p) { return p.x; }));
+    },
+    dict: function (args) { var d = D(); if (args.length) { if (args[0].t === "dict") args[0].m.forEach(function (e) { dset(d, e[0], e[1]); }); else iter(args[0]).forEach(function (pr) { var kv = iter(pr); dset(d, kv[0], kv[1]); }); } return d; },
+    repr: function (args) { argc("repr", args, 1, 1); return S(repr(args[0])); },
+    id: function (args) { argc("id", args, 1, 1); return I(objId(args[0])); },
+    pow: function (args) { if (args.length === 3) { if (args[0].t !== "int" || args[1].t !== "int" || args[2].t !== "int") throw new PyError("TypeError", "pow() 3rd argument not allowed unless all arguments are integers"); return binop("%", binop("**", args[0], args[1]), args[2]); } if (args.length < 2) throw new PyError("TypeError", "pow() missing required argument '" + (args.length ? "exp' (pos 2)" : "base' (pos 1)")); if (args.length > 3) throw new PyError("TypeError", "pow() takes at most 3 arguments (" + args.length + " given)"); return binop("**", args[0], args[1]); },
+    range: function (args) {
+      var nums = args.map(function (a) { if (a.t !== "int" && a.t !== "bool") throw new PyError("TypeError", "'" + typeName(a) + "' object cannot be interpreted as an integer"); return Number(toBI(a)); });
+      var start = 0, stop, step = 1; if (nums.length === 1) stop = nums[0]; else { start = nums[0]; stop = nums[1]; if (nums.length > 2) step = nums[2]; }
+      if (step === 0) throw new PyError("ValueError", "range() arg 3 must not be zero");
+      var out = []; for (var x = start; step > 0 ? x < stop : x > stop; x += step) { out.push(I(x)); if (out.length > 10000) break; }
+      return L(out);
+    },
+    input: function () { throw new PyError("RuntimeError", "input() is not available in this lab; type the value into the code instead"); }
+  };
+  function iterArg(v) { return iter(v); }
+  function minmax(args, nm, kw, ctx) {
+    if (!args.length) throw new PyError("TypeError", nm + " expected at least 1 argument, got 0");
+    var items = args.length === 1 ? iter(args[0]) : args;
+    if (!items.length) throw new PyError("ValueError", nm + "() iterable argument is empty");
+    var kf = function (x) { return kw && kw.key && kw.key.t !== "NoneType" ? callValue(kw.key, [x], {}, ctx) : x; };
+    var best = items[0], bk = kf(best);
+    for (var i = 1; i < items.length; i++) { var x = items[i], xk = kf(x); if (nm === "max" ? lt(bk, xk, "<") : lt(xk, bk, "<")) { best = x; bk = xk; } }
+    return best;
+  }
+  function callValue(f, args, kw, ctx) {
+    kw = kw || {};
+    var fname = f.t === "builtin" ? f.name : f.t === "type" ? f.v : f.t === "boundmethod" ? f.name : "";
+    if (f.t !== "function") Object.keys(kw).forEach(function (k) { if ((KWOK[fname] || []).indexOf(k) < 0) throw new PyError("TypeError", fname.replace(/^math\./, "") + "() got an unexpected keyword argument '" + k + "'"); });
+    if (f.t === "builtin") return (f.fn || BUILTINS[f.name])(args, ctx, kw);
+    if (f.t === "boundmethod") return f.fn(args, kw);
+    if (f.t === "type") { if (BUILTINS[f.v]) return BUILTINS[f.v](args, ctx, kw); throw new PyError("TypeError", "cannot create '" + f.v + "' instances"); }
+    if (f.t === "function") return f.call(args, kw, ctx);
+    throw new PyError("TypeError", "'" + typeName(f) + "' object is not callable");
+  }
+  function stripChars(s, c, side) {
+    var set = c && c.t === "str" ? c.v : null, ws = function (ch) { return set === null ? /\s/.test(ch) : set.indexOf(ch) >= 0; }, a = 0, b = s.length;
+    if (side & 1) while (a < b && ws(s[a])) a++;
+    if (side & 2) while (b > a && ws(s[b - 1])) b--;
+    return s.slice(a, b);
+  }
+  function method(obj, name) {
+    var s = obj.v;
+    var M = null;
+    if (obj.t === "str") M = {
+      lower: function () { return S(s.toLowerCase()); }, upper: function () { return S(s.toUpperCase()); },
+      title: function () { return S(s.toLowerCase().replace(/(^|[^A-Za-z])([a-z])/g, function (m, a, b) { return a + b.toUpperCase(); })); },
+      strip: function (a) { return S(stripChars(s, a[0], 3)); }, lstrip: function (a) { return S(stripChars(s, a[0], 1)); }, rstrip: function (a) { return S(stripChars(s, a[0], 2)); },
+      join: function (a) { var it = iter(a[0]); it.forEach(function (x, k) { if (x.t !== "str") throw new PyError("TypeError", "sequence item " + k + ": expected str instance, " + typeName(x) + " found"); }); return S(it.map(function (x) { return x.v; }).join(s)); },
+      isupper: function () { return B(/[A-Z]/.test(s) && !/[a-z]/.test(s)); }, islower: function () { return B(/[a-z]/.test(s) && !/[A-Z]/.test(s)); }, capitalize: function () { return S(s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()); },
+      split: function (a) { if (a.length) { if (a[0].v === "") throw new PyError("ValueError", "empty separator"); return L(s.split(a[0].v).map(S)); } return L(s.split(/\s+/).filter(function (x) { return x; }).map(S)); },
+      count: function (a) { if (!a.length || a[0].t !== "str") throw new PyError("TypeError", "must be str, not " + (a.length ? typeName(a[0]) : "nothing")); var sub = a[0].v; if (sub === "") return I(s.length + 1); var c = 0, i = 0; while ((i = s.indexOf(sub, i)) >= 0) { c++; i += sub.length; } return I(c); },
+      replace: function (a) { return S(s.split(a[0].v).join(a[1].v)); },
+      startswith: function (a) { return B(s.indexOf(a[0].v) === 0); }, endswith: function (a) { return B(s.length >= a[0].v.length && s.slice(s.length - a[0].v.length) === a[0].v); },
+      find: function (a) { return I(s.indexOf(a[0].v)); },
+      isdigit: function () { return B(/^\d+$/.test(s)); }, isalpha: function () { return B(/^[A-Za-z]+$/.test(s)); }
+    };
+    else if (obj.t === "list") M = {
+      append: function (a) { s.push(a[0]); return NONE; }, pop: function (a) { if (!s.length) throw new PyError("IndexError", "pop from empty list"); var i = a.length ? Number(toBI(a[0])) : s.length - 1; if (i < 0) i += s.length; if (i < 0 || i >= s.length) throw new PyError("IndexError", "pop index out of range"); return s.splice(i, 1)[0]; },
+      insert: function (a) { var i = Number(toBI(a[0])); if (i < 0) i = Math.max(0, s.length + i); s.splice(Math.min(i, s.length), 0, a[1]); return NONE; },
+      remove: function (a) { for (var i = 0; i < s.length; i++) if (eq(s[i], a[0])) { s.splice(i, 1); return NONE; } throw new PyError("ValueError", "list.remove(x): x not in list"); },
+      index: function (a) { for (var i = 0; i < s.length; i++) if (eq(s[i], a[0])) return I(i); throw new PyError("ValueError", repr(a[0]) + " is not in list"); },
+      count: function (a) { return I(s.filter(function (x) { return eq(x, a[0]); }).length); },
+      sort: function (a, kw) { if (kw && kw.key) { var srt = BUILTINS.sorted([obj], null, kw); s.splice.apply(s, [0, s.length].concat(srt.v)); return NONE; } s.sort(function (x, y) { return lt(x, y, "<") ? -1 : lt(y, x, "<") ? 1 : 0; }); if (kw && kw.reverse && truthy(kw.reverse)) s.reverse(); return NONE; },
+      reverse: function () { s.reverse(); return NONE; }, copy: function () { return L(s.slice()); }
+    };
+    else if (obj.t === "dict") M = {
+      get: function (a) { if (!a.length) throw new PyError("TypeError", "get expected at least 1 argument, got 0"); var v = dget(obj, a[0]); return v === undefined ? (a.length > 1 ? a[1] : NONE) : v; },
+      keys: function () { return { t: "dict_keys", v: dkeys(obj) }; }, values: function () { return { t: "dict_values", v: dvals(obj) }; }, items: function () { return { t: "dict_items", v: ditems(obj) }; },
+      pop: function (a) { var h = hashKey(a[0]), e = obj.m.get(h); if (!e) { if (a.length > 1) return a[1]; throw new PyError("KeyError", repr(a[0])); } obj.m.delete(h); return e[1]; },
+      copy: function () { var d = D(); obj.m.forEach(function (e, h) { d.m.set(h, [e[0], e[1]]); }); return d; },
+      update: function (a) { iter(a[0]).forEach(function (k) { dset(obj, k, dget(a[0], k)); }); return NONE; }
+    };
+    if (M && M[name]) return M[name];
+    throw new PyError("AttributeError", "'" + typeName(obj) + "' object has no attribute '" + name + "'");
+  }
+
+  /* ---------- evaluation ---------- */
+  function lev(a, b) { var d = []; for (var i = 0; i <= a.length; i++) { d[i] = [i]; } for (var j = 0; j <= b.length; j++) d[0][j] = j; for (i = 1; i <= a.length; i++) for (j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; }
+  function suggest(name, env) {
+    var best = null, bd = 99;
+    Object.keys(env).forEach(function (k) { var dd = lev(name, k); if (dd < bd && dd <= Math.max(1, Math.floor(name.length / 3))) { bd = dd; best = k; } });
+    return best;
+  }
+  function index(seq, iv) {
+    if (seq.t === "dict") { var dv = dget(seq, iv); if (dv === undefined) throw new PyError("KeyError", repr(iv)); return dv; }
+    if (seq.t === "str" || seq.t === "list" || seq.t === "tuple") {
+      if (iv.t !== "int" && iv.t !== "bool") throw new PyError("TypeError", seq.t === "str" ? "string indices must be integers, not '" + typeName(iv) + "'" : seq.t + " indices must be integers or slices, not " + typeName(iv));
+      var n = seq.v.length, i = Number(toBI(iv)); if (i < 0) i += n;
+      if (i < 0 || i >= n) throw new PyError("IndexError", (seq.t === "str" ? "string" : seq.t) + " index out of range");
+      return seq.t === "str" ? S(seq.v[i]) : seq.v[i];
+    }
+    throw new PyError("TypeError", "'" + typeName(seq) + "' object is not subscriptable");
+  }
+  function sliceIdx(n, av, bv, cv) {
+    function num(v) { if (!v || v.t === "NoneType") return null; if (v.t !== "int" && v.t !== "bool") throw new PyError("TypeError", "slice indices must be integers or None or have an __index__ method"); return Number(toBI(v)); }
+    var a = num(av), b = num(bv), c = num(cv); if (c === null) c = 1;
+    if (c === 0) throw new PyError("ValueError", "slice step cannot be zero");
+    function adj(x, dflt, lo, hi) { if (x === null) return dflt; if (x < 0) { x += n; if (x < lo) x = lo; } else if (x > hi) x = hi; return x; }
+    var out = [], i;
+    if (c > 0) { a = adj(a, 0, 0, n); b = adj(b, n, 0, n); for (i = a; i < b; i += c) out.push(i); }
+    else { a = adj(a, n - 1, -1, n - 1); b = adj(b, -1, -1, n - 1); for (i = a; i > b; i += c) out.push(i); }
+    return out;
+  }
+  function ev(node, ctx) {
+    switch (node.n) {
+      case "const": return node.v;
+      case "name":
+        if (Object.prototype.hasOwnProperty.call(ctx.env, node.id)) return ctx.env[node.id];
+        if (ctx.localNames && ctx.localNames[node.id]) throw new PyError("UnboundLocalError", "cannot access local variable '" + node.id + "' where it is not associated with a value");
+        if (ctx.globals && Object.prototype.hasOwnProperty.call(ctx.globals, node.id)) return ctx.globals[node.id];
+        if (BUILTINS[node.id]) return { t: "builtin", name: node.id };
+        var known = {}; Object.keys(ctx.globals || {}).forEach(function (k) { known[k] = 1; }); Object.keys(ctx.env).forEach(function (k) { known[k] = 1; });
+        var sg = suggest(node.id, known);
+        var e = new PyError("NameError", "name '" + node.id + "' is not defined"); if (sg) e.hint = "Did you mean: '" + sg + "'?"; throw e;
+      case "list": return L(node.items.map(function (x) { return ev(x, ctx); }));
+      case "dict": var dd = D(); node.items.forEach(function (pr) { var kv = ev(pr[0], ctx); dset(dd, kv, ev(pr[1], ctx)); }); return dd;
+      case "tuple": return T(node.items.map(function (x) { return ev(x, ctx); }));
+      case "fstr":
+        return S(node.parts.map(function (p) { if (p.lit !== undefined) return p.lit; var v = ev(p.node, ctx); return p.spec === null ? str(v) : fmtNumber(v, p.spec); }).join(""));
+      case "unary":
+        var u = ev(node.e, ctx);
+        if (node.op === "-") { if (u.t === "float") return F(-u.v); if (isNum(u)) return I(-toBI(u)); throw new PyError("TypeError", "bad operand type for unary -: '" + typeName(u) + "'"); }
+        if (isNum(u)) return u.t === "bool" ? I(toBI(u)) : u; throw new PyError("TypeError", "bad operand type for unary +: '" + typeName(u) + "'");
+      case "not": return B(!truthy(ev(node.e, ctx)));
+      case "bool":
+        var l = ev(node.l, ctx);
+        if (node.op === "and") return truthy(l) ? ev(node.r, ctx) : l;
+        return truthy(l) ? l : ev(node.r, ctx);
+      case "ifexp": return truthy(ev(node.cond, ctx)) ? ev(node.a, ctx) : ev(node.b, ctx);
+      case "bin": return binop(node.op, ev(node.l, ctx), ev(node.r, ctx));
+      case "cmp":
+        var left = ev(node.first, ctx);
+        for (var i = 0; i < node.ops.length; i++) { var right = ev(node.rest[i], ctx); if (!compare(node.ops[i], left, right)) return B(false); left = right; }
+        return B(true);
+      case "index": return index(ev(node.o, ctx), ev(node.i, ctx));
+      case "slice":
+        var o = ev(node.o, ctx); if (o.t !== "str" && o.t !== "list" && o.t !== "tuple") throw new PyError("TypeError", "'" + typeName(o) + "' object is not subscriptable");
+        var seqv = o.t === "str" ? Array.from(o.v) : o.v, idx = sliceIdx(seqv.length, node.a && ev(node.a, ctx), node.b && ev(node.b, ctx), node.c && ev(node.c, ctx));
+        var sl = idx.map(function (k) { return seqv[k]; }); return o.t === "str" ? S(sl.join("")) : o.t === "list" ? L(sl) : T(sl);
+      case "attr":
+        var obj = ev(node.o, ctx);
+        if (obj.t === "module") { if (!Object.prototype.hasOwnProperty.call(obj.attrs, node.name)) throw new PyError("AttributeError", "module '" + obj.name + "' has no attribute '" + node.name + "'"); return obj.attrs[node.name]; }
+        var fn = method(obj, node.name);
+        return { t: "boundmethod", obj: obj, fn: fn, name: node.name };
+      case "call":
+        var f = ev(node.f, ctx), args = node.args.map(function (x) { return ev(x, ctx); }), kw = {};
+        (node.kws || []).forEach(function (k) { kw[k[0]] = ev(k[1], ctx); });
+        return callValue(f, args, kw, ctx);
+    }
+    throw new PyError("SyntaxError", "invalid syntax");
+  }
+
+  /* ---------- statements (one line each) ---------- */
+  function assignTargets(lhs) {
+    var p = new Parser(tokenize(lhs)); var e = p.exprList();
+    if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+    function chk(x) {
+      if (x.n === "name") return x;
+      if (x.n === "tuple") { x.items.forEach(chk); return x; }
+      if (x.n === "index") return x;
+      if (x.n === "const" || x.n === "call" || x.n === "bin") throw new PyError("SyntaxError", "cannot assign to " + (x.n === "const" ? "literal" : x.n === "call" ? "function call" : "expression") + " here. Maybe you meant '==' instead of '='?");
+      throw new PyError("SyntaxError", "cannot assign to expression");
+    }
+    return chk(e);
+  }
+  function bind(target, value, ctx) {
+    if (target.n === "name") { ctx.env[target.id] = value; ctx.changed.push(target.id); return; }
+    if (target.n === "index") {
+      var seq = ev(target.o, ctx), iv = ev(target.i, ctx);
+      if (seq.t === "dict") { dset(seq, iv, value); ctx.changed.push("*"); return; }
+      if (seq.t === "list") { if (iv.t !== "int" && iv.t !== "bool") throw new PyError("TypeError", "list indices must be integers or slices, not " + typeName(iv)); var n = seq.v.length, i = Number(toBI(iv)); if (i < 0) i += n; if (i < 0 || i >= n) throw new PyError("IndexError", "list assignment index out of range"); seq.v[i] = value; ctx.changed.push("*"); return; }
+      throw new PyError("TypeError", "'" + typeName(seq) + "' object does not support item assignment");
+    }
+    var vals = iter(value);
+    if (vals.length !== target.items.length) throw new PyError("ValueError", vals.length > target.items.length ? "too many values to unpack (expected " + target.items.length + ")" : "not enough values to unpack (expected " + target.items.length + ", got " + vals.length + ")");
+    target.items.forEach(function (t, k) { bind(t, vals[k], ctx); });
+  }
+  function splitTopLevelEq(line) {
+    var depth = 0, q = null;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (q) { if (c === "\\") { i++; continue; } if (c === q) q = null; continue; }
+      if (c === "'" || c === '"') { q = c; continue; }
+      if (c === "#") break;
+      if ("([{".indexOf(c) >= 0) depth++; else if (")]}".indexOf(c) >= 0) depth--;
+      else if (depth === 0 && c === "=") {
+        var prev = line[i - 1] || "", nx = line[i + 1] || "";
+        if (nx === "=") { i++; continue; }
+        if ("=!<>".indexOf(prev) >= 0) continue;
+        var aug = "";
+        if ("+-*/%".indexOf(prev) >= 0) { aug = prev; if ((prev === "/" || prev === "*") && line[i - 2] === prev) aug = prev + prev; }
+        return { at: i, aug: aug };
+      }
+    }
+    return null;
+  }
+  function execLine(line, ctx) {
+    ctx.changed = []; ctx.last = undefined;
+    var raw = line.replace(/\s+$/, "");
+    if (!raw.trim() || raw.trim()[0] === "#") return { kind: "blank" };
+    if (/^\s/.test(raw)) throw new PyError("IndentationError", "unexpected indent");
+    var firstWord = (/^[A-Za-z_]\w*/.exec(raw) || [""])[0];
+    if (["if", "elif", "else", "for", "while", "def", "class", "try", "with"].indexOf(firstWord) >= 0)
+      throw new PyError("NotSupported", "This lab runs one-line statements only. Blocks like '" + firstWord + "' are covered in Lecture 3.");
+    if (firstWord === "import" || firstWord === "from") throw new PyError("NotSupported", "Imports are not available in this lab.");
+    var sp = splitTopLevelEq(raw);
+    if (sp) {
+      var lhs = raw.slice(0, sp.at - sp.aug.length).trim(), rhs = raw.slice(sp.at + 1).trim();
+      if (!rhs) throw new PyError("SyntaxError", "invalid syntax");
+      var target = assignTargets(lhs);
+      var p = new Parser(tokenize(rhs)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+      if (sp.aug) {
+        if (target.n === "tuple") throw new PyError("SyntaxError", "'tuple' is an illegal expression for augmented assignment");
+        var cur = ev(target.n === "name" ? { n: "name", id: target.id } : target, ctx), rv = ev(e, ctx), v;
+        if (sp.aug === "+" && cur.t === "list") { var add = iter(rv); Array.prototype.push.apply(cur.v, add); v = cur; }
+        else if (sp.aug === "*" && cur.t === "list" && (rv.t === "int" || rv.t === "bool")) { var rep0 = cur.v.slice(), times = Number(toBI(rv)); cur.v.length = 0; for (var z = 0; z < times; z++) Array.prototype.push.apply(cur.v, rep0); v = cur; }
+        else v = binop(sp.aug, cur, rv);
+        bind(target, v, ctx);
+        return { kind: "assign", targets: target.n === "name" ? [target.id] : ["*"], value: v };
+      }
+      var val = ev(e, ctx); bind(target, val, ctx);
+      return { kind: "assign", targets: ctx.changed.slice(), value: val };
+    }
+    var pp = new Parser(tokenize(raw)); var ex = pp.exprList();
+    if (!pp.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+    var r = ev(ex, ctx);
+    return { kind: "expr", value: r };
+  }
+  function mathFn(name, lo, hi, f) { return { t: "builtin", name: "math." + name, fn: function (args) { if (args.length < lo || args.length > hi) throw new PyError("TypeError", lo === hi ? "math." + name + "() takes exactly " + (lo === 1 ? "one argument" : lo + " arguments") + " (" + args.length + " given)" : name + " expected at most " + hi + " arguments, got " + args.length); return f(args); } }; }
+  function needNum(v) { if (!isNum(v)) throw new PyError("TypeError", "must be real number, not " + typeName(v)); return toF(v); }
+  function needInt(v, fn) { if (v.t !== "int" && v.t !== "bool") throw new PyError("TypeError", "'" + typeName(v) + "' object cannot be interpreted as an integer"); return toBI(v); }
+  function bgcd(a, b) { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) { var t = a % b; a = b; b = t; } return a; }
+  var MODULES = {
+    math: function () {
+      return { t: "module", name: "math", attrs: {
+        pi: F(Math.PI), e: F(Math.E), inf: F(Infinity),
+        sqrt: mathFn("sqrt", 1, 1, function (a) { var x = needNum(a[0]); if (x < 0) throw new PyError("ValueError", "math domain error"); return F(Math.sqrt(x)); }),
+        floor: mathFn("floor", 1, 1, function (a) { return a[0].t === "float" ? I(Math.floor(a[0].v)) : I(toBI(a[0])); }),
+        ceil: mathFn("ceil", 1, 1, function (a) { return a[0].t === "float" ? I(Math.ceil(a[0].v)) : I(toBI(a[0])); }),
+        gcd: { t: "builtin", name: "math.gcd", fn: function (a) { var g = 0n; a.forEach(function (x) { g = bgcd(g, needInt(x)); }); return I(g); } },
+        lcm: { t: "builtin", name: "math.lcm", fn: function (a) { var l = 1n; a.forEach(function (x) { var y = needInt(x); if (y === 0n) { l = 0n; return; } y = y < 0n ? -y : y; l = l === 0n ? 0n : l / bgcd(l, y) * y; }); return I(l); } },
+        fabs: mathFn("fabs", 1, 1, function (a) { return F(Math.abs(needNum(a[0]))); }),
+        pow: mathFn("pow", 2, 2, function (a) { return F(Math.pow(needNum(a[0]), needNum(a[1]))); }),
+        log: mathFn("log", 1, 2, function (a) { var x = needNum(a[0]); if (x <= 0) throw new PyError("ValueError", "math domain error"); return F(a.length > 1 ? Math.log(x) / Math.log(needNum(a[1])) : Math.log(x)); }),
+        log10: mathFn("log10", 1, 1, function (a) { var x = needNum(a[0]); if (x <= 0) throw new PyError("ValueError", "math domain error"); return F(Math.log10(x)); }),
+        factorial: mathFn("factorial", 1, 1, function (a) { var n = needInt(a[0]); if (n < 0n) throw new PyError("ValueError", "factorial() not defined for negative values"); var r = 1n; for (var k = 2n; k <= n; k++) r *= k; return I(r); }),
+        isqrt: mathFn("isqrt", 1, 1, function (a) { var n = needInt(a[0]); if (n < 0n) throw new PyError("ValueError", "isqrt() argument must be nonnegative"); return I(Math.floor(Math.sqrt(Number(n)))); })
+      } };
+    }
+  };
+  function importModule(name) { if (!MODULES[name]) throw new PyError("ModuleNotFoundError", "No module named '" + name + "'"); return MODULES[name](); }
+  function compileLine(line) {
+    var raw = line.trim(); if (!raw || raw[0] === "#") return;
+    var sp = splitTopLevelEq(raw);
+    if (sp) {
+      var lhs = raw.slice(0, sp.at - sp.aug.length).trim(), rhs = raw.slice(sp.at + 1).trim();
+      if (!rhs) throw new PyError("SyntaxError", "invalid syntax");
+      assignTargets(lhs); var p = new Parser(tokenize(rhs)); p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return;
+    }
+    var pp = new Parser(tokenize(raw)); pp.exprList(); if (!pp.is("end")) throw new PyError("SyntaxError", "invalid syntax");
+  }
+  function compileExpr(src) { var p = new Parser(tokenize(src)); p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); }
+  function assignTargetNames(lhs) { var out = []; (function walk(x) { if (x.n === "name") out.push(x.id); else if (x.n === "tuple") x.items.forEach(walk); })(assignTargets(lhs)); return out; }
+  function newCtx() { return { env: {}, out: [], changed: [], pend: "" }; }
+  function assignTo(lhs, value, ctx) { ctx.changed = []; bind(assignTargets(lhs), value, ctx); return ctx.changed.slice(); }
+  function evalIn(src, ctx) { var p = new Parser(tokenize(src)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return ev(e, ctx); }
+  function evalExpr(src, env) { var ctx = { env: env || {}, out: [], changed: [] }; var p = new Parser(tokenize(src)); var e = p.exprList(); if (!p.is("end")) throw new PyError("SyntaxError", "invalid syntax"); return { value: ev(e, ctx), out: ctx.out }; }
+  return { PyError: PyError, repr: repr, str: str, typeName: typeName, execLine: execLine, newCtx: newCtx, evalExpr: evalExpr, evalIn: evalIn, assignTo: assignTo, iter: iter, truthy: truthy, D: D, dset: dset, dget: dget, objId: objId, importModule: importModule, compileLine: compileLine, compileExpr: compileExpr, assignTargetNames: assignTargetNames, splitTopLevelEq: splitTopLevelEq, callValue: callValue, eq: eq, I: I, F: F, S: S, B: B, L: L, NONE: NONE };
+})();
+if (typeof module !== "undefined") module.exports = MiniPy;
+
+/* Shared helpers for all labs */
+var Lab = (function () {
+  "use strict";
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var KWS = /\b(and|or|not|in|is|if|elif|else|for|while|def|return|match|case|True|False|None|break|continue|import|from|as|print)\b/g;
+  function hl(line) {
+    // split out comment and strings first, then highlight keywords and numbers in code parts
+    var out = "", i = 0, n = line.length, buf = "";
+    function flush() {
+      out += esc(buf).replace(/\b(\d+\.?\d*)\b/g, '<span class="nu">$1</span>')
+        .replace(/\b(and|or|not|in|is|if|elif|else|for|while|def|return|match|case|True|False|None|break|continue)\b/g, '<span class="kw">$1</span>')
+        .replace(/\b(print|len|type|int|float|str|round|abs|max|min|sum|range|sorted|list)\b(?=\()/g, '<span class="fn">$1</span>');
+      buf = "";
+    }
+    while (i < n) {
+      var c = line[i];
+      if (c === "#") { flush(); out += '<span class="cm">' + esc(line.slice(i)) + "</span>"; return out; }
+      if (c === "'" || c === '"') {
+        var pre = "";
+        if (/[fF]$/.test(buf) && !/\w[fF]$/.test(buf)) { pre = buf.slice(-1); buf = buf.slice(0, -1); }
+        flush();
+        var j = i + 1; while (j < n && line[j] !== c) { if (line[j] === "\\") j++; j++; }
+        out += '<span class="st">' + esc(pre + line.slice(i, j + 1)) + "</span>"; i = j + 1; continue;
+      }
+      buf += c; i++;
+    }
+    flush(); return out;
+  }
+  function renderCode(el, lines, states, annotate) {
+    el.innerHTML = lines.map(function (l, k) {
+      var st = states && states[k] ? " " + states[k] : "";
+      var note = annotate && annotate[k] ? '<span style="margin-left:auto;padding-left:16px">' + annotate[k] + "</span>" : "";
+      return '<div class="ln' + st + '"><span class="no">' + (k + 1) + "</span><span>" + (hl(l) || " ") + "</span>" + note + "</div>";
+    }).join("");
+  }
+  function tabs() {
+    var btns = $$(".tabs button");
+    function show(id) {
+      btns.forEach(function (b) { b.setAttribute("aria-selected", b.dataset.tab === id ? "true" : "false"); });
+      $$(".exp").forEach(function (s) { s.classList.toggle("on", s.id === id); });
+      try { localStorage.setItem(document.title + ":tab", id); } catch (e) { }
+      if (history.replaceState) history.replaceState(null, "", "#" + id);
+    }
+    btns.forEach(function (b) { b.addEventListener("click", function () { show(b.dataset.tab); }); });
+    var start = (location.hash || "").slice(1);
+    if (!start || !$("#" + start)) { try { start = localStorage.getItem(document.title + ":tab"); } catch (e) { start = null; } }
+    show(start && $("#" + start) ? start : btns[0].dataset.tab);
+  }
+  function tryLists() {
+    $$(".try input[type=checkbox]").forEach(function (cb, k) {
+      var key = document.title + ":try" + k;
+      try { cb.checked = localStorage.getItem(key) === "1"; } catch (e) { }
+      function upd() { cb.closest("label").classList.toggle("done", cb.checked); }
+      upd();
+      cb.addEventListener("change", function () { upd(); try { localStorage.setItem(key, cb.checked ? "1" : "0"); } catch (e) { } });
+    });
+  }
+  function chipFor(v) { var t = MiniPy.typeName(v); return '<span class="chip ' + t + '">' + t + "</span>"; }
+  function errHTML(e) {
+    if (e.type === "NotSupported") return '<span class="e">' + esc(e.msg) + "</span>";
+    return '<span class="e">' + esc(e.type + ": " + e.msg) + "</span>" + (e.hint ? '<span class="hint">. ' + esc(e.hint) + "</span>" : "");
+  }
+  function init() { tabs(); tryLists(); }
+  document.addEventListener("DOMContentLoaded", init);
+  return { $: $, $$: $$, esc: esc, hl: hl, renderCode: renderCode, chipFor: chipFor, errHTML: errHTML };
+})();
+
+/* Stepper: runs small Python programs (if / elif / else, for, while, break, continue, def, return,
+   match / case, import math) one line at a time, recording every step with its call frames and objects,
+   so a lab can move forwards and backwards and draw names pointing to objects. */
+var Stepper = (function () {
+  "use strict";
+  var P = MiniPy, esc = Lab.esc;
+  function PyErr(type, msg, line) { var e = new P.PyError(type, msg); e.line = line; return e; }
+  function at(line, fn) { try { return fn(); } catch (e) { if (e instanceof P.PyError && e.line === undefined) e.line = line; throw e; } }
+
+  /* ---------- reading lines ---------- */
+  function stripComment(s) {
+    var q = null;
+    for (var i = 0; i < s.length; i++) {
+      var c = s[i];
+      if (q) { if (c === "\\") { i++; continue; } if (c === q) q = null; continue; }
+      if (c === "'" || c === '"') q = c; else if (c === "#") return s.slice(0, i);
+    }
+    return s;
+  }
+  function depthOf(s) {
+    var q = null, d = 0;
+    for (var i = 0; i < s.length; i++) {
+      var c = s[i];
+      if (q) { if (c === "\\") { i++; continue; } if (c === q) q = null; continue; }
+      if (c === "'" || c === '"') q = c; else if ("([{".indexOf(c) >= 0) d++; else if (")]}".indexOf(c) >= 0) d--;
+    }
+    return d;
+  }
+  function topColon(s) {
+    var q = null, d = 0;
+    for (var i = 0; i < s.length; i++) {
+      var c = s[i];
+      if (q) { if (c === "\\") { i++; continue; } if (c === q) q = null; continue; }
+      if (c === "'" || c === '"') q = c; else if ("([{".indexOf(c) >= 0) d++; else if (")]}".indexOf(c) >= 0) d--;
+      else if (c === ":" && d === 0) return i;
+    }
+    return -1;
+  }
+  function splitTop(s, sep) {
+    var q = null, d = 0, out = [], last = 0;
+    for (var i = 0; i < s.length; i++) {
+      var c = s[i];
+      if (q) { if (c === "\\") { i++; continue; } if (c === q) q = null; continue; }
+      if (c === "'" || c === '"') q = c; else if ("([{".indexOf(c) >= 0) d++; else if (")]}".indexOf(c) >= 0) d--;
+      else if (c === sep && d === 0) { out.push(s.slice(last, i)); last = i + 1; }
+    }
+    out.push(s.slice(last));
+    return out;
+  }
+  function logical(src) {
+    var phys = src.replace(/\t/g, "    ").split("\n"), out = [], i = 0;
+    while (i < phys.length) {
+      var code = stripComment(phys[i]);
+      if (!code.trim()) { i++; continue; }
+      var start = i, text = code.replace(/\s+$/, ""), d = depthOf(text);
+      while (d > 0 && i + 1 < phys.length) { i++; text += " " + stripComment(phys[i]).trim(); d = depthOf(text); }
+      out.push({ no: start, end: i, indent: /^ */.exec(text)[0].length, text: text.trim() });
+      i++;
+    }
+    return out;
+  }
+
+  /* ---------- parsing into blocks ---------- */
+  var HEADS = ["if", "for", "while", "def"];
+  var NOT_IN_LAB = ["class", "try", "except", "finally", "with", "lambda", "global", "nonlocal", "del", "raise", "assert", "yield", "async", "await"];
+  var REAL_MODULES = ["pandas", "numpy", "sklearn", "matplotlib", "seaborn", "random", "os", "sys", "time", "re", "collections", "string", "statistics", "csv", "json"];
+  function word(t) { return (/^[A-Za-z_]\w*/.exec(t) || [""])[0]; }
+  function isMatchHead(t) { return /^match\s+\S/.test(t) && !P.splitTopLevelEq(t) && topColon(t) > 0 && !/^match\s*[.([]/.test(t); }
+  function parse(src) {
+    var L = logical(src), pos = 0;
+    function simple(ln, text, info) {
+      var w = word(text), no = ln.no;
+      if (w === "break" || w === "continue") {
+        if (text !== w) throw PyErr("SyntaxError", "invalid syntax", no);
+        if (!info.loop) throw PyErr("SyntaxError", w === "break" ? "'break' outside loop" : "'continue' not properly in loop", no);
+        return { t: w, line: no };
+      }
+      if (w === "pass" && text === "pass") return { t: "pass", line: no };
+      if (w === "return" && /^return\b/.test(text)) {
+        if (!info.fn) throw PyErr("SyntaxError", "'return' outside function", no);
+        var ex = text.slice(6).trim(); if (ex) at(no, function () { P.compileExpr(ex); });
+        return { t: "return", line: no, expr: ex || null };
+      }
+      if (w === "import" || w === "from") {
+        var m1 = /^import\s+(\w+)(?:\s+as\s+(\w+))?$/.exec(text), m2 = /^from\s+(\w+)\s+import\s+(.+)$/.exec(text);
+        if (m1) return { t: "import", line: no, mod: m1[1], as: m1[2] || m1[1] };
+        if (m2) return { t: "fromimport", line: no, mod: m2[1], names: m2[2].split(",").map(function (x) { var q = /^\s*(\w+)(?:\s+as\s+(\w+))?\s*$/.exec(x); if (!q) throw PyErr("SyntaxError", "invalid syntax", no); return [q[1], q[2] || q[1]]; }) };
+        throw PyErr("SyntaxError", "invalid syntax", no);
+      }
+      if (NOT_IN_LAB.indexOf(w) >= 0 && new RegExp("^" + w + "\\b").test(text) && !P.splitTopLevelEq(text)) throw PyErr("NotSupported", "'" + w + "' is not part of this lab.", no);
+      if (w === "elif" || w === "else" || w === "case") throw PyErr("SyntaxError", "invalid syntax", no);
+      at(no, function () { P.compileLine(text); });
+      return { t: "simple", line: no, end: ln.end, text: text };
+    }
+    function block(indent, stack, info) {
+      var nodes = [];
+      while (pos < L.length) {
+        var ln = L[pos];
+        if (ln.indent < indent) { if (stack.indexOf(ln.indent) < 0) throw PyErr("IndentationError", "unindent does not match any outer indentation level", ln.no); break; }
+        if (ln.indent > indent) throw PyErr("IndentationError", "unexpected indent", ln.no);
+        var w = word(ln.text);
+        if (w === "elif" || w === "else" || (w === "case" && /^case\s/.test(ln.text))) throw PyErr("SyntaxError", "invalid syntax", ln.no);
+        if (HEADS.indexOf(w) >= 0 && new RegExp("^" + w + "\\b").test(ln.text) && !(w !== "def" && P.splitTopLevelEq(ln.text) && topColon(ln.text) < 0)) {
+          var node = header(ln, w, stack, info);
+          if (w === "if") {
+            node.branches = [{ line: ln.no, cond: node.cond, body: node.body }];
+            while (pos < L.length && L[pos].indent === indent && /^(elif|else)\b/.test(L[pos].text)) {
+              var ln2 = L[pos], w2 = word(ln2.text), b = header(ln2, w2, stack, info);
+              node.branches.push({ line: ln2.no, cond: w2 === "else" ? null : b.cond, body: b.body });
+              if (w2 === "else") break;
+            }
+          }
+          nodes.push(node);
+        } else if (w === "match" && isMatchHead(ln.text)) nodes.push(matchBlock(ln, stack, info));
+        else { nodes.push(simple(ln, ln.text, info)); pos++; }
+      }
+      return nodes;
+    }
+    function body(ln, w, rest, stack, info) {
+      if (rest) {
+        var rw = word(rest);
+        if (HEADS.indexOf(rw) >= 0 || rw === "elif" || rw === "else" || (rw === "match" && isMatchHead(rest))) throw PyErr("SyntaxError", "invalid syntax", ln.no);
+        pos++; return [simple(ln, rest, info)];
+      }
+      pos++;
+      if (pos >= L.length || L[pos].indent <= ln.indent) {
+        var where = pos < L.length ? L[pos].no : ln.no + 1;
+        throw PyErr("IndentationError", "expected an indented block after " + (w === "def" ? "function definition" : "'" + w + "' statement") + " on line " + (ln.no + 1), where);
+      }
+      return block(L[pos].indent, stack.concat([ln.indent]), info);
+    }
+    function header(ln, w, stack, info) {
+      var t = ln.text, c = topColon(t);
+      if (c < 0) throw PyErr("SyntaxError", "expected ':'", ln.no);
+      var head = t.slice(0, c).trim(), rest = t.slice(c + 1).trim(), inner = head.slice(w.length).trim(), node = { line: ln.no, t: w }, sub = info;
+      if (w === "else") { if (inner) throw PyErr("SyntaxError", "expected ':'", ln.no); }
+      else if (w === "for") {
+        var m = /^(.+?)\s+in\s+(.+)$/.exec(inner); if (!m) throw PyErr("SyntaxError", "invalid syntax", ln.no);
+        node.target = m[1].trim(); node.iter = m[2].trim();
+        at(ln.no, function () { P.assignTargetNames(node.target); P.compileExpr(node.iter); });
+        sub = { loop: true, fn: info.fn };
+      } else if (w === "def") {
+        var md = /^([A-Za-z_]\w*)\s*\((.*)\)$/.exec(inner); if (!md) throw PyErr("SyntaxError", "invalid syntax", ln.no);
+        node.name = md[1]; node.params = []; var seenDefault = false;
+        if (md[2].trim()) splitTop(md[2], ",").forEach(function (ps, k, arr) {
+          ps = ps.trim(); if (!ps) { if (k === arr.length - 1) return; throw PyErr("SyntaxError", "invalid syntax", ln.no); }
+          if (/^\*/.test(ps)) throw PyErr("NotSupported", "*args and **kwargs are not part of this lab.", ln.no);
+          var eqi = ps.indexOf("="), pn = (eqi >= 0 ? ps.slice(0, eqi) : ps).trim(), dv = eqi >= 0 ? ps.slice(eqi + 1).trim() : null;
+          if (!/^[A-Za-z_]\w*$/.test(pn)) throw PyErr("SyntaxError", "invalid syntax", ln.no);
+          if (dv !== null) { at(ln.no, function () { P.compileExpr(dv); }); seenDefault = true; }
+          else if (seenDefault) throw PyErr("SyntaxError", "parameter without a default follows parameter with a default", ln.no);
+          if (node.params.some(function (q) { return q.name === pn; })) throw PyErr("SyntaxError", "duplicate argument '" + pn + "' in function definition", ln.no);
+          node.params.push({ name: pn, def: dv });
+        });
+        sub = { loop: false, fn: true };
+      } else { if (!inner) throw PyErr("SyntaxError", "invalid syntax", ln.no); node.cond = inner; at(ln.no, function () { P.compileExpr(inner); }); if (w === "while") sub = { loop: true, fn: info.fn }; }
+      node.body = body(ln, w, rest, stack, sub);
+      if (w === "def") { node.locals = localsOf(node.body, node.params.map(function (q) { return q.name; })); node.lastLine = lastLineOf(node.body); }
+      return node;
+    }
+    function matchBlock(ln, stack, info) {
+      var t = ln.text, c = topColon(t), subj = t.slice(5, c).trim(), node = { t: "match", line: ln.no, subj: subj, cases: [] };
+      if (t.slice(c + 1).trim()) throw PyErr("SyntaxError", "invalid syntax", ln.no);
+      at(ln.no, function () { P.compileExpr(subj); });
+      pos++;
+      if (pos >= L.length || L[pos].indent <= ln.indent) throw PyErr("IndentationError", "expected an indented block after 'match' statement on line " + (ln.no + 1), pos < L.length ? L[pos].no : ln.no + 1);
+      var ci = L[pos].indent, irrefutable = null;
+      while (pos < L.length && L[pos].indent === ci) {
+        var cl = L[pos]; if (!/^case\s/.test(cl.text)) throw PyErr("SyntaxError", "invalid syntax", cl.no);
+        var cc = topColon(cl.text); if (cc < 0) throw PyErr("SyntaxError", "expected ':'", cl.no);
+        if (irrefutable) throw PyErr("SyntaxError", irrefutable === "_" ? "wildcard makes remaining patterns unreachable" : "name capture '" + irrefutable + "' makes remaining patterns unreachable", irrefutableLine);
+        var pats = splitTop(cl.text.slice(4, cc).trim(), "|").map(function (x) { return x.trim(); });
+        var alts = pats.map(function (p) {
+          if (p === "_") return { wild: true };
+          if (/^[A-Za-z_]\w*$/.test(p) && ["None", "True", "False"].indexOf(p) < 0) return { capture: p };
+          at(cl.no, function () { P.compileExpr(p); }); return { lit: p };
+        });
+        var irr = alts.filter(function (a) { return a.wild || a.capture; })[0];
+        var cnode = { line: cl.no, pats: pats, alts: alts };
+        cnode.body = body(cl, "case", cl.text.slice(cc + 1).trim(), stack.concat([ln.indent]), info);
+        node.cases.push(cnode);
+        if (irr) { irrefutable = irr.wild ? "_" : irr.capture; var irrefutableLine = cl.no; }
+      }
+      if (pos < L.length && L[pos].indent > ln.indent && L[pos].indent !== ci) throw PyErr("IndentationError", "unindent does not match any outer indentation level", L[pos].no);
+      return node;
+    }
+    return block(0, [0], { loop: false, fn: false });
+  }
+  function localsOf(nodes, params) {
+    var out = {}; params.forEach(function (p) { out[p] = 1; });
+    (function walk(ns) {
+      ns.forEach(function (n) {
+        if (n.t === "simple") { var sp = P.splitTopLevelEq(n.text); if (sp) { try { P.assignTargetNames(n.text.slice(0, sp.at - sp.aug.length).trim()).forEach(function (x) { out[x] = 1; }); } catch (e) { } } }
+        else if (n.t === "for") { P.assignTargetNames(n.target).forEach(function (x) { out[x] = 1; }); walk(n.body); }
+        else if (n.t === "while") walk(n.body);
+        else if (n.t === "if") n.branches.forEach(function (b) { walk(b.body); });
+        else if (n.t === "match") n.cases.forEach(function (c) { c.alts.forEach(function (a) { if (a.capture) out[a.capture] = 1; }); walk(c.body); });
+        else if (n.t === "def") out[n.name] = 1;
+        else if (n.t === "import") out[n.as] = 1;
+        else if (n.t === "fromimport") n.names.forEach(function (x) { out[x[1]] = 1; });
+      });
+    })(nodes);
+    return out;
+  }
+  function lastLineOf(nodes) {
+    var n = nodes[nodes.length - 1];
+    if (n.t === "if") return lastLineOf(n.branches[n.branches.length - 1].body);
+    if (n.t === "for" || n.t === "while" || n.t === "def") return lastLineOf(n.body);
+    if (n.t === "match") return lastLineOf(n.cases[n.cases.length - 1].body);
+    return n.end !== undefined ? n.end : n.line;
+  }
+
+  /* ---------- running, step by step ---------- */
+  function describe(v) {
+    var d = { t: P.typeName(v), r: P.repr(v) };
+    if (v.t === "list" || v.t === "tuple") d.items = v.v.map(P.repr);
+    else if (v.t === "dict") d.pairs = Array.from(v.m.values()).map(function (e) { return [P.repr(e[0]), P.repr(e[1])]; });
+    else if (v.t === "function") d.label = "function " + v.name + "(" + v.params.map(function (q) { return q.name; }).join(", ") + ")";
+    else if (v.t === "module") d.label = "module " + v.name;
+    else if (v.t === "builtin") d.label = "built-in " + v.name.replace(/^math\./, "");
+    return d;
+  }
+  function trace(src, opts) {
+    opts = opts || {}; var max = opts.maxSteps || 1500;
+    var res = { steps: [], lines: src.replace(/\t/g, "    ").split("\n"), error: null, limit: false };
+    var prog;
+    try { prog = parse(src); } catch (e) { if (!(e instanceof P.PyError)) throw e; res.error = e; res.parseError = true; return res; }
+    var root = P.newCtx(), fidNext = 1;
+    var frames = [{ fid: 0, label: "Global frame", name: "", ctx: root, loops: [] }];
+    var prevNames = {}, prevRepr = new Map(), prevBind = {}, cur = 0;
+    function out() { return root.out.join("\n") + (root.out.length && root.pend ? "\n" : "") + (root.pend || ""); }
+    function serialize() {
+      var heap = {}, fr = frames.map(function (f) {
+        var vars = Object.keys(f.ctx.env).map(function (k) { var v = f.ctx.env[k], id = P.objId(v); if (!heap[id]) heap[id] = describe(v); return [k, id]; });
+        var o = { fid: f.fid, label: f.label, vars: vars };
+        if (f.ret !== undefined) { var rid = P.objId(f.ret); if (!heap[rid]) heap[rid] = describe(f.ret); o.ret = rid; }
+        return o;
+      });
+      return { frames: fr, heap: heap };
+    }
+    function snap(line, kind, note, extra) {
+      var vars = [], changed = [], now = {};
+      Object.keys(root.env).forEach(function (k) { var v = root.env[k], r = P.repr(v); now[k] = r; vars.push([k, r, P.typeName(v)]); if (prevNames[k] !== r) changed.push(k); });
+      prevNames = now;
+      var ser = serialize(), newIds = [], changedIds = [], rebound = [], bindNow = {};
+      Object.keys(ser.heap).forEach(function (id) { var r = ser.heap[id].r; if (!prevRepr.has(id)) newIds.push(+id); else if (prevRepr.get(id) !== r) changedIds.push(+id); prevRepr.set(id, r); });
+      ser.frames.forEach(function (f) { f.vars.forEach(function (v) { var key = f.fid + ":" + v[0]; bindNow[key] = v[1]; if (prevBind[key] !== v[1]) rebound.push(key); }); });
+      prevBind = bindNow;
+      var top = frames[frames.length - 1];
+      var st = { line: line, kind: kind, note: note, vars: vars, changed: changed, out: out(), loops: top.loops.map(function (l) { return l.round; }), frames: ser.frames, heap: ser.heap, newIds: newIds, changedIds: changedIds, rebound: rebound, where: top.name };
+      if (extra) for (var x in extra) st[x] = extra[x];
+      res.steps.push(st);
+      if (res.steps.length >= max) throw { limit: true };
+    }
+    function show(v) { return "<code>" + esc(P.repr(v)) + "</code>"; }
+    function plural(n, w) { return n + " " + w + (n === 1 ? "" : "s"); }
+    function nameList(ns) { ns = ns.map(function (n) { return "'" + n + "'"; }); return ns.length === 1 ? ns[0] : ns.length === 2 ? ns[0] + " and " + ns[1] : ns.slice(0, -1).join(", ") + ", and " + ns[ns.length - 1]; }
+    function callUser(f, args, kw) {
+      var params = f.params, n = params.length, req = params.filter(function (q) { return q.def === null; }).length, env = {}, src = {};
+      if (args.length > n) throw new P.PyError("TypeError", f.name + "() takes " + (req < n ? "from " + req + " to " + n : n) + " positional argument" + (n === 1 && req === n ? "" : "s") + " but " + args.length + " " + (args.length === 1 ? "was" : "were") + " given");
+      args.forEach(function (a, k) { env[params[k].name] = a; src[params[k].name] = "position " + (k + 1); });
+      Object.keys(kw).forEach(function (k) {
+        var pi = params.map(function (q) { return q.name; }).indexOf(k);
+        if (pi < 0) throw new P.PyError("TypeError", f.name + "() got an unexpected keyword argument '" + k + "'");
+        if (Object.prototype.hasOwnProperty.call(env, k)) throw new P.PyError("TypeError", f.name + "() got multiple values for argument '" + k + "'");
+        env[k] = kw[k]; src[k] = "keyword";
+      });
+      var missing = params.filter(function (q) { return !Object.prototype.hasOwnProperty.call(env, q.name) && q.def === null; }).map(function (q) { return q.name; });
+      if (missing.length) throw new P.PyError("TypeError", f.name + "() missing " + missing.length + " required positional argument" + (missing.length > 1 ? "s" : "") + ": " + nameList(missing));
+      var ordered = {}; params.forEach(function (q, k) { if (!Object.prototype.hasOwnProperty.call(env, q.name)) { env[q.name] = f.defaults[k]; src[q.name] = "default"; } ordered[q.name] = env[q.name]; });
+      if (frames.length > 60) throw new P.PyError("RecursionError", "maximum recursion depth exceeded");
+      var callLine = cur, callText = f.name + "(" + args.map(P.repr).concat(Object.keys(kw).map(function (k) { return k + "=" + P.repr(kw[k]); })).join(", ") + ")";
+      snap(callLine, "calling", "Calls <code>" + esc(callText) + "</code>. Python pauses this line and jumps into the function.");
+      var fctx = { env: ordered, globals: root.env, root: root, out: root.out, changed: [], localNames: f.locals };
+      var fr = { fid: fidNext++, label: f.name + "(" + params.map(function (q) { return q.name; }).join(", ") + ")", name: f.name, ctx: fctx, loops: [] };
+      frames.push(fr); cur = f.line;
+      var binds = params.map(function (q) { return [q.name, P.repr(ordered[q.name]), src[q.name]]; });
+      snap(f.line, "call", "A new frame for <code>" + esc(f.name) + "</code>" + (params.length ? ": " + binds.map(function (b) { return "<code>" + esc(b[0]) + "</code> = <code>" + esc(b[1]) + "</code> (" + (b[2] === "default" ? "default value" : b[2] === "keyword" ? "by keyword" : "by " + b[2]) + ")"; }).join(", ") : " (no parameters)") + ".", { bind: binds, fn: f.name });
+      var sig = run(f.body, fctx, fr), rv;
+      if (sig && sig.ret !== undefined) rv = sig.ret;
+      else { rv = P.NONE; fr.ret = rv; cur = f.lastLine; snap(f.lastLine, "return", "End of <code>" + esc(f.name) + "</code>, and no <code>return</code> ran, so it gives back <code>None</code>. Its frame is removed.", { retval: "None" }); }
+      frames.pop(); cur = callLine;
+      return rv;
+    }
+    function run(nodes, ctx, fr) {
+      for (var i = 0; i < nodes.length; i++) { var sig = exec(nodes[i], ctx, fr); if (sig) return sig; }
+      return null;
+    }
+    function lastPrinted() { var all = out(); return all.split("\n").pop(); }
+    function exec(n, ctx, fr) {
+      cur = n.line;
+      if (n.t === "simple") {
+        var outBefore = out(), r = P.execLine(n.text, ctx), note, printed = out().length > outBefore.length;
+        if (r.kind === "assign") note = (r.targets.filter(function (t) { return t !== "*"; }).map(function (t) { return "<code>" + esc(t) + "</code> is now " + show(ctx.env[t]); }).join(", ") || "An item inside the " + (/\[/.test(n.text) ? "collection" : "object") + " was changed.");
+        else if (/^print\s*\(/.test(n.text)) note = "Printed <code>" + esc(lastPrinted()) + "</code>.";
+        else if (/^[\w.]+\.\w+\(/.test(n.text) && ctx.env[/^(\w+)/.exec(n.text)[1]] && /^(list|dict)$/.test(ctx.env[/^(\w+)/.exec(n.text)[1]].t)) { var nm = /^(\w+)/.exec(n.text)[1]; note = "<code>" + esc(nm) + "</code> is now " + show(ctx.env[nm]) + "."; if (r.value && r.value.t !== "NoneType") note += " The method gave back " + show(r.value) + "."; }
+        else if (r.value && r.value.t !== "NoneType") note = "The value " + show(r.value) + " is calculated, but not stored or printed, so it is thrown away.";
+        else note = printed ? "Ran this line (it printed <code>" + esc(lastPrinted()) + "</code>)." : "Ran this line. It gave back <code>None</code>, which is not used.";
+        snap(n.line, "simple", note, { span: n.end });
+        return null;
+      }
+      if (n.t === "pass") { snap(n.line, "pass", "<code>pass</code> does nothing."); return null; }
+      if (n.t === "break") { snap(n.line, "break", "<b>break</b>: leave the loop immediately. Remaining rounds are skipped."); return "break"; }
+      if (n.t === "continue") { snap(n.line, "continue", "<b>continue</b>: skip the rest of this round and go to the next one."); return "continue"; }
+      if (n.t === "return") {
+        var v = n.expr ? P.evalIn(n.expr, ctx) : P.NONE; cur = n.line; fr.ret = v;
+        snap(n.line, "return", "<code>return</code> hands " + show(v) + " back to the caller and ends <code>" + esc(fr.name) + "</code>. Its frame is removed.", { retval: P.repr(v) });
+        return { ret: v };
+      }
+      if (n.t === "def") {
+        var defaults = n.params.map(function (q) { return q.def === null ? null : P.evalIn(q.def, ctx); });
+        var fobj = { t: "function", name: n.name, params: n.params, defaults: defaults, body: n.body, locals: n.locals, line: n.line, lastLine: n.lastLine };
+        fobj.call = function (args, kw) { return callUser(fobj, args, kw); };
+        ctx.env[n.name] = fobj;
+        snap(n.line, "def", "Defines the function <code>" + esc(n.name) + "(" + n.params.map(function (q) { return q.name + (q.def !== null ? "=" + q.def : ""); }).join(", ") + ")</code>. Its body does <b>not</b> run until it is called.", { span: n.line });
+        return null;
+      }
+      if (n.t === "import") {
+        if (REAL_MODULES.indexOf(n.mod) >= 0) throw new P.PyError("NotSupported", "The " + n.mod + " module is not available in this lab. Try it in Jupyter or Colab.");
+        ctx.env[n.as] = P.importModule(n.mod);
+        snap(n.line, "import", "Loaded the <code>" + n.mod + "</code> module" + (n.as !== n.mod ? " under the name <code>" + n.as + "</code>" : "") + ". Use it with a dot, for example <code>" + n.as + ".sqrt(16)</code>.");
+        return null;
+      }
+      if (n.t === "fromimport") {
+        if (REAL_MODULES.indexOf(n.mod) >= 0) throw new P.PyError("NotSupported", "The " + n.mod + " module is not available in this lab. Try it in Jupyter or Colab.");
+        var mod = P.importModule(n.mod);
+        n.names.forEach(function (pr) { if (!Object.prototype.hasOwnProperty.call(mod.attrs, pr[0])) throw new P.PyError("ImportError", "cannot import name '" + pr[0] + "' from '" + n.mod + "' (unknown location)"); ctx.env[pr[1]] = mod.attrs[pr[0]]; });
+        snap(n.line, "import", "Imported " + n.names.map(function (pr) { return "<code>" + pr[1] + "</code>"; }).join(", ") + " directly: no <code>" + n.mod + ".</code> prefix needed.");
+        return null;
+      }
+      if (n.t === "if") {
+        for (var b = 0; b < n.branches.length; b++) {
+          var br = n.branches[b]; cur = br.line;
+          if (br.cond === null) { snap(br.line, "else", "Every condition above was False, so the <code>else</code> block runs."); return run(br.body, ctx, fr); }
+          var ok = P.truthy(P.evalIn(br.cond, ctx)); cur = br.line;
+          snap(br.line, "cond", "<code>" + esc(br.cond) + "</code> is <b>" + (ok ? "True" : "False") + "</b>" + (ok ? ": run the indented block." : n.branches.length > b + 1 ? ": check the next branch." : ": skip the block."), { val: ok });
+          if (ok) return run(br.body, ctx, fr);
+        }
+        return null;
+      }
+      if (n.t === "for") {
+        var items = P.iter(P.evalIn(n.iter, ctx)), loop = { line: n.line, round: 0 }; fr.loops.push(loop);
+        try {
+          for (var k = 0; k < items.length; k++) {
+            loop.round = k + 1; cur = n.line;
+            P.assignTo(n.target, items[k], ctx);
+            snap(n.line, "for", "Round " + (k + 1) + " of " + items.length + ": <code>" + esc(n.target) + "</code> = " + show(items[k]) + ".", { round: k + 1 });
+            var s = run(n.body, ctx, fr); if (s === "break") return null; if (s && s !== "continue") return s;
+          }
+          loop.round = 0; cur = n.line;
+          snap(n.line, "forend", items.length ? "No items left: the loop is finished. Python continues after the loop." : "The collection is empty, so the body never runs.");
+        } finally { fr.loops.pop(); }
+        return null;
+      }
+      if (n.t === "while") {
+        var lp = { line: n.line, round: 0 }; fr.loops.push(lp);
+        try {
+          for (;;) {
+            cur = n.line; var c = P.truthy(P.evalIn(n.cond, ctx)); cur = n.line;
+            if (!c) { lp.round = 0; snap(n.line, "whileend", "<code>" + esc(n.cond) + "</code> is <b>False</b>: leave the loop."); break; }
+            lp.round++;
+            snap(n.line, "while", "<code>" + esc(n.cond) + "</code> is <b>True</b>: run round " + lp.round + ".", { round: lp.round, val: true });
+            var s2 = run(n.body, ctx, fr); if (s2 === "break") break; if (s2 && s2 !== "continue") return s2;
+          }
+        } finally { fr.loops.pop(); }
+        return null;
+      }
+      if (n.t === "match") {
+        var subj = P.evalIn(n.subj, ctx); cur = n.line;
+        snap(n.line, "match", "<code>" + esc(n.subj) + "</code> is " + show(subj) + ". Python tries each <code>case</code> from the top.");
+        for (var ci = 0; ci < n.cases.length; ci++) {
+          var cs = n.cases[ci], hit = false; cur = cs.line;
+          for (var ai = 0; ai < cs.alts.length && !hit; ai++) {
+            var a = cs.alts[ai];
+            if (a.wild) hit = true;
+            else if (a.capture) { ctx.env[a.capture] = subj; hit = true; }
+            else hit = P.eq(subj, P.evalIn(a.lit, ctx));
+          }
+          cur = cs.line;
+          snap(cs.line, "case", hit ? (cs.alts.some(function (x) { return x.wild; }) ? "<code>case _</code> matches anything: run this case." : "Matches: run this case.") : "Does not match: try the next case.", { val: hit });
+          if (hit) return run(cs.body, ctx, fr);
+        }
+        return null;
+      }
+    }
+    try { run(prog, root, frames[0]); }
+    catch (e) {
+      if (e && e.limit) res.limit = true;
+      else if (e instanceof P.PyError) {
+        res.error = e; e.line = cur;
+        var ser = serialize(), top = frames[frames.length - 1];
+        res.steps.push({ line: cur, kind: "error", note: Lab.errHTML(e), vars: res.steps.length ? res.steps[res.steps.length - 1].vars : [], changed: [], out: out(), loops: [], frames: ser.frames, heap: ser.heap, newIds: [], changedIds: [], rebound: [], where: top.name });
+      } else throw e;
+    }
+    return res;
+  }
+
+  /* ---------- drawing frames and objects ---------- */
+  var SCALAR = { int: 1, float: 1, str: 1, bool: 1, NoneType: 1 };
+  function tw(s, px) { return Math.max(1, s.length) * px * 0.6 + 14; }
+  function renderFrames(step, opts) {
+    opts = opts || {};
+    var inline = opts.inline !== false, FX = 8, FW = opts.frameWidth || 250, OX = FW + 110, y = 10, rows = [], body = "", objs = [], objPos = {};
+    if (!step) return { svg: '<text x="12" y="30" fill="#5D6573" font-size="15">Press Next step to start.</text>', w: 400, h: 50 };
+    var heap = step.heap, nFr = step.frames.length;
+    step.frames.forEach(function (f, fi) {
+      var active = fi === nFr - 1, hy = y, items = f.vars.slice();
+      if (f.ret !== undefined) items.push(["Return value", f.ret, true]);
+      var fh = 34 + Math.max(1, items.length) * 32 + 6;
+      body += '<rect x="' + FX + '" y="' + hy + '" width="' + FW + '" height="' + fh + '" rx="10" fill="' + (active ? "#FFF7EE" : "#F3F5F9") + '" stroke="' + (active ? "#E07A1F" : "#C3CAD6") + '" stroke-width="' + (active ? 2.5 : 1.5) + '"/>';
+      body += '<text x="' + (FX + 12) + '" y="' + (hy + 22) + '" font-size="14" font-weight="700" fill="' + (active ? "#A4520C" : "#5D6573") + '" font-family="Segoe UI,Arial">' + esc(f.label) + "</text>";
+      if (!items.length) body += '<text x="' + (FX + 12) + '" y="' + (hy + 56) + '" font-size="13" fill="#8A93A3" font-family="Segoe UI,Arial">(no names yet)</text>';
+      items.forEach(function (v, k) {
+        var ry = hy + 34 + k * 32, o = heap[v[1]], key = f.fid + ":" + v[0], reb = step.rebound.indexOf(key) >= 0 && !v[2];
+        body += '<text x="' + (FX + 12) + '" y="' + (ry + 20) + '" font-size="15" font-weight="700" fill="' + (v[2] ? "#5D6573" : "#2459C4") + '" font-family="' + (v[2] ? "Segoe UI,Arial" : "Consolas,Courier New,monospace") + '"' + (v[2] ? ' font-style="italic"' : "") + ">" + esc(v[0]) + "</text>";
+        var sx = FX + FW - 108, sw = 96;
+        body += '<rect x="' + sx + '" y="' + (ry + 3) + '" width="' + sw + '" height="26" rx="5" fill="#fff" stroke="' + (reb ? "#E07A1F" : "#C3CAD6") + '" stroke-width="' + (reb ? 2.5 : 1.2) + '"/>';
+        if (inline && SCALAR[o.t]) {
+          var txt = o.r.length > 11 ? o.r.slice(0, 10) + "…" : o.r;
+          body += '<text x="' + (sx + sw / 2) + '" y="' + (ry + 21) + '" text-anchor="middle" font-size="14" font-weight="700" fill="#15213A" font-family="Consolas,Courier New,monospace">' + esc(txt) + "</text>";
+        } else {
+          if (objPos[v[1]] === undefined) { objPos[v[1]] = objs.length; objs.push({ id: v[1], wantY: ry }); }
+          rows.push({ x: sx + sw / 2, y: ry + 16, id: v[1], reb: reb });
+          body += '<circle cx="' + (sx + sw / 2) + '" cy="' + (ry + 16) + '" r="4.5" fill="' + (reb ? "#E07A1F" : "#15213A") + '"/>';
+        }
+      });
+      y = hy + fh + 14;
+    });
+    var frameBottom = y, oy = 10, maxW = 0, placed = {};
+    objs.forEach(function (ob) {
+      var o = heap[ob.id], h, w, s = "", isNew = step.newIds.indexOf(ob.id) >= 0, ch = step.changedIds.indexOf(ob.id) >= 0;
+      var stroke = isNew || ch ? "#E07A1F" : o.t === "list" ? "#2459C4" : o.t === "tuple" ? "#6B3FA0" : o.t === "dict" ? "#1F8A7A" : "#9AA3B2", fill = isNew ? "#FFE3B8" : "#fff";
+      var top = Math.max(oy, ob.wantY - 4) + 14;
+      s += '<text x="' + OX + '" y="' + (top - 4) + '" font-size="11" font-weight="700" fill="' + stroke + '" font-family="Segoe UI,Arial">' + o.t + (isNew ? " (new)" : ch ? " (changed)" : "") + "</text>";
+      if (o.items) {
+        var x = OX; if (!o.items.length) { s += '<rect x="' + x + '" y="' + top + '" width="40" height="32" rx="5" fill="' + fill + '" stroke="' + stroke + '" stroke-width="2"/>'; x += 40; }
+        o.items.forEach(function (it, j) { var cw = Math.max(34, tw(it.length > 14 ? it.slice(0, 13) + "…" : it, 14)); s += '<rect x="' + x + '" y="' + top + '" width="' + cw + '" height="32" rx="4" fill="' + fill + '" stroke="' + stroke + '" stroke-width="2"/><text x="' + (x + cw / 2) + '" y="' + (top + 21) + '" text-anchor="middle" font-size="14" font-weight="700" fill="#15213A" font-family="Consolas,Courier New,monospace">' + esc(it.length > 14 ? it.slice(0, 13) + "…" : it) + '</text><text x="' + (x + cw / 2) + '" y="' + (top + 45) + '" text-anchor="middle" font-size="10" fill="#5D6573">' + j + "</text>"; x += cw; });
+        w = x - OX; h = 50;
+      } else if (o.pairs) {
+        var kw = 40, vw = 40; o.pairs.forEach(function (p) { kw = Math.max(kw, tw(p[0], 13)); vw = Math.max(vw, tw(p[1], 13)); });
+        if (!o.pairs.length) { s += '<rect x="' + OX + '" y="' + top + '" width="50" height="28" rx="5" fill="' + fill + '" stroke="' + stroke + '" stroke-width="2"/><text x="' + (OX + 25) + '" y="' + (top + 19) + '" text-anchor="middle" font-size="13" fill="#5D6573">{ }</text>'; w = 50; h = 34; }
+        else {
+          o.pairs.forEach(function (p, j) {
+            var ry2 = top + j * 26, hiRow = ch || isNew;
+            s += '<rect x="' + OX + '" y="' + ry2 + '" width="' + kw + '" height="26" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.5"/><rect x="' + (OX + kw) + '" y="' + ry2 + '" width="' + vw + '" height="26" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.5"/>';
+            s += '<text x="' + (OX + 7) + '" y="' + (ry2 + 18) + '" font-size="13" font-family="Consolas,Courier New,monospace" fill="#15213A">' + esc(p[0]) + '</text><text x="' + (OX + kw + 7) + '" y="' + (ry2 + 18) + '" font-size="13" font-weight="700" font-family="Consolas,Courier New,monospace" fill="#15213A">' + esc(p[1]) + "</text>";
+          });
+          w = kw + vw; h = o.pairs.length * 26 + 6;
+        }
+      } else {
+        var lab = o.label || o.r, lw = tw(lab, 14);
+        s += '<rect x="' + OX + '" y="' + top + '" width="' + lw + '" height="30" rx="' + (o.label ? 6 : 15) + '" fill="' + (o.label ? "#F3F5F9" : fill) + '" stroke="' + stroke + '" stroke-width="2"/><text x="' + (OX + lw / 2) + '" y="' + (top + 20) + '" text-anchor="middle" font-size="14" font-weight="700" fill="#15213A" font-family="Consolas,Courier New,monospace">' + esc(lab) + "</text>";
+        w = lw; h = 34;
+      }
+      placed[ob.id] = { y: top + 16, x: OX };
+      oy = top + h + 12; maxW = Math.max(maxW, w);
+      body += s;
+    });
+    rows.forEach(function (r) {
+      var p = placed[r.id], x2 = p.x - 6, col = r.reb ? "#E07A1F" : "#15213A";
+      body += '<path d="M' + r.x + "," + r.y + " C" + (r.x + 70) + "," + r.y + " " + (x2 - 70) + "," + p.y + " " + x2 + "," + p.y + '" fill="none" stroke="' + col + '" stroke-width="2" marker-end="url(#fa' + (r.reb ? "o" : "") + ')"/>';
+    });
+    var defs = '<defs><marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#15213A"/></marker><marker id="fao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E07A1F"/></marker></defs>';
+    return { svg: defs + body, w: Math.max(OX + maxW + 16, FW + 30), h: Math.max(frameBottom, oy) + 6 };
+  }
+
+  /* ---------- widget ---------- */
+  function mount(root, opts) {
+    var uid = "st" + Math.random().toString(36).slice(2, 7), framesMode = !!opts.frames;
+    root.innerHTML =
+      '<div class="grid">' +
+      '<div class="panel">' +
+      '<div class="row" style="justify-content:space-between;margin-bottom:10px"><div class="row"><label class="lab" for="' + uid + '-ex">Example</label><select id="' + uid + '-ex" style="max-width:330px"></select></div>' +
+      '<button class="btn alt sm" data-a="edit">Edit code</button></div>' +
+      '<div class="code" data-r="code"></div><textarea class="editor" data-r="editor" spellcheck="false" hidden></textarea>' +
+      '<div class="row" style="margin-top:12px"><button class="btn alt" data-a="back" title="Step back">◀ Back</button><button class="btn warm" data-a="step">▶ Next step</button>' +
+      '<button class="btn" data-a="play">⏵ Play</button><button class="btn" data-a="end">Run to end</button><button class="btn alt" data-a="reset">↺ Start again</button></div>' +
+      '<div class="row" style="margin-top:8px"><label class="lab" for="' + uid + '-sp">Play speed</label><input type="range" id="' + uid + '-sp" min="1" max="10" value="5" style="width:160px"><span class="small muted" data-r="count"></span><span data-r="rounds" class="row" style="gap:6px"></span></div>' +
+      '<div class="status" data-r="status"></div>' +
+      '</div>' +
+      '<div>' + (framesMode ?
+        '<div class="panel"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Frames and objects</h3><label class="small"><input type="checkbox" data-r="inl"' + (opts.inline === false ? "" : " checked") + '> numbers and text inside the frame</label></div><div style="overflow-x:auto;margin-top:8px"><svg data-r="fsvg" role="img" aria-label="Call frames with names pointing to objects"></svg></div><p class="small muted" style="margin:4px 0 0">Orange frame = the function running now. Orange arrow = a name that just got a new value. Orange object = just created or changed.</p></div>' :
+        '<div class="panel"><h3>Variables</h3><div data-r="vars" class="row" style="align-items:stretch;gap:10px;min-height:80px"></div></div>') +
+      '<div class="panel" style="margin-top:14px"><h3>Output</h3><div class="out" data-r="out"></div></div></div>' +
+      '</div>' +
+      '<div class="panel" style="margin-top:16px"><h3>Trace table: every step so far</h3><div data-r="twrap" style="max-height:340px;overflow:auto"><table class="t" data-r="trace"></table></div><p class="small muted" data-r="tnote" style="margin:6px 0 0"></p></div>';
+    function R(k) { return root.querySelector('[data-r="' + k + '"]'); }
+    function A(k) { return root.querySelector('[data-a="' + k + '"]'); }
+    var sel = root.querySelector("#" + uid + "-ex"), speed = root.querySelector("#" + uid + "-sp");
+    var presets = opts.presets.slice(); presets.push({ id: "own", name: "Write your own", code: opts.ownCode || "total = 0\nfor i in range(1, 6):\n    total = total + i\nprint(total)" });
+    sel.innerHTML = presets.map(function (p, k) { return '<option value="' + k + '">' + esc(p.name) + "</option>"; }).join("");
+    var st = { res: null, i: -1, timer: null, editing: false, code: "" };
+    function load(code) { st.code = code; st.res = trace(code, { maxSteps: opts.maxSteps || 1500 }); st.i = -1; stop(); draw(); }
+    function stop() { if (st.timer) { clearInterval(st.timer); st.timer = null; } A("play").textContent = "⏵ Play"; }
+    function draw() {
+      var res = st.res, lines = res.lines, states = lines.map(function () { return ""; }), notes = lines.map(function () { return ""; });
+      var step = st.i >= 0 ? res.steps[st.i] : null;
+      for (var k = 0; k <= st.i; k++) { var sk = res.steps[k]; if (sk.kind !== "error") states[sk.line] = "done"; }
+      if (step) {
+        var span = step.span !== undefined ? step.span : step.line;
+        for (var q = step.line; q <= span; q++) states[q] = step.kind === "error" ? "err" : "cur";
+        var chipF = { cond: step.val ? ["t", "True"] : ["f", "False"], while: ["t", "True"], whileend: ["f", "False"], for: ["int", "round " + step.round], forend: ["n", "done"], "break": ["bool", "break"], "continue": ["bool", "continue"],
+          calling: ["bool", "calls a function"], call: ["bool", "new frame"], "return": ["bool", "returns " + (step.retval || "")], def: ["n", "defined, not run"], match: ["n", "match"], "case": step.val ? ["t", "match"] : ["f", "no match"] }[step.kind];
+        if (chipF) notes[step.line] = '<span class="chip ' + chipF[0] + '">' + esc(chipF[1].length > 26 ? chipF[1].slice(0, 25) + "…" : chipF[1]) + "</span>";
+      }
+      if (res.parseError) { states[res.error.line] = "err"; }
+      Lab.renderCode(R("code"), lines, states, notes);
+      var total = res.steps.length;
+      R("count").textContent = res.parseError ? "" : "Step " + Math.max(0, st.i + 1) + " of " + total;
+      var chips = [];
+      if (step && step.loops.some(function (r) { return r; })) chips = step.loops.map(function (r, k) { return '<span class="chip ' + (k ? "float" : "int") + '">' + (k ? "inner" : "outer") + " loop: round " + (r || "-") + "</span>"; });
+      if (step && step.frames && step.frames.length > 1) chips.unshift('<span class="chip bool">inside ' + esc(step.frames[step.frames.length - 1].label) + "</span>");
+      R("rounds").innerHTML = chips.join("");
+      var stt = R("status");
+      if (res.parseError) { stt.className = "status bad"; stt.innerHTML = "Python reads the whole cell before running anything, and found a problem on line " + (res.error.line + 1) + ":<br>" + Lab.errHTML(res.error) + "<br>Nothing runs until it is fixed."; }
+      else if (!step) { stt.className = "status"; stt.innerHTML = "Press <b>Next step</b>. The orange line is the line Python has just run; the note explains what happened."; }
+      else if (step.kind === "error") { stt.className = "status bad"; stt.innerHTML = "Line " + (step.line + 1) + " failed: " + step.note; }
+      else {
+        stt.className = "status" + (st.i === total - 1 ? " good" : "");
+        stt.innerHTML = "<b>Line " + (step.line + 1) + ":</b> " + step.note + (st.i === total - 1 ? (res.limit ? "" : "<br>The program has finished.") : "");
+        if (st.i === total - 1 && res.limit) { stt.className = "status bad"; stt.innerHTML = "<b>Stopped after " + total + " steps.</b> This program looks like it will never end. In Jupyter or Colab, press the stop button (■) or use Kernel / Runtime → Interrupt."; }
+      }
+      if (framesMode) {
+        var fr = renderFrames(step, { inline: R("inl").checked }), svg = R("fsvg");
+        svg.setAttribute("viewBox", "0 0 " + fr.w + " " + fr.h); svg.setAttribute("width", fr.w); svg.setAttribute("height", fr.h); svg.innerHTML = fr.svg;
+      } else {
+        var vars = step ? step.vars.filter(function (v) { return v[2] !== "function" && v[2] !== "module"; }) : [], changed = step ? step.changed : [];
+        R("vars").innerHTML = vars.length ? vars.map(function (v) {
+          var ch = changed.indexOf(v[0]) >= 0;
+          return '<div class="' + (ch ? "flash" : "") + '" style="border:2px solid ' + (ch ? "var(--orange)" : "var(--line)") + ';border-radius:12px;padding:8px 12px;min-width:96px;max-width:100%;background:#fff">' +
+            '<div class="row" style="justify-content:space-between;gap:8px"><b class="mono" style="color:var(--blue)">' + esc(v[0]) + '</b><span class="chip ' + v[2] + '">' + v[2] + "</span></div>" +
+            '<div class="mono" style="font-size:19px;font-weight:700;word-break:break-word">' + esc(v[1]) + "</div></div>";
+        }).join("") : '<span class="muted small">No variables yet.</span>';
+      }
+      R("out").textContent = step ? step.out : "";
+      // trace table
+      var rows = "", head;
+      if (framesMode) {
+        head = "<tr><th>Step</th><th>Line</th><th>Running in</th><th>What happened</th><th>Printed</th></tr>";
+        for (k = 0; k <= st.i; k++) {
+          var s4 = res.steps[k], po = k ? res.steps[k - 1].out : "", no = s4.out.slice(po.length).replace(/^\n/, "");
+          rows += '<tr class="' + (k === st.i ? "hi" : "") + '"><td>' + (k + 1) + '</td><td class="m">' + (s4.line + 1) + '</td><td class="m small" style="white-space:nowrap">' + esc(s4.where || "main program") + '</td><td class="small">' + s4.note + '</td><td class="m">' + esc(no) + "</td></tr>";
+        }
+        R("tnote").innerHTML = "";
+      } else {
+        var names = [], first = {}, constNames = [];
+        res.steps.forEach(function (s3) { s3.vars.forEach(function (v) { if (!(v[0] in first)) first[v[0]] = v[1]; else if (first[v[0]] !== v[1]) first[v[0]] = null; }); });
+        var anyChange = Object.keys(first).some(function (n) { return first[n] === null; });
+        for (k = 0; k <= st.i; k++) res.steps[k].vars.forEach(function (v) { if (names.indexOf(v[0]) >= 0 || constNames.indexOf(v[0]) >= 0) return; if ((first[v[0]] !== null && anyChange) || v[2] === "function" || v[2] === "module") constNames.push(v[0]); else names.push(v[0]); });
+        head = "<tr><th>Step</th><th>Line</th><th>What happened</th>" + names.map(function (n) { return '<th class="mono" style="text-transform:none">' + esc(n) + "</th>"; }).join("") + "<th>Printed</th></tr>";
+        for (k = 0; k <= st.i; k++) {
+          var s2 = res.steps[k], vm = {}; s2.vars.forEach(function (v) { vm[v[0]] = v[1]; });
+          var prevOut = k ? res.steps[k - 1].out : "", newOut = s2.out.slice(prevOut.length).replace(/^\n/, "");
+          rows += '<tr class="' + (k === st.i ? "hi" : "") + '"><td>' + (k + 1) + '</td><td class="m">' + (s2.line + 1) + '</td><td class="small">' + s2.note + "</td>" +
+            names.map(function (n) { var ch = s2.changed.indexOf(n) >= 0; var val = vm[n] === undefined ? "" : vm[n]; if (val.length > 28) val = val.slice(0, 26) + "…"; return '<td class="m" style="white-space:nowrap;' + (ch ? "font-weight:700;color:var(--oink)" : "color:var(--muted)") + '">' + esc(val) + "</td>"; }).join("") +
+            '<td class="m">' + esc(newOut) + "</td></tr>";
+        }
+        R("tnote").innerHTML = constNames.length ? "Not shown because they never change: " + constNames.map(function (n) { return "<code>" + esc(n) + "</code>"; }).join(", ") + "." : "";
+      }
+      R("trace").innerHTML = head.replace(/<th(?= |>)/g, '<th style="position:sticky;top:0;z-index:1"') + rows;
+      var twr = R("twrap"); twr.scrollTop = twr.scrollHeight;
+      A("back").disabled = st.i < 0; A("step").disabled = A("end").disabled = A("play").disabled = st.i >= total - 1 || !!res.parseError;
+    }
+    function step() { if (st.i < st.res.steps.length - 1) { st.i++; draw(); } else stop(); }
+    A("step").addEventListener("click", function () { stop(); step(); });
+    A("back").addEventListener("click", function () { stop(); if (st.i >= 0) { st.i--; draw(); } });
+    A("end").addEventListener("click", function () { stop(); st.i = st.res.steps.length - 1; draw(); });
+    A("reset").addEventListener("click", function () { stop(); st.i = -1; draw(); });
+    A("play").addEventListener("click", function () {
+      if (st.timer) { stop(); return; }
+      A("play").textContent = "⏸ Pause";
+      function tick() { step(); if (st.i >= st.res.steps.length - 1) stop(); }
+      tick(); st.timer = setInterval(tick, 1400 - speed.value * 125);
+    });
+    speed.addEventListener("input", function () { if (st.timer) { stop(); A("play").click(); } });
+    if (framesMode) R("inl").addEventListener("change", draw);
+    A("edit").addEventListener("click", function () {
+      var ed = R("editor");
+      if (!st.editing) { st.editing = true; stop(); ed.value = st.code; ed.hidden = false; R("code").hidden = true; A("edit").textContent = "Done editing"; ed.style.height = Math.max(210, st.code.split("\n").length * 26 + 30) + "px"; ed.focus(); }
+      else { st.editing = false; ed.hidden = true; R("code").hidden = false; A("edit").textContent = "Edit code"; presets[presets.length - 1].code = ed.value; sel.value = String(presets.length - 1); load(ed.value); }
+    });
+    R("editor").addEventListener("keydown", function (e) {
+      if (e.key === "Tab") { e.preventDefault(); var t = e.target, a = t.selectionStart; t.value = t.value.slice(0, a) + "    " + t.value.slice(t.selectionEnd); t.selectionStart = t.selectionEnd = a + 4; }
+    });
+    sel.addEventListener("change", function () { if (st.editing) A("edit").click(); var p = presets[+sel.value]; if (p.inline !== undefined && framesMode) R("inl").checked = p.inline; load(p.code); if (p.id === "own") A("edit").click(); });
+    if (presets[0].inline !== undefined && framesMode) R("inl").checked = presets[0].inline;
+    load(presets[0].code);
+    return {
+      load: function (code, inline) { if (st.editing) A("edit").click(); presets[presets.length - 1].code = code; sel.value = String(presets.length - 1); if (inline !== undefined && framesMode) R("inl").checked = inline; load(code); },
+      select: function (id) { for (var k = 0; k < presets.length; k++) if (presets[k].id === id) { sel.value = String(k); load(presets[k].code); } }
+    };
+  }
+
+  return { parse: parse, trace: trace, mount: mount, renderFrames: renderFrames };
+})();
+
+(function () {
+  "use strict";
+  var $ = Lab.$, esc = Lab.esc, P = MiniPy;
+  function chip(b, t) { return '<span class="chip ' + (b ? "t" : "f") + '">' + (t || (b ? "True" : "False")) + "</span>"; }
+  function errLine(e) { return e && e.type ? Lab.errHTML(e) : esc(String(e)); }
+
+  /* ================= 1. Loop stepper ================= */
+  var PRESETS = [
+    { id: "for", name: "for: walk through a list", code: 'inbox = ["Hi", "Win cash", "Bye"]\nfor msg in inbox:\n    print(len(msg), msg)' },
+    { id: "range", name: "range(2, 11, 3)", code: "for i in range(2, 11, 3):\n    print(i)" },
+    { id: "acc", name: "Accumulator: add up", code: "nums = [4, 7, 1, 8]\ntotal = 0\nfor n in nums:\n    total = total + n\nprint(total)" },
+    { id: "count", name: "Counting: an if inside a loop", code: "count = 0\nfor i in range(1, 8):\n    if i % 2 == 0:\n        count = count + 1\nprint(count)" },
+    { id: "while", name: "while: countdown", code: 'n = 3\nwhile n > 0:\n    print(n)\n    n = n - 1\nprint("Go!")' },
+    { id: "break", name: "break: stop at the first spam", code: 'inbox = ["Hi", "See you", "WIN cash", "Bye"]\nfor msg in inbox:\n    if "win" in msg.lower():\n        print("First spam:", msg)\n        break\n    print("OK:", msg)' },
+    { id: "continue", name: "continue: skip empty messages", code: 'for msg in ["Hi", "", "Bye", ""]:\n    if msg == "":\n        continue\n    print("Checking:", msg)' },
+    { id: "enum", name: "enumerate: position and item", code: 'inbox = ["Hi", "Win cash", "Bye"]\nfor i, msg in enumerate(inbox):\n    print(i, msg)' },
+    { id: "nested", name: "Nested loops: words in messages", code: 'spam_words = ["free", "win"]\ninbox = ["Win cash", "Class at 10",\n         "Free gift"]\nfor msg in inbox:\n    found = False\n    for word in spam_words:\n        if word in msg.lower():\n            found = True\n    print(found, msg)' },
+    { id: "filter", name: "The rule-based spam filter", code: 'spam_words = ["free", "win", "prize", "cash"]\ninbox = ["Win a free phone",\n         "Class moved to room 305",\n         "Claim your cash prize",\n         "See you at the library"]\nspam_count = 0\nfor msg in inbox:\n    is_spam = False\n    for word in spam_words:\n        if word in msg.lower():\n            is_spam = True\n    if is_spam:\n        spam_count = spam_count + 1\n        print("SPAM  ", msg)\n    else:\n        print("OK    ", msg)\nprint(f"Flagged {spam_count} of {len(inbox)}")' },
+    { id: "primes", name: "Primes with break", code: 'N = 12\nfor n in range(2, N + 1):\n    is_prime = True\n    for d in range(2, n):\n        if n % d == 0:\n            is_prime = False\n            break\n    if is_prime:\n        print(n, end=" ")' },
+    { id: "digits", name: "Sum of digits (while)", code: "n = 4721\ntotal = 0\nwhile n > 0:\n    total = total + n % 10\n    n = n // 10\nprint(total)" },
+    { id: "second", name: "Second largest, no sort", code: "nums = [4, 9, 2, 9, 7]\nlargest = max(nums)\nsecond = None\nfor x in nums:\n    if x != largest:\n        if second == None or x > second:\n            second = x\nprint(second)" },
+    { id: "guess", name: "Guessing game (homework 5)", code: 'secret = 7\nfor g in [3, 9, 7, 5]:\n    if g < secret:\n        print(g, "Too low")\n    elif g > secret:\n        print(g, "Too high")\n    else:\n        print(g, "Correct!")\n        break' },
+    { id: "inf", name: "Infinite loop (forgot the update)", code: "n = 3\nwhile n > 0:\n    print(n)\n    # forgot: n = n - 1" },
+    { id: "bug", name: "Common mistake: missing colon", code: "for i in range(5)\n    print(i)" }
+  ];
+  var stepper = Stepper.mount($("#step-root"), { presets: PRESETS, maxSteps: 600 });
+
+  /* ================= 2. range() explorer ================= */
+  var RPRE = [["range(5)", null, 5, null], ["range(1, 6)", 1, 6, null], ["range(0, 11, 2)", 0, 11, 2], ["range(5, 0, -1)", 5, 0, -1], ["range(2, 11, 3)", 2, 11, 3], ["range(10, 0, -3)", 10, 0, -3], ["range(5, 0)", 5, 0, null], ["range(1, 21)", 1, 21, null]];
+  $("#r-presets").innerHTML = RPRE.map(function (p, k) { return '<button class="btn alt sm mono" data-k="' + k + '">' + p[0] + "</button>"; }).join("");
+  function rDraw() {
+    var aOn = $("#r-a-on").checked, cOn = $("#r-c-on").checked;
+    if (cOn && !aOn) { $("#r-a-on").checked = aOn = true; }
+    var a = aOn ? +$("#r-a").value : null, b = +$("#r-b").value, c = cOn ? +$("#r-c").value : null;
+    $("#r-a-v").textContent = a === null ? "–" : a; $("#r-b-v").textContent = b; $("#r-c-v").textContent = c === null ? "–" : c;
+    var call = "range(" + (a === null ? "" : a + ", ") + b + (c === null ? "" : ", " + c) + ")";
+    $("#r-code").textContent = "list(" + call + ")";
+    var vals = null, err = null;
+    try { vals = P.evalExpr("list(" + call + ")", {}).value.v.map(function (v) { return Number(P.str(v)); }); $("#r-res").textContent = "[" + vals.join(", ") + "]"; }
+    catch (e) { err = e; $("#r-res").innerHTML = errLine(e); }
+    var A = a === null ? 0 : a, C = c === null ? 1 : c, why = $("#r-why");
+    if (err) { why.className = "status bad"; why.innerHTML = "A step of 0 would never reach <i>stop</i>, so Python refuses."; }
+    else if (!vals.length) { why.className = "status bad"; why.innerHTML = "Empty! Starting at " + A + " and " + (C > 0 ? "counting up" : "counting down") + " can never get " + (C > 0 ? "below" : "above") + " " + b + " the way the step points. A loop over this range runs <b>zero</b> times."; }
+    else { why.className = "status"; why.innerHTML = "Start at <b>" + A + "</b>, add <b>" + C + "</b> each time, stop before reaching <b>" + b + "</b>. That gives <b>" + vals.length + "</b> number" + (vals.length > 1 ? "s" : "") + ": <code>len(" + call + ")</code> is " + vals.length + "." + (vals.indexOf(b) < 0 && (C > 0 ? vals[vals.length - 1] + C === b : vals[vals.length - 1] + C === b) ? " The next number would be " + b + ", which is the stop, so it is left out." : ""); }
+    Lab.renderCode($("#r-loop"), ["for i in " + call + ":", "    print(i, end=\" \")"]);
+    $("#r-loop-out").textContent = err ? "" : vals.join(" ");
+    // number line from -10 to 20
+    var x = function (v) { return 30 + (v + 10) * 28; }, svg = '<line x1="20" y1="70" x2="880" y2="70" stroke="#15213A" stroke-width="2"/>';
+    for (var t = -10; t <= 20; t++) svg += '<line x1="' + x(t) + '" y1="64" x2="' + x(t) + '" y2="76" stroke="#9AA3B2"/><text x="' + x(t) + '" y="96" text-anchor="middle" font-size="12" fill="' + (t === 0 ? "#15213A" : "#5D6573") + '" font-weight="' + (t === 0 ? 700 : 400) + '">' + t + "</text>";
+    if (!err) {
+      vals.forEach(function (v, k) {
+        if (k) { var x1 = x(vals[k - 1]), x2 = x(v), mid = (x1 + x2) / 2; svg += '<path d="M' + x1 + ",60 Q" + mid + ",22 " + x2 + ',60" fill="none" stroke="#E07A1F" stroke-width="2" marker-end="url(#rar)"/>'; }
+        svg += '<circle cx="' + x(v) + '" cy="70" r="9" fill="#E07A1F"/><text x="' + x(v) + '" y="122" text-anchor="middle" font-size="11" font-weight="700" fill="#A4520C">' + (k + 1) + (k === 0 ? "st" : k === 1 ? "nd" : k === 2 ? "rd" : "th") + "</text>";
+      });
+      svg += '<circle cx="' + x(b) + '" cy="70" r="9" fill="#fff" stroke="#B4432A" stroke-width="3"/><text x="' + x(b) + '" y="142" text-anchor="middle" font-size="12" font-weight="700" fill="#B4432A">stop: not included</text>';
+    }
+    $("#r-svg").innerHTML = '<defs><marker id="rar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E07A1F"/></marker></defs>' + svg;
+  }
+  $("#r-presets").addEventListener("click", function (e) {
+    var bt = e.target.closest("[data-k]"); if (!bt) return; var p = RPRE[+bt.dataset.k];
+    $("#r-a-on").checked = p[1] !== null; if (p[1] !== null) $("#r-a").value = p[1];
+    $("#r-b").value = p[2]; $("#r-c-on").checked = p[3] !== null; if (p[3] !== null) $("#r-c").value = p[3]; rDraw();
+  });
+  ["#r-a", "#r-b", "#r-c"].forEach(function (id) { $(id).addEventListener("input", function () { if (id !== "#r-b") $(id + "-on").checked = true; rDraw(); }); });
+  $("#r-a-on").addEventListener("change", function () { if (!$("#r-a-on").checked) $("#r-c-on").checked = false; rDraw(); });
+  $("#r-c-on").addEventListener("change", rDraw);
+
+  /* ================= 3. Nested loop grid ================= */
+  var g = { ev: [], i: 0, timer: null, words: [], msgs: [] };
+  function gBuild() {
+    g.words = $("#g-words").value.split(",").map(function (w) { return w.trim(); }).filter(Boolean);
+    g.msgs = $("#g-msgs").value.split("\n").map(function (m) { return m.trim(); }).filter(Boolean);
+    g.ev = []; var brk = $("#g-break").checked;
+    g.msgs.forEach(function (m, r) {
+      for (var c = 0; c < g.words.length; c++) {
+        var hit = m.toLowerCase().indexOf(g.words[c]) >= 0; g.ev.push({ r: r, c: c, hit: hit });
+        if (hit && brk) break;
+      }
+      g.ev.push({ r: r, end: true });
+    });
+    g.i = 0; gStop(); gCode(); gDraw();
+  }
+  function gCode() {
+    var w = "spam_words = [" + g.words.map(function (x) { return '"' + x + '"'; }).join(", ") + "]";
+    var lines = [w, "for msg in inbox:", "    is_spam = False", "    for word in spam_words:", "        if word in msg.lower():", "            is_spam = True"];
+    if ($("#g-break").checked) lines.push("            break");
+    lines.push("    print(is_spam, msg)");
+    g.lines = lines;
+  }
+  function gDraw() {
+    var cell = {}, cur = g.i ? g.ev[g.i - 1] : null, flagged = {}, ended = {}, done = 0;
+    for (var k = 0; k < g.i; k++) { var e = g.ev[k]; if (e.end) { ended[e.r] = true; continue; } cell[e.r + ":" + e.c] = e.hit; done++; if (e.hit) flagged[e.r] = true; }
+    $("#g-grid").innerHTML = "<tr><th>msg</th>" + g.words.map(function (w) { return '<th class="mono" style="text-transform:none">"' + esc(w) + '"</th>'; }).join("") + "<th>is_spam</th></tr>" +
+      g.msgs.map(function (m, r) {
+        var active = cur && cur.r === r;
+        return '<tr' + (active ? ' class="hi"' : "") + '><td style="font-size:15px">' + esc(m) + "</td>" + g.words.map(function (w, c) {
+          var v = cell[r + ":" + c], isCur = cur && !cur.end && cur.r === r && cur.c === c;
+          var inner = v === undefined ? (ended[r] ? '<span class="chip n">skipped</span>' : '<span class="muted">·</span>') : chip(v);
+          return '<td style="text-align:center;' + (isCur ? "outline:3px solid var(--orange);outline-offset:-3px" : "") + '">' + inner + "</td>";
+        }).join("") + "<td>" + (ended[r] ? chip(!!flagged[r], flagged[r] ? "True" : "False") : "") + "</td></tr>";
+      }).join("");
+    $("#g-done").textContent = done; $("#g-max").textContent = g.msgs.length * g.words.length + " (" + g.msgs.length + " × " + g.words.length + ")";
+    $("#g-spam").textContent = Object.keys(flagged).filter(function (r) { return ended[r]; }).length;
+    var st = $("#g-status"), lineIdx = -1, extra = "";
+    if (!cur) { st.className = "status"; st.innerHTML = "Press <b>Next check</b>. The outer loop takes the first message."; }
+    else if (cur.end) { st.className = "status"; st.innerHTML = "Inner loop finished for <i>" + esc(g.msgs[cur.r]) + "</i>: prints <code>" + (flagged[cur.r] ? "True" : "False") + "</code>." + (cur.r < g.msgs.length - 1 ? " The outer loop moves to the next message, and <code>is_spam</code> resets to False." : " That was the last message."); lineIdx = g.lines.length - 1; }
+    else { st.className = "status" + (cur.hit ? " good" : ""); st.innerHTML = 'Is <code>"' + esc(g.words[cur.c]) + '"</code> in <code>' + esc(JSON.stringify(g.msgs[cur.r].toLowerCase())) + "</code>? <b>" + (cur.hit ? "True" : "False") + "</b>." + (cur.hit && $("#g-break").checked ? " <code>break</code>: the remaining words for this message are skipped." : ""); lineIdx = 4; }
+    Lab.renderCode($("#g-code"), g.lines, g.lines.map(function (_, k) { return k === lineIdx ? "cur" : ""; }));
+    $("#g-step").disabled = $("#g-all").disabled = g.i >= g.ev.length;
+  }
+  function gStop() { if (g.timer) { clearInterval(g.timer); g.timer = null; } $("#g-play").textContent = "⏵ Play"; }
+  $("#g-step").addEventListener("click", function () { gStop(); if (g.i < g.ev.length) { g.i++; gDraw(); } });
+  $("#g-all").addEventListener("click", function () { gStop(); g.i = g.ev.length; gDraw(); });
+  $("#g-reset").addEventListener("click", function () { gStop(); g.i = 0; gDraw(); });
+  $("#g-play").addEventListener("click", function () {
+    if (g.timer) { gStop(); return; }
+    $("#g-play").textContent = "⏸ Pause";
+    g.timer = setInterval(function () { if (g.i < g.ev.length) { g.i++; gDraw(); } if (g.i >= g.ev.length) gStop(); }, 550);
+  });
+  ["#g-words", "#g-msgs"].forEach(function (id) { $(id).addEventListener("input", gBuild); });
+  $("#g-break").addEventListener("change", gBuild);
+
+  /* ================= 4. Predict the loop ================= */
+  var QUIZ = [
+    ["Counting in threes", "for i in range(2, 11, 3):\n    print(i)", ["2\n5\n8\n11", "3\n6\n9", "2\n3\n4"], "range stops before 11, so 11 is not printed."],
+    ["Counting down", "for i in range(10, 0, -3):\n    print(i)", ["10\n7\n4", "10\n7\n4\n1\n-2", "9\n6\n3"], "1 is still above 0, so it is included; -2 is past the stop."],
+    ["Where is the print?", "total = 0\nfor n in [2, 5, 3]:\n    total = total + n\n    print(total)", ["10", "2\n5\n3", "0\n2\n7"], "The print is indented, so it runs every round and shows the running total."],
+    ["continue", 'for w in ["hi", "", "yo"]:\n    if w == "":\n        continue\n    print(w.upper())', ["HI\n\nYO", "HI", "hi\nyo"], "continue skips the print for the empty string only; the loop carries on."],
+    ["break", "for g in [3, 9, 7, 5]:\n    if g == 7:\n        break\n    print(g)", ["3\n9\n7", "3\n9\n5", "3"], "break happens before the print, so 7 is never printed, and 5 is never reached."],
+    ["while doubling", "n = 1\nwhile n < 20:\n    n = n * 2\nprint(n)", ["16", "20", "2\n4\n8\n16\n32"], "The loop runs while n < 20: 1, 2, 4, 8, 16 all pass, and the last round makes n = 32. The print is outside the loop."],
+    ["Patterns", 'for r in range(1, 4):\n    print("*" * r)', ["***\n**\n*", "*\n*\n*", "**\n***\n****"], "r takes 1, 2, 3, and \"*\" * r repeats the star r times."],
+    ["Does range change?", "x = 5\nfor i in range(x):\n    x = x - 1\nprint(x)", ["4", "2", "5"], "range(x) is worked out once, as range(5), when the loop starts. Changing x later does not shorten it, so x drops 5 times to 0."]
+  ];
+  var qz = { i: 0, picks: QUIZ.map(function () { return null; }), opts: [] };
+  try { var sv = JSON.parse(localStorage.getItem("looplab:picks") || "null"); if (sv && sv.length === QUIZ.length) qz.picks = sv; } catch (e) { }
+  QUIZ.forEach(function (q, k) {
+    var r = Stepper.trace(q[1]); q.answer = r.steps[r.steps.length - 1].out; q.trace = r;
+    var all = [q.answer].concat(q[2]), seed = k * 7 + 3; // fixed shuffle per question
+    for (var j = all.length - 1; j > 0; j--) { seed = (seed * 9301 + 49297) % 233280; var s = Math.floor(seed / 233280 * (j + 1)); var t = all[j]; all[j] = all[s]; all[s] = t; }
+    qz.opts[k] = all;
+  });
+  function qDraw() {
+    var q = QUIZ[qz.i], pick = qz.picks[qz.i];
+    $("#q-dots").innerHTML = QUIZ.map(function (_, k) {
+      var p = qz.picks[k], bg = p === null ? "#fff" : p === QUIZ[k].answer ? "var(--teal)" : "var(--red)";
+      return '<button class="btn sm" data-k="' + k + '" style="min-width:36px;background:' + bg + ";color:" + (p === null ? "var(--ink)" : "#fff") + ";border:2px solid " + (k === qz.i ? "var(--orange)" : "var(--line)") + '">' + (k + 1) + "</button>";
+    }).join("");
+    var right = qz.picks.filter(function (p, k) { return p === QUIZ[k].answer; }).length, answered = qz.picks.filter(function (p) { return p !== null; }).length;
+    $("#q-score").textContent = right + " correct of " + answered + " answered";
+    $("#q-title").textContent = "Question " + (qz.i + 1) + " of " + QUIZ.length + ": " + q[0];
+    Lab.renderCode($("#q-code"), q[1].split("\n"));
+    $("#q-opts").innerHTML = qz.opts[qz.i].map(function (o, k) {
+      var cls = "", sty = "opacity:1;cursor:default;text-align:left;white-space:pre;font-family:var(--mono);font-weight:600;min-height:64px;padding:10px 14px;";
+      if (pick !== null) { if (o === q.answer) sty += "background:var(--tsoft);border:2px solid var(--teal);color:var(--ink)"; else if (o === pick) sty += "background:var(--rsoft);border:2px solid var(--red);color:var(--ink)"; else sty += "background:var(--panel);color:var(--muted);border:2px solid var(--line)"; }
+      else sty += "background:#fff;color:var(--ink);border:2px solid var(--line)";
+      return '<button class="btn" data-o="' + k + '" style="' + sty + '"' + (pick !== null ? " disabled" : "") + ">" + esc(o === "" ? "(nothing)" : o) + "</button>";
+    }).join("");
+    var fb = $("#q-fb");
+    if (pick === null) { fb.style.display = "none"; $("#q-trace-panel").hidden = true; return; }
+    var ok = pick === q.answer; fb.style.display = "block"; fb.className = "status " + (ok ? "good" : "bad");
+    fb.innerHTML = "<b>" + (ok ? "Correct." : "Not quite.") + "</b> " + q[3];
+    $("#q-trace-panel").hidden = false;
+    $("#q-trace").innerHTML = "<tr><th>Step</th><th>Line</th><th>What happened</th></tr>" + q.trace.steps.map(function (s, k) { return "<tr><td>" + (k + 1) + '</td><td class="m">' + (s.line + 1) + '</td><td class="small">' + s.note + "</td></tr>"; }).join("");
+  }
+  $("#q-opts").addEventListener("click", function (e) { var b = e.target.closest("[data-o]"); if (!b || qz.picks[qz.i] !== null) return; qz.picks[qz.i] = qz.opts[qz.i][+b.dataset.o]; try { localStorage.setItem("looplab:picks", JSON.stringify(qz.picks)); } catch (x) { } qDraw(); });
+  $("#q-dots").addEventListener("click", function (e) { var b = e.target.closest("[data-k]"); if (b) { qz.i = +b.dataset.k; qDraw(); } });
+  $("#q-next").addEventListener("click", function () { qz.i = (qz.i + 1) % QUIZ.length; qDraw(); });
+  $("#q-restart").addEventListener("click", function () { qz.picks = QUIZ.map(function () { return null; }); qz.i = 0; try { localStorage.removeItem("looplab:picks"); } catch (x) { } qDraw(); });
+  $("#q-open").addEventListener("click", function () { stepper.load(QUIZ[qz.i][1]); document.querySelector('.tabs button[data-tab="t1"]').click(); window.scrollTo(0, 0); });
+
+  document.addEventListener("DOMContentLoaded", function () { rDraw(); gBuild(); qDraw(); });
+})();
+</script></body></html>
