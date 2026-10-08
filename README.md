@@ -1,6 +1,6 @@
-# Introduction to Data Science and Machine Learning: course slides
+# Introduction to Data Science and Machine Learning: slides for course 0541-MTH-3205 (Data Science and Machine Learning) 
 
-Md Mahbub E Noor · University of Barishal
+Md Mahbub E Noor · Faculty member of the Department of CSE · University of Barishal
 
 Open **index.html** to see all lectures. Each lecture opens in the browser with
 step-by-step diagrams and embedded videos. No installation is needed, and the
