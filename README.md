@@ -6,13 +6,6 @@ Open **index.html** to see all lectures. Each lecture opens in the browser with
 step-by-step diagrams and embedded videos. No installation is needed, and the
 folder also works offline: download it and open `index.html` in any browser.
 
-## Publishing on GitHub Pages
-1. Create a repository (for example `intro-ds-ml`) and upload the contents of this folder
-   so that `index.html` is at the top level of the repository.
-2. In the repository: **Settings → Pages → Build and deployment → Source: Deploy from a branch**,
-   choose the `main` branch and the `/ (root)` folder, then **Save**.
-3. After a minute or two the site is live at `https://<your-username>.github.io/intro-ds-ml/`.
-
 ## Navigating a lecture
 Arrow keys, Space, the ◀ ▶ buttons or swiping move through slides and step-by-step reveals.
 `F` toggles full screen. Add `#12` to a lecture's address to open slide 12 directly.
