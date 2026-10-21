@@ -80,7 +80,13 @@ table.t td.m{font-family:var(--mono)}
 .flash{animation:flash 1.2s ease-out}
 @media (prefers-reduced-motion:reduce){.flash{animation:none}*{transition:none!important}}
 [hidden]{display:none!important}
-</style></head><body>
+</style><link rel="stylesheet" href="../assets/fonts.css"><style id="cbar-css">
+#cbar{position:sticky;top:0;z-index:60;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:7px max(12px,env(safe-area-inset-left,0px));background:#16233A;border-bottom:1px solid #0A1220;font-family:'IBM Plex Sans',system-ui,'Segoe UI',Arial,sans-serif}
+#cbar a,#cbar select{font:600 14px 'IBM Plex Sans',system-ui,'Segoe UI',Arial,sans-serif;color:#F3F6FA;background:#21334F;border:1px solid #2E4566;border-radius:8px;height:34px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;text-decoration:none;white-space:nowrap;cursor:pointer;margin:0}
+#cbar a:hover,#cbar select:hover{border-color:#F28C38}#cbar a:focus-visible,#cbar select:focus-visible{outline:3px solid #F28C38;outline-offset:1px}
+#cbar .slides{background:#C2410C;border-color:#E0742F}#cbar .sp{flex:1}#cbar .dis{opacity:.35;pointer-events:none}#cbar select{max-width:300px}
+@media (max-width:760px){#cbar .wide{display:none}#cbar select{max-width:150px}}
+</style></head><body><div id="cbar" role="toolbar" aria-label="Course navigation"><a href="../index.html" title="Course home">⌂ <span class="wide">Course</span></a><a class="slides" href="../lecture_13.html#14" title="Back to the slides">◀ Lecture 13 slides</a><span class="sp"></span><a href="L12_Feature_Prep_Lab.html" title="Previous lab">◀ <span class="wide">Lab </span>12</a><select aria-label="Go to another lab" onchange="location.href=this.value"><option value="L2.2_Variables_Lab.html">Lab 2.2: Variables Lab</option><option value="L2.3_Debugging_Lab.html">Lab 2.3: Debugging Lab</option><option value="L3.1_Decisions_Lab.html">Lab 3.1: Decisions Lab</option><option value="L3.2_Lists_Lab.html">Lab 3.2: Lists Lab</option><option value="L3.3_Loops_Lab.html">Lab 3.3: Loops Lab</option><option value="L4.1_Functions_Lab.html">Lab 4.1: Functions Lab</option><option value="L4.2_Word_Counting_Lab.html">Lab 4.2: Word Counting Lab</option><option value="L5_Real_Data_Lab.html">Lab 5: Real Data Lab</option><option value="L6_Spam_Model_Lab.html">Lab 6: Spam Model Lab</option><option value="L7_Charts_Lab.html">Lab 7: Charts Lab</option><option value="L8_What_is_ML_Lab.html">Lab 8: What is ML? Lab</option><option value="L9_Regression_Lab.html">Lab 9: Regression Lab</option><option value="L10_Classifier_Lab.html">Lab 10: Classifier Lab</option><option value="L11_Evaluation_Lab.html">Lab 11: Evaluation Lab</option><option value="L12_Feature_Prep_Lab.html">Lab 12: Feature Prep Lab</option><option value="L13_Clustering_Lab.html" selected>Lab 13: Clustering Lab</option><option value="L14_Responsible_ML_Lab.html">Lab 14: Responsible ML Lab</option></select><a href="L14_Responsible_ML_Lab.html" title="Next lab"><span class="wide">Lab </span>14 ▶</a></div><!--/cbar-->
 <header class="top"><div><div class="kicker">Lecture 13 · Interactive lab</div><h1>Clustering Lab</h1><p>Run k-means by hand, watch it in two dimensions, choose k with the elbow, and find where it fails</p></div>
 <div class="meta">Introduction to Data Science and Machine Learning<br>Md Mahbub E Noor · University of Barishal<br><a href="START_HERE.html" style="color:#F5AD69">All labs</a></div></header>
 <nav class="tabs" role="tablist"><button role="tab" data-tab="t1"><span class="n">1</span>k-means by hand</button><button role="tab" data-tab="t2"><span class="n">2</span>Watch k-means</button><button role="tab" data-tab="t3"><span class="n">3</span>Choose k</button><button role="tab" data-tab="t4"><span class="n">4</span>Limits of k-means</button></nav>
@@ -1012,16 +1018,18 @@ var Lab = (function () {
   }
   function tabs() {
     var btns = $$(".tabs button");
-    function show(id) {
+    function show(id, first) {
       btns.forEach(function (b) { b.setAttribute("aria-selected", b.dataset.tab === id ? "true" : "false"); });
       $$(".exp").forEach(function (s) { s.classList.toggle("on", s.id === id); });
       try { localStorage.setItem(document.title + ":tab", id); } catch (e) { }
-      if (history.replaceState) history.replaceState(null, "", "#" + id);
+      /* on first show, set the address only after the page has loaded, or the browser scrolls down to the tab */
+      var put = function () { if (history.replaceState) history.replaceState(null, "", "#" + id); };
+      if (first) { if (document.readyState === "complete") setTimeout(put, 0); else window.addEventListener("load", function () { setTimeout(put, 0); }); } else put();
     }
     btns.forEach(function (b) { b.addEventListener("click", function () { show(b.dataset.tab); }); });
     var start = (location.hash || "").slice(1);
     if (!start || !$("#" + start)) { try { start = localStorage.getItem(document.title + ":tab"); } catch (e) { start = null; } }
-    show(start && $("#" + start) ? start : btns[0].dataset.tab);
+    show(start && $("#" + start) ? start : btns[0].dataset.tab, true);
   }
   function tryLists() {
     $$(".try input[type=checkbox]").forEach(function (cb, k) {
