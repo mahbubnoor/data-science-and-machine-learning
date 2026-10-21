@@ -1,14 +1,23 @@
-# Introduction to Data Science and Machine Learning: slides for course 0541-MTH-3205 (Data Science and Machine Learning) 
+# Introduction to Data Science and Machine Learning: course slides
 
-Md Mahbub E Noor · Faculty member of the Department of CSE · University of Barishal
+Md Mahbub E Noor · University of Barishal
 
 Open **index.html** to see all lectures. Each lecture opens in the browser with
 step-by-step diagrams and embedded videos. No installation is needed, and the
 folder also works offline: download it and open `index.html` in any browser.
 
+## Publishing on GitHub Pages
+1. Create a repository (for example `intro-ds-ml`) and upload the contents of this folder
+   so that `index.html` is at the top level of the repository.
+2. In the repository: **Settings → Pages → Build and deployment → Source: Deploy from a branch**,
+   choose the `main` branch and the `/ (root)` folder, then **Save**.
+3. After a minute or two the site is live at `https://<your-username>.github.io/intro-ds-ml/`.
+
 ## Navigating a lecture
-Arrow keys, Space, the ◀ ▶ buttons or swiping move through slides and step-by-step reveals.
-`F` toggles full screen. Add `#12` to a lecture's address to open slide 12 directly.
+The bar on top of every lecture: ⌂ course home, ◀ ▶ previous / next session, a menu of all sessions, the lab, the step counter,
+☰ slide list, PDF, Notes (instructor edition), full screen and ? for keys.
+Keys: → / Space next step, ← back, a number + Enter to jump, [ ] previous / next session, L lab, S slide list, F full screen, N speaker notes.
+Clicking the right two thirds of a slide goes forward, the left third back. Add `#12` to a lecture's address to open slide 12.
 
 ## Interactive labs
 The `labs/` folder has 17 interactive labs (Lectures 2.2 to 14). Each lecture with a lab has an
@@ -22,15 +31,5 @@ pandas or scikit-learn.
 - `data/students.csv`: invented records made for this course.
 Other datasets are built into scikit-learn.
 
-## License
-
-Unless otherwise stated, the original teaching materials in this repository
-are licensed under the [Creative Commons Attribution 4.0 International
-License (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
-
-You are free to share and adapt the materials, including for commercial
-purposes, provided appropriate attribution is given and any modifications
-are indicated.
-
-Third-party materials remain subject to their respective copyrights and
-licenses.
+## Editions
+This is the instructor edition: `notes/` holds the speaker notes (Notes button, key N) and `decks/` the PowerPoint files. Delete both folders to make a student edition.
