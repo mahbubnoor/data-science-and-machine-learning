@@ -7,7 +7,7 @@ The course starts from zero: no Python is assumed. Part 1 teaches Python step by
 built from 5,169 text messages. Part 2 turns to machine learning: charts and statistics, regression, classification, honest
 evaluation, preparing features, clustering, and responsible use, with three practice classes and a final project.
 
-**Website:** open `index.html` (or the GitHub Pages address of this repository). Every lecture plays in the browser with
+**Website:** open `index.html` (or [here](https://mahbubnoor.github.io/data-science-and-machine-learning/)). Every lecture plays in the browser with
 step-by-step slides, short videos and an interactive lab. Nothing needs to be installed.
 
 ## At a glance
