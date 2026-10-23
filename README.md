@@ -2,7 +2,7 @@
 
 Md Mahbub E Noor · University of Barishal
 
-Open **index.html** or click here directly (https://mahbubnoor.github.io/data-science-and-machine-learning/) to see all lectures. Each lecture opens in the browser with
+Open **index.html** or [click here](https://mahbubnoor.github.io/data-science-and-machine-learning/) to see all lectures. Each lecture opens in the browser with
 step-by-step diagrams and embedded videos. No installation is needed, and the
 folder also works offline: download it and open `index.html` in any browser.
 
