@@ -56,3 +56,5 @@ body.notes-on #stage{bottom:min(34vh,300px)}
 @media (prefers-reduced-motion:reduce){#bar,#drawer,#prog,#stage{transition:none}}
 @media print{#bar,#prog,#notes,#help,#drawer,.rotate{display:none!important}}
 #deck .slide.measuring{display:block!important;visibility:hidden}
+#deck .two.stack{flex-direction:column;gap:14px;align-items:stretch}
+#deck .two.stack>*{width:auto!important;max-width:none!important;flex:none!important}

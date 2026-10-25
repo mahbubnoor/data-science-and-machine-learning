@@ -181,11 +181,15 @@
       inner.style.bottom = (base.bottom / z) + "px";
       return ok && need <= avail;
     }
+    function search() { set(1); if (!fits(1)) return 0; var lo = 1, hi = ZMAX; for (var it = 0; it < 7; it++) { var m = (lo + hi) / 2; set(m); if (fits(m)) lo = m; else hi = m; } return Math.floor(lo * 50) / 50; }
     sl.classList.add("measuring");
-    set(1); if (!fits(1)) { ["zoom", "left", "right", "top", "bottom"].forEach(function (k) { inner.style[k] = ""; }); inner.dataset.z = "1"; sl.classList.remove("measuring"); return; }
-    var lo = 1, hi = ZMAX;
-    for (var it = 0; it < 7; it++) { var m = (lo + hi) / 2; set(m); if (fits(m)) lo = m; else hi = m; }
-    lo = Math.floor(lo * 50) / 50; set(lo); inner.dataset.z = lo; sl.classList.remove("measuring");
+    var z = search();
+    /* side-by-side columns with long code lines: try putting them under each other, keep it if the text gets clearly bigger */
+    var two = inner.querySelector(":scope > .two");
+    if (z && z < 1.25 && two && two.querySelector("pre")) { two.classList.add("stack"); var z2 = search(); if (z2 > z + 0.08) z = z2; else two.classList.remove("stack"); }
+    if (!z) { ["zoom", "left", "right", "top", "bottom"].forEach(function (k) { inner.style[k] = ""; }); inner.dataset.z = "1"; }
+    else { set(z); inner.dataset.z = z; }
+    sl.classList.remove("measuring");
   }
   function growAll() { if (!(window.CSS && CSS.supports && CSS.supports("zoom", "1.2"))) return; slides.forEach(grow); }
   window.dsmlGrow = growAll;
