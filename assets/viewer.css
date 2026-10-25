@@ -55,3 +55,4 @@ body.notes-on #stage{bottom:min(34vh,300px)}
 @media (max-height:500px){#bar{height:44px}#bar a,#bar button,#bar select{height:30px}#stage{top:44px!important}#drawer{top:44px}#prog{top:44px}}
 @media (prefers-reduced-motion:reduce){#bar,#drawer,#prog,#stage{transition:none}}
 @media print{#bar,#prog,#notes,#help,#drawer,.rotate{display:none!important}}
+#deck .slide.measuring{display:block!important;visibility:hidden}

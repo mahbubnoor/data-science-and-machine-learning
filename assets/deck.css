@@ -159,7 +159,7 @@ code{font-family:var(--mono);color:var(--oink);font-size:.95em}
 .lbox{background:var(--navy);color:#fff;font-weight:700;border-radius:8px;padding:16px 26px;font-family:var(--head)}.lane.warm .lbox{background:var(--orange);color:var(--navy)}
 .barchart{background:#fff;padding:10px}.barchart h4{text-align:center;margin:0 0 10px;font-family:var(--head);color:var(--navy)}
 .bars{display:flex;justify-content:center;align-items:flex-end;gap:60px;height:380px;border-bottom:2px solid var(--line)}
-.bar{display:flex;flex-direction:column;align-items:center;width:140px}.bar div{width:100%;border-radius:4px 4px 0 0}.bv{font-weight:700;font-size:20px;margin-bottom:6px}.bl{font-size:18px;margin-top:8px;position:relative;top:34px}
+.bar{display:flex;flex-direction:column;align-items:center;width:140px}.bar div{width:100%;border-radius:4px 4px 0 0}.bv{font-weight:700;font-size:20px;margin-bottom:6px}.bar .bl{font-size:18px;margin-top:8px;position:relative;top:34px}
 .mh1{font-size:40px;margin:6px 0 30px}
 /* footer */
 .foot{position:absolute;left:0;right:0;bottom:0;height:32px;display:flex;font-size:12px;font-weight:700}
@@ -195,3 +195,7 @@ body.index h2{font-size:21px;margin:30px 0 12px;color:var(--navy)}
 .labgo{display:inline-block;margin-top:14px;background:#E07A1F;color:#15213A;font-weight:800;font-size:22px;padding:14px 30px;border-radius:10px;text-decoration:none}
 .labgo:hover{filter:brightness(1.05)}
 .labnote{font-size:13px;color:#5D6573;margin-top:8px}
+
+/* homework cards: the cards have room, so the task text is large enough to read from the back of a classroom */
+.cards.hw .cardx p{font-size:21px!important;line-height:1.35}
+.cards.hw .cardx h3{font-size:23px}

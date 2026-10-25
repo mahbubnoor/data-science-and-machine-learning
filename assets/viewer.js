@@ -152,5 +152,39 @@
   window.addEventListener("hashchange", function () { var n = parseInt(location.hash.slice(1), 10); if (n >= 1 && n <= slides.length && n - 1 !== s) go(n - 1, 0); });
   var start = parseInt(location.hash.slice(1), 10); if (start >= 1 && start <= slides.length) s = start - 1;
   window.go = go; window.next = next; window.prev = prev;
+  /* ---------- bigger text where there is room: each slide's content is zoomed as far as it still fits ----------
+     The content keeps the slide's width (the text re-wraps), so a sparse slide gets large text and a full one stays as it is. */
+  var ZMAX = 1.45;
+  function grow(sl) {
+    var inner = sl.querySelector(".inner");
+    if (!inner || sl.classList.contains("title") || sl.querySelector("video") || inner.dataset.z) return;
+    var cs = getComputedStyle(inner), base = { left: parseFloat(cs.left), right: parseFloat(cs.right), top: parseFloat(cs.top), bottom: parseFloat(cs.bottom) };
+    function set(z) { inner.style.zoom = z; ["left", "right", "top", "bottom"].forEach(function (k) { inner.style[k] = (base[k] / z) + "px"; }); }
+    /* measure the content at its natural height (boxes that stretch to fill the slide, or notes pushed to the bottom,
+       would otherwise look "full"), then check that nothing sticks out sideways */
+    function fits(z) {
+      var k = sl.getBoundingClientRect().height / 720, avail = (720 - base.top - base.bottom - 10) * k, ok = true;
+      inner.style.bottom = "auto";
+      var r = inner.getBoundingClientRect(), need = r.height;
+      [].forEach.call(inner.children, function (c) { var b = c.getBoundingClientRect(); if (b.height) need = Math.max(need, b.bottom - r.top); });
+      var w = document.createTreeWalker(inner, NodeFilter.SHOW_TEXT), rg = document.createRange();
+      while (ok && w.nextNode()) { if (!w.currentNode.textContent.trim()) continue; rg.selectNodeContents(w.currentNode); [].forEach.call(rg.getClientRects(), function (b) { if (b.width && b.right > r.right + 1) ok = false; need = Math.max(need, b.bottom - r.top); }); }
+      [].forEach.call(inner.querySelectorAll("img, svg, canvas, table, pre"), function (e) {
+        if (!ok || !e.getClientRects().length) return; var b = e.getBoundingClientRect(); if (b.right > r.right + 1) ok = false; need = Math.max(need, b.bottom - r.top);
+        if ((e.tagName === "PRE" || e.tagName === "TABLE") && e.scrollWidth > e.clientWidth + 1) ok = false;
+      });
+      inner.style.bottom = (base.bottom / z) + "px";
+      return ok && need <= avail;
+    }
+    sl.classList.add("measuring");
+    set(1); if (!fits(1)) { ["zoom", "left", "right", "top", "bottom"].forEach(function (k) { inner.style[k] = ""; }); inner.dataset.z = "1"; sl.classList.remove("measuring"); return; }
+    var lo = 1, hi = ZMAX;
+    for (var it = 0; it < 7; it++) { var m = (lo + hi) / 2; set(m); if (fits(m)) lo = m; else hi = m; }
+    lo = Math.floor(lo * 50) / 50; set(lo); inner.dataset.z = lo; sl.classList.remove("measuring");
+  }
+  function growAll() { if (!(window.CSS && CSS.supports && CSS.supports("zoom", "1.2"))) return; slides.forEach(grow); }
+  window.dsmlGrow = growAll;
   fit(); render(); poke();
+  var ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+  ready.then(function () { if (document.readyState === "complete") growAll(); else window.addEventListener("load", growAll); });
 })();
