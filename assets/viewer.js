@@ -167,8 +167,13 @@
       inner.style.bottom = "auto";
       var r = inner.getBoundingClientRect(), need = r.height;
       [].forEach.call(inner.children, function (c) { var b = c.getBoundingClientRect(); if (b.height) need = Math.max(need, b.bottom - r.top); });
-      var w = document.createTreeWalker(inner, NodeFilter.SHOW_TEXT), rg = document.createRange();
-      while (ok && w.nextNode()) { if (!w.currentNode.textContent.trim()) continue; rg.selectNodeContents(w.currentNode); [].forEach.call(rg.getClientRects(), function (b) { if (b.width && b.right > r.right + 1) ok = false; need = Math.max(need, b.bottom - r.top); }); }
+      var w = document.createTreeWalker(inner, NodeFilter.SHOW_TEXT), rg = document.createRange(), boxes = [];
+      while (ok && w.nextNode()) { var tn = w.currentNode; if (!tn.textContent.trim()) continue; rg.selectNodeContents(tn); [].forEach.call(rg.getClientRects(), function (b) { if (b.width && b.right > r.right + 1) ok = false; need = Math.max(need, b.bottom - r.top); if (b.width > 2 && b.height > 2) boxes.push([b, tn.parentElement]); }); }
+      /* no two pieces of text may overlap (labels placed beside other content could collide when the content grows) */
+      for (var a = 0; ok && a < boxes.length; a++) for (var c = a + 1; c < boxes.length; c++) {
+        var A = boxes[a][0], B = boxes[c][0]; if (boxes[a][1] === boxes[c][1]) continue;
+        if (Math.min(A.right, B.right) - Math.max(A.left, B.left) > 3 * k && Math.min(A.bottom, B.bottom) - Math.max(A.top, B.top) > 4 * k) { ok = false; break; }
+      }
       [].forEach.call(inner.querySelectorAll("img, svg, canvas, table, pre"), function (e) {
         if (!ok || !e.getClientRects().length) return; var b = e.getBoundingClientRect(); if (b.right > r.right + 1) ok = false; need = Math.max(need, b.bottom - r.top);
         if ((e.tagName === "PRE" || e.tagName === "TABLE") && e.scrollWidth > e.clientWidth + 1) ok = false;

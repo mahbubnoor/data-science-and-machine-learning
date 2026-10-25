@@ -132,8 +132,8 @@ code{font-family:var(--mono);color:var(--oink);font-size:.95em}
 .tlab{font-weight:700;color:#17695D;font-size:14px}.tlab.o{color:var(--oink);font-style:italic}
 .flab{color:var(--red);font-weight:700;font-size:14px;margin-left:90px}
 .idx{display:flex;justify-content:center;align-items:center;margin:6px 0 24px;position:relative}
-.ilab{position:absolute;left:0;top:0;bottom:0;display:flex;flex-direction:column;justify-content:space-between;font-size:13px;font-weight:700}.ilab .b{color:var(--blue)}.ilab .o{color:var(--oink)}
-.ib{display:flex;flex-direction:column;align-items:center;width:200px}
+.ilab{position:static;flex:none;width:150px;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;font-size:15px;font-weight:700;padding:4px 10px 6px 0;line-height:1.2}.ilab .b{color:var(--blue)}.ilab .o{color:var(--oink)}
+.ib{display:flex;flex-direction:column;align-items:center;flex:0 1 200px;min-width:0}
 .ip,.in{font-family:var(--mono);font-weight:700;font-size:20px}.ip{color:var(--blue)}.in{color:var(--oink)}
 .ibox{border:1px solid var(--line);background:var(--panel);width:100%;padding:18px 4px;text-align:center}.ibox.on{background:var(--osoft);border:2px solid var(--orange)}
 .hlab{color:var(--oink);font-weight:700;text-align:center;margin:-10px 0 0}
