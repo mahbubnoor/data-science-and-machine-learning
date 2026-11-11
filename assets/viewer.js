@@ -187,6 +187,20 @@
     /* side-by-side columns with long code lines: try putting them under each other, keep it if the text gets clearly bigger */
     var two = inner.querySelector(":scope > .two");
     if (z && z < 1.25 && two && two.querySelector("pre")) { two.classList.add("stack"); var z2 = search(); if (z2 > z + 0.08) z = z2; else two.classList.remove("stack"); }
+    /* code beside a short bullet list: give the code more of the width when that clearly enlarges everything */
+    if (z && z < 1.3 && two && two.children.length === 2 && !two.classList.contains("stack")) {
+      var kids = [two.children[0], two.children[1]], pi = kids[0].querySelector("pre") ? 0 : kids[1].querySelector("pre") ? 1 : -1;
+      if (pi >= 0 && !kids[1 - pi].querySelector("img, svg, table, video, pre, canvas")) {
+        var bestZ = z, bestW = 0, keep = kids.map(function (k) { return [k.style.width, k.style.flex]; });
+        [60, 66].forEach(function (pw) {
+          kids[pi].style.width = "calc(" + pw + "% - 14px)"; kids[1 - pi].style.width = "calc(" + (100 - pw) + "% - 14px)";
+          kids.forEach(function (k) { k.style.flex = "none"; });
+          var zz = search(); if (zz > bestZ + 0.05) { bestZ = zz; bestW = pw; }
+        });
+        if (bestW) { kids[pi].style.width = "calc(" + bestW + "% - 14px)"; kids[1 - pi].style.width = "calc(" + (100 - bestW) + "% - 14px)"; z = bestZ; }
+        else kids.forEach(function (k, i) { k.style.width = keep[i][0]; k.style.flex = keep[i][1]; });
+      }
+    }
     if (!z) { ["zoom", "left", "right", "top", "bottom"].forEach(function (k) { inner.style[k] = ""; }); inner.dataset.z = "1"; }
     else { set(z); inner.dataset.z = z; }
     sl.classList.remove("measuring");

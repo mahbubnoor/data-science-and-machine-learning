@@ -44,17 +44,17 @@ code{font-family:var(--mono);color:var(--oink);font-size:.95em}
 .sub{font-size:21px;color:#D9DEE8;margin:0 0 70px}
 .byline{font-size:14px;color:#B9C1D0;position:absolute;bottom:0}
 .sig{position:absolute;right:0;top:34%;width:470px;background:#22335A;border:1px solid #33477A;border-radius:12px;padding:16px 22px}
-.sig .lab{color:#8FA0C0;font-size:13px;margin-bottom:10px}.sig pre{margin:0;font-family:var(--mono);font-size:17px;color:#E8ECF4;white-space:pre-wrap}
+.sig .lab{color:#8FA0C0;font-size:16px;margin-bottom:10px}.sig pre{margin:0;font-family:var(--mono);font-size:17px;color:#E8ECF4;white-space:pre-wrap}
 .coverart{position:absolute;right:20px;top:60px;width:440px}
 .divc{margin:auto 0}.divc h1{font-size:50px}
 /* roadmap */
 .track{display:flex;justify-content:space-between;position:relative;margin:30px 20px 34px}
 .track:before{content:"";position:absolute;left:30px;right:30px;top:26px;height:3px;background:var(--line)}
 .stage{position:relative;display:flex;flex-direction:column;align-items:center;width:110px}
-.stage .dot{width:52px;height:52px;border-radius:50%;background:#fff;border:2px solid var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--head);font-size:14px;z-index:1}
+.stage .dot{width:52px;height:52px;border-radius:50%;background:#fff;border:2px solid var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--head);font-size:16px;z-index:1}
 .stage.past .dot{background:var(--teal);border-color:var(--teal);color:#fff}
 .stage.cur .dot{background:var(--orange);border-color:var(--orange);color:#fff;transform:scale(1.3)}
-.stage .sl{font-size:13px;color:var(--muted);text-align:center;margin-top:12px}.stage.cur .sl{color:var(--ink);font-weight:700}
+.stage .sl{font-size:15px;color:var(--muted);text-align:center;margin-top:12px}.stage.cur .sl{color:var(--ink);font-weight:700}
 .today{position:absolute;top:-30px;font-size:13px;font-weight:700;color:var(--oink)}
 .goals{background:var(--panel);border-radius:12px;padding:20px 28px;flex:1}
 .goals h3{font-size:19px;margin-bottom:12px}
@@ -202,3 +202,57 @@ body.index h2{font-size:21px;margin:30px 0 12px;color:var(--navy)}
 
 /* program output may wrap, so a long printed line does not stop the slide from being enlarged (code keeps its lines) */
 .cc.light pre{white-space:pre-wrap;overflow-wrap:anywhere}
+/* ---- readability pass (Nov 2026): nothing a student must read is smaller than ~15px on the 1280x720 stage ---- */
+.small{font-size:15.5px}
+.cc .lab{font-size:14px;padding-top:8px}
+.copy{font-size:13px;padding:3px 10px}
+.byline{font-size:17px}
+.labnote{font-size:15px}
+.pill{font-size:16px}
+.submit{font-size:17px}
+.cards.tasks .num{font-size:16px}
+.foot{font-size:13px}
+/* "Watch it" slides: the left column is read from the back of the room, and these slides are not auto-enlarged */
+.kick2{font-size:17px;letter-spacing:1.5px}
+.l30 .bul.small,.l30 .bul{font-size:23px;line-height:1.32}
+.l30 .bul li{margin-bottom:20px}
+.vid+.muted.small,.recapw+.muted.small{font-size:16px;margin-top:10px}
+.w50{width:50%}
+/* helper boxes added in the beginner-clarity pass */
+.hint{font-size:18px;background:var(--bsoft);border-left:5px solid var(--blue);border-radius:8px;padding:10px 14px;margin-top:14px;line-height:1.35}
+.readbox{background:var(--osoft);border:2px solid var(--orange);border-radius:12px;padding:12px 16px;margin-top:4px}
+.rbh{font-weight:700;color:var(--oink);font-size:16px;margin-bottom:8px;letter-spacing:.5px}
+.rbrow{display:grid;grid-template-columns:auto 26px 1fr;align-items:center;gap:6px;font-size:17px;margin:7px 0;line-height:1.3}
+.rbrow code{font-size:16px;white-space:nowrap}
+.rbrow .arr{color:var(--orange);font-weight:700;text-align:center}
+.cards.hw code.blk{display:block;font-size:16px;line-height:1.3;margin-top:6px;white-space:nowrap;color:var(--navy)}
+/* split bars (train / validation / test) */
+.splitbar{font-size:17px;margin-top:6px}
+.sb-top{font-weight:700;color:var(--navy);margin-bottom:6px}
+.sb-bar{display:flex;min-height:78px;border-radius:10px;overflow:hidden;border:2px solid var(--navy)}
+.sb-bar>div{display:flex;flex-direction:column;justify-content:center;padding:6px 12px;line-height:1.25;color:#fff}
+.sb-bar b{font-size:18px}
+.sb-tr{background:var(--blue);flex:80}.sb-va{background:var(--teal);flex:20}.sb-te{background:var(--orange);flex:20;color:var(--navy)!important}
+.sb-bar.three .sb-tr{flex:60}
+.sb-note{margin-top:8px;color:var(--muted);font-size:17px}
+.sb-arrows{display:flex;margin-top:6px;font-size:17px;color:var(--navy)}
+.sb-arrows>div{text-align:center;padding:0 6px}
+.sb-arrows .a{font-size:22px;line-height:1;color:var(--orange);display:block}
+.cards.compact{flex:none;max-height:none}
+/* confusion matrix with highlighted column / row */
+.cmx{display:grid;grid-template-columns:118px 1fr 1fr;grid-template-rows:auto 96px 96px;gap:6px;font-size:16px}
+.cmx .h{font-weight:700;color:var(--navy);display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2}
+.cmx .c{border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--panel);font-size:15px;color:var(--muted);text-align:center;line-height:1.2}
+.cmx .c b{font-size:30px;color:var(--navy)}
+.cmx .c.tp{background:var(--tsoft)}
+.cmx .ov{border:5px solid;border-radius:12px;margin:-5px;background:transparent}
+.cmx .ov.p{grid-column:3;grid-row:2/4;border-color:var(--orange)}
+.cmx .ov.r{grid-column:2/4;grid-row:3;border-color:var(--blue)}
+.cmcap{font-size:18px;margin:10px 0 0;line-height:1.35}
+.cmcap .sw{display:inline-block;width:22px;height:14px;border:4px solid;border-radius:4px;vertical-align:-2px;margin-right:8px}
+.cmcap .sw.o{border-color:var(--orange)}.cmcap .sw.b{border-color:var(--blue)}
+/* neuron diagram */
+.nndia{width:100%;height:auto;display:block;margin-top:14px}
+.nndia text{font-family:var(--sans);font-size:19px;fill:var(--navy)}
+.nndia .w{font-size:18px;fill:var(--oink);font-weight:700}
+.nndia .cap{font-size:17px;fill:var(--muted)}
